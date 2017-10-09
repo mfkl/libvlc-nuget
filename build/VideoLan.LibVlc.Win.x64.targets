@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <ItemGroup>
-    <VlcLibs64 Include="$(MSBuildThisFileDirectory)..\runtimes\win10-x64\native\**" />
+  <PropertyGroup>
+    <VlcLib64TargetDir Condition=" '$(VlcLib64TargetDir)' == '' ">libvlc\x64</VlcLib64TargetDir>
+  </PropertyGroup>
+  <ItemGroup Condition="(('$(Platform)' == 'x64') OR ('$(Platform)' == 'AnyCPU'))">
+    <VlcLibs64 Include="$(MSBuildThisFileDirectory)..\build\x64\**" />
+    <Content Include="@(VlcLibs64)">
+      <Link>$(VlcLib64TargetDir)\%(RecursiveDir)%(FileName)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	    <Visible>false</Visible>
+    </Content>
   </ItemGroup>
-
-  <Target Name="VlcLibsBuildx64" BeforeTargets="AfterBuild">
-    <Message Importance="high" Text="Copying libvlc x64 binaries" />
-    <Copy SourceFiles="@(VlcLibs64)" DestinationFolder="$(TargetDir)libvlc\x64\%(RecursiveDir)" SkipUnchangedFiles="false" />
-  </Target>
 </Project>
