@@ -22,6 +22,7 @@ it contains all modules, data structures and functions documentation to understa
 Full list of features can be found here: https://www.videolan.org/vlc/releases/3.0.0.html
 
 For now, packages are hosted on myget.org. They will be available on nuget.org soon.
+Directory tree of what's included (dlls, headers, lib files) in the nuget can be found at https://github.com/mfkl/libvlc-nuget/blob/master/tree.md
 
 Versioning of the nuget packages naturally follow the libvlc versioning.
 
