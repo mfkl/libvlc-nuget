@@ -7,8 +7,12 @@
     <owners>VideoLAN</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>LibVLC is a modular multimedia framework</description>
+    <summary>LibVLC is a modular multimedia framework</summary>
     <releaseNotes></releaseNotes>
     <tags>libvlc vlc videolan native c/c++ video audio</tags>
+    <projectUrl>https://github.com/mfkl/libvlc-nuget</projectUrl>
+    <licenseUrl>https://www.gnu.org/licenses/old-licenses/gpl-2.0.html</licenseUrl>
+    <iconUrl>http://images1.videolan.org/images/vlc64x64.png</iconUrl>
   </metadata>
   <files>
     <file src="build\VideoLAN.LibVLC.Windows.targets" target="build\VideoLAN.LibVLC.Windows.targets"/>
