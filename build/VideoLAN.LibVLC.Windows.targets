@@ -10,12 +10,16 @@
       <Link>$(VlcLib64TargetDir)\%(RecursiveDir)%(FileName)%(Extension)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <CopyVlc64 Condition="'$(CopyVlc64)' == ''">true</CopyVlc64>
   </ItemGroup>
+  <ItemGroup Condition="'$(CopyVlc64)' == 'true'">
   <ItemGroup Condition="(('$(Platform)' == 'x86') OR ('$(Platform)' == 'AnyCPU'))">
     <VlcLibs86 Include="$(MSBuildThisFileDirectory)..\build\x86\**" />
     <Content Include="@(VlcLibs86)">
       <Link>$(VlcLib86TargetDir)\%(RecursiveDir)%(FileName)%(Extension)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <CopyVlc86Condition="'$(CopyVlc86)' == ''">true</CopyVlc86>
   </ItemGroup>
+  <ItemGroup Condition="'$(CopyVlc86)' == 'true'">
 </Project>
