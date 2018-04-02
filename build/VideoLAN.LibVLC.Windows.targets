@@ -19,7 +19,7 @@
       <Link>$(VlcLib86TargetDir)\%(RecursiveDir)%(FileName)%(Extension)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <CopyVlc86Condition="'$(CopyVlc86)' == ''">true</CopyVlc86>
+    <CopyVlc86 Condition="'$(CopyVlc86)' == ''">true</CopyVlc86>
   </ItemGroup>
   <ItemGroup Condition="'$(CopyVlc86)' == 'true'">
 </Project>
