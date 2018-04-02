@@ -2,6 +2,7 @@
 <package >
   <metadata>
     <id>VideoLAN.LibVLC.Windows</id>
+    <title>VideoLAN.LibVLC.Windows</title>
     <version>1.0.0</version>
     <authors>VideoLAN</authors>
     <owners>VideoLAN</owners>
