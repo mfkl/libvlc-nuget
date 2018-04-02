@@ -39,9 +39,9 @@ Versioning of the nuget packages naturally follow the libvlc versioning.
 
 ## Windows x86/x64 
 ```cmd
- dotnet add package VideoLAN.LibVLC.Windows --version 3.0.0-alpha 
+ dotnet add package VideoLAN.LibVLC.Windows --version 3.0.0-alpha2 
 ```
-https://www.nuget.org/packages/VideoLAN.LibVLC.Windows/3.0.0-alpha
+https://www.nuget.org/packages/VideoLAN.LibVLC.Windows/
 
 *Note: if you intend to use libvlc with UWP projects, you probably need to install the WindowsRT package instead because this build directly uses win32 APIs.*
 
