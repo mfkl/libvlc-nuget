@@ -3,8 +3,8 @@
 This repository is about presenting `libvlc` and its capabilities to .NET developers.
 It also contains packaging tools and files for nuget packaging/deployment.
 
-In other words : It's just the same thing as you'd download from VideoLAN's website, in a NuGet package,
-that you can add in your .net project so that it gets copied into the output directory.
+In other words : It's just the same thing as if you had downloaded the files from VideoLAN's website, in a NuGet package,
+that you can add in your .NET project so that it gets copied into the output directory.
 
 # What is libvlc?
 
@@ -56,7 +56,7 @@ To-do:
 - WindowsRT x86/x64 (10)
 - Linux
 
-# How do I configure what gets copied to my output directory ?
+# How do I configure what gets copied to my output directory?
 
 Currently, you can customize two things during the build:
 - Whether the library gets copied or not
@@ -66,8 +66,8 @@ Currently, you can customize two things during the build:
 
 Suppose you have a custom build platform named `MyFancyBuildPlatformx64` instead of the default `x64`.
 
-This package doesn't know if it should copy x86 or x64 libraries for that platform it doesn't know.
-You have to tell msbuild explicitely.
+This package doesn't know if it should copy x86 or x64 libraries for that unknown platform.
+You have to tell msbuild explicitly.
 
 In your csproj, you can define the `<CopyVlc64>` property.
 (`<CopyVlc86>` is also available, as you guessed it, for x86)
@@ -96,9 +96,9 @@ tag for this package.
 
 The default locations are `libvlc/win-x64` and `libvlc/win-x86`
 
-You can change that to your likings:
+You can change that to your liking:
 
-Example : send libvlc to `native/x86`/`native/x64`
+Example : put libvlc to `native/x86`/`native/x64`
 ```
   <PropertyGroup>
     <VlcLib64TargetDir>native/x64</VlcLib64TargetDir>
