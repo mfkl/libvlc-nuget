@@ -7,10 +7,13 @@ It also contains packaging tools and files for nuget packaging/deployment.
 
 `libvlc` is the multimedia framework powering the VLC applications. It is fully opensource, so other apps use it too.
 
-You may find the documentation of the API here: https://www.videolan.org/developers/vlc/doc/doxygen/html/group__libvlc.html
+**API documentation**: https://www.videolan.org/developers/vlc/doc/doxygen/html/group__libvlc.html
+
 it contains all modules, data structures and functions documentation to understand how to use the `libvlc` C API.
 
-`libvlc` is modularized into hundreds of plugins, which may be loaded at runtime. This architecture provides great flexibility to developers (both VLC devs and dev consuming the library). The unified, complete and (somewhat) high level `libvlc` C API allows a wide range of operations, such as:
+The **source** is in the main VLC repository: https://github.com/videolan/vlc
+
+`libvlc` is *modularized* into hundreds of plugins, which may be loaded at runtime. This architecture provides great flexibility to developers (both VLC devs and devs consuming the library). The unified, complete and (somewhat) high level `libvlc` C API allows a wide range of operations, such as:
 - Network browsing for distant filesystems (SMB, FTP, SFTP, NFS...).
 - HDMI passthrough for Audio HD codecs, like E-AC3, TrueHD or DTS-HD.
 - Stream to distant renderers, like Chromecast.
@@ -18,21 +21,27 @@ it contains all modules, data structures and functions documentation to understa
 - Support for Ambisonics audio and more than 8 audio channels.
 - Subtitles size modification live.
 - Hardware decoding and display on all platforms.
+- DVD playback and menu navigation.
 
 Full list of features can be found here: https://www.videolan.org/vlc/releases/3.0.0.html
 
-For now, packages are hosted on myget.org. They will be available on nuget.org soon.
-Directory tree of what's included (dlls, headers, lib files) in the nuget can be found at https://github.com/mfkl/libvlc-nuget/blob/master/tree.md
+Full directory tree overview of what's included (dlls, headers, lib files) in the nuget can be found at https://github.com/mfkl/libvlc-nuget/blob/master/tree.md
+
+# How do I use this thing from .NET?
+
+There are usually 2 ways to go about consuming C code from .NET:
+- Using [C++/CX](https://docs.microsoft.com/en-us/cpp/cppcx/visual-c-language-reference-c-cx). This allows to author [Windows Runtime components](https://docs.microsoft.com/en-us/cpp/windows/windows-runtime-cpp-template-library-wrl) and it is Windows-specific. [VLC for UWP](https://code.videolan.org/videolan/vlc-winrt) currrently works this way using both [libvlcppcx](https://github.com/kakone/libVLCX) and [libvlcpp](https://code.videolan.org/videolan/libvlcpp).
+- Using [P/Invoke](http://www.mono-project.com/docs/advanced/pinvoke/). If crossplatform is a focus, you should checkout [LibVLCSharp](https://github.com/mfkl/LibVLCSharp).
 
 Versioning of the nuget packages naturally follow the libvlc versioning.
 
 #### 3.0.0: https://github.com/videolan/vlc-3.0/releases/tag/3.0.0
 
-## Windows (7+) x86/x64 
+## Windows x86/x64 
 ```cmd
-nuget install VideoLAN.LibVLC.Windows -Version 3.0.0 -Source https://www.myget.org/F/libvlc/api/v3/index.json 
+ dotnet add package VideoLAN.LibVLC.Windows --version 3.0.0-alpha 
 ```
-https://www.myget.org/feed/libvlc/package/nuget/VideoLAN.LibVLC.Windows
+https://www.nuget.org/packages/VideoLAN.LibVLC.Windows/3.0.0-alpha
 
 *Note: if you intend to use libvlc with UWP projects, you probably need to install the WindowsRT package instead because this build directly uses win32 APIs.*
 
