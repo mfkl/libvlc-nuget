@@ -3,6 +3,9 @@
 This repository is about presenting `libvlc` and its capabilities to .NET developers.
 It also contains packaging tools and files for nuget packaging/deployment.
 
+In other words : It's just the same thing as you'd download from VideoLAN's website, in a NuGet package,
+that you can add in your .net project so that it gets copied into the output directory.
+
 # What is libvlc?
 
 `libvlc` is the multimedia framework powering the VLC applications. It is fully opensource, so other apps use it too.
@@ -37,9 +40,9 @@ Versioning of the nuget packages naturally follow the libvlc versioning.
 
 #### 3.0.0: https://github.com/videolan/vlc-3.0/releases/tag/3.0.0
 
-## Windows x86/x64 
+## Windows x86/x64
 ```cmd
- dotnet add package VideoLAN.LibVLC.Windows --version 3.0.0-alpha2 
+ dotnet add package VideoLAN.LibVLC.Windows --version 3.0.0-alpha2
 ```
 https://www.nuget.org/packages/VideoLAN.LibVLC.Windows/
 
@@ -52,3 +55,53 @@ To-do:
 - macOS
 - WindowsRT x86/x64 (10)
 - Linux
+
+# How do I configure what gets copied to my output directory ?
+
+Currently, you can customize two things during the build:
+- Whether the library gets copied or not
+- Where the library is placed in the output folder
+
+## Enabling/Disabling a copy for a specific configuration
+
+Suppose you have a custom build platform named `MyFancyBuildPlatformx64` instead of the default `x64`.
+
+This package doesn't know if it should copy x86 or x64 libraries for that platform it doesn't know.
+You have to tell msbuild explicitely.
+
+In your csproj, you can define the `<CopyVlc64>` property.
+(`<CopyVlc86>` is also available, as you guessed it, for x86)
+
+Examples:
+
+Adding x64 libraries for the `MyFancyBuildPlatformx64` platform:
+```
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|MyFancyBuildPlatformx64'">
+    <CopyVlc64>true</CopyVlc64>
+  </PropertyGroup>
+```
+
+Don't copy x86 libraries for the AnyCPU builds:
+
+```
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <CopyVlc86>false</CopyVlc86>
+  </PropertyGroup>
+```
+
+For the newer csproj format, you must place that before the `<PackageReference`
+tag for this package.
+
+## Specify the location where libvlc will be copied
+
+The default locations are `libvlc/win-x64` and `libvlc/win-x86`
+
+You can change that to your likings:
+
+Example : send libvlc to `native/x86`/`native/x64`
+```
+  <PropertyGroup>
+    <VlcLib64TargetDir>native/x64</VlcLib64TargetDir>
+    <VlcLib86TargetDir>native/x86</VlcLib86TargetDir>
+  </PropertyGroup>
+```
