@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>VideoLAN.LibVLC.Android</id>
+    <title>VideoLAN.LibVLC.Android</title>
+    <version>1.0.0</version>
+    <authors>VideoLAN</authors>
+    <owners>VideoLAN</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>LibVLC is a modular multimedia framework</description>
+    <summary>LibVLC is a modular multimedia framework</summary>
+    <releaseNotes></releaseNotes>
+    <tags>libvlc vlc videolan native c/c++ video audio</tags>
+    <projectUrl>https://github.com/mfkl/libvlc-nuget</projectUrl>
+    <licenseUrl>https://www.gnu.org/licenses/old-licenses/gpl-2.0.html</licenseUrl>
+    <iconUrl>http://images1.videolan.org/images/vlc64x64.png</iconUrl>
+  </metadata>
+  <files>
+    <file src="build\VideoLAN.LibVLC.Android.targets" target="build\VideoLAN.LibVLC.Android.targets"/>
+
+    <file src="build\android-armv7\libvlc.so" target="build\android-armv7\libvlc.so"/>
+    <file src="build\android-armv8\libvlc.so" target="build\android-armv8\libvlc.so"/>
+    <file src="build\android-x86\libvlc.so" target="build\android-x86\libvlc.so"/>
+    <file src="build\android-x86_64\libvlc.so" target="build\android-x86_64\libvlc.so"/> 
+  </files>
+</package>

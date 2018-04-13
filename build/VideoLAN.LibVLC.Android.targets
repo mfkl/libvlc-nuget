@@ -1,0 +1,20 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <ItemGroup>
+        <AndroidNativeLibrary Include="$(MSBuildThisFileDirectory)android-armv7\libvlc.so">
+            <Link>libvlc-armv7\libvlc.so</Link>
+             <Abi>armeabi-v7a</Abi>
+        </AndroidNativeLibrary>
+        <AndroidNativeLibrary Include="$(MSBuildThisFileDirectory)android-armv8\libvlc.so">
+            <Link>libvlc-armv8\libvlc.so</Link>
+             <Abi>arm64-v8a</Abi>
+        </AndroidNativeLibrary>
+         <AndroidNativeLibrary Include="$(MSBuildThisFileDirectory)android-x86\libvlc.so">
+            <Link>libvlc-x86\libvlc.so</Link>
+             <Abi>x86</Abi>
+        </AndroidNativeLibrary>
+        <AndroidNativeLibrary Include="$(MSBuildThisFileDirectory)android-x86_64\libvlc.so">
+            <Link>libvlc-x86_64\libvlc.so</Link>
+             <Abi>x86_64</Abi>
+        </AndroidNativeLibrary>
+    </ItemGroup>
+</Project>
