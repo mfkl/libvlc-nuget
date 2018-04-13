@@ -3,7 +3,7 @@
 This repository is about presenting `libvlc` and its capabilities to .NET developers.
 It also contains packaging tools and files for nuget packaging/deployment.
 
-In other words : It's just the same thing as if you had downloaded the files from VideoLAN's website, in a NuGet package,
+In other words: It's just the same thing as if you had downloaded the files from VideoLAN's website, in a NuGet package,
 that you can add in your .NET project so that it gets copied into the output directory.
 
 # What is libvlc?
@@ -39,22 +39,43 @@ There are usually 2 ways to go about consuming C code from .NET:
 Versioning of the nuget packages naturally follow the libvlc versioning.
 
 #### 3.0.0: https://github.com/videolan/vlc-3.0/releases/tag/3.0.0
+Minimum OS version supported by LibVLC 3.0:
+- Windows XP
+- macOS 10.7
+- iOS 7
+- Android 2.3
 
-## Windows x86/x64
+## Windows (x86/x64)
 ```cmd
  dotnet add package VideoLAN.LibVLC.Windows --version 3.0.0-alpha2
 ```
 https://www.nuget.org/packages/VideoLAN.LibVLC.Windows/
 
+#### Supported CPU architectures:
+- x86
+- x64
+
 *Note: if you intend to use libvlc with UWP projects, you probably need to install the WindowsRT package instead because this build directly uses win32 APIs.*
 
+## Android
+```cmd
+dotnet add package VideoLAN.LibVLC.Android
+```
+https://www.nuget.org/packages/VideoLAN.LibVLC.Android/
+
+#### Supported CPU architectures:
+- armeabi-v7a
+- arm64-v8a
+- x86
+- x86_64
 
 To-do:
-- Android
 - iOS
 - macOS
 - WindowsRT x86/x64 (10)
 - Linux
+- Tizen
+- WebAssembly
 
 # How do I configure what gets copied to my output directory?
 
@@ -62,7 +83,7 @@ Currently, you can customize two things during the build:
 - Whether the library gets copied or not
 - Where the library is placed in the output folder
 
-## Enabling/Disabling a copy for a specific configuration
+## Enable/Disable a copy for a specific configuration
 
 Suppose you have a custom build platform named `MyFancyBuildPlatformx64` instead of the default `x64`.
 
