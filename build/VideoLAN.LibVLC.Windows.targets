@@ -6,18 +6,49 @@
     <CopyVlc64 Condition="'$(CopyVlc64)' == '' AND ('$(Platform)' == 'x64' OR '$(Platform)' == 'AnyCPU')">true</CopyVlc64>
     <CopyVlc86 Condition="'$(CopyVlc86)' == '' AND ('$(Platform)' == 'x86' OR '$(Platform)' == 'AnyCPU')">true</CopyVlc86>
   </PropertyGroup>
-  <ItemGroup Condition="'$(CopyVlc64)' == 'true'">
-    <VlcLibs64 Include="$(MSBuildThisFileDirectory)..\build\x64\**" />
-    <Content Include="@(VlcLibs64)">
-      <Link>$(VlcLib64TargetDir)\%(RecursiveDir)%(FileName)%(Extension)</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+
+  <ItemGroup>
+    <!-- Include relative path to the main dlls -->
+    <VlcMainWindowsLibraries Include="libvlc.dll;libvlccore.dll" />
+    <!-- If no VlcIncludeWindowsPlugins was declared previously, include all plugins by default by specifying ** -->
+    <VlcIncludeWindowsPlugins Condition="'@(VlcIncludeWindowsPlugins)'==''" Include="%2A%2A" />
   </ItemGroup>
-  <ItemGroup Condition="'$(CopyVlc86)' == 'true'">
-    <VlcLibs86 Include="$(MSBuildThisFileDirectory)..\build\x86\**" />
-    <Content Include="@(VlcLibs86)">
-      <Link>$(VlcLib86TargetDir)\%(RecursiveDir)%(FileName)%(Extension)</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
+
+  <Target Name="CollectVlcFilesToCopyWindow" BeforeTargets="BeforeBuild">
+    <!-- We need a target in order to make batching work -->
+    <!-- Some useful links to understand how it works:
+      http://sedotech.com/Resources#Batching (4 parts of excellent explanation of Batching. Link 2 is dead, but can be found in parts 3 and above)
+      http://sedodream.com/2010/10/21/MSBuildFilterListTake2.aspx
+    -->
+
+    <!-- First, transform the escaped, relative, platform-independant file path into real path, relative to 32/64 folders -->
+
+    <!-- x64 -->
+    <ItemGroup Condition="'$(CopyVlc64)' == 'true'">
+      <!-- Expand selectors and compute absolute paths for include, exclude and MainLibraries -->
+      <VlcIncludeWindows64Plugins Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\build\x64\plugins\%(VlcIncludeWindowsPlugins.Identity)))" />
+      <VlcExcludeWindows64Plugins Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\build\x64\plugins\%(VlcExcludeWindowsPlugins.Identity)))" Condition="'%(VlcExcludeWindowsPlugins.Identity)'!=''" />
+      <VlcMainWindows64Libraries Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\build\x64\%(VlcMainWindowsLibraries.Identity)))" />
+
+      <!-- We have gathered all the full path of what should be copied and what should be skipped, let's include that as Content that gets copied -->
+      <Content Include="@(VlcMainWindows64Libraries);@(VlcIncludeWindows64Plugins)" Exclude="@(VlcExcludeWindows64Plugins)">
+        <Link>$(VlcLib64TargetDir)\$([MSBuild]::MakeRelative($(MSBuildThisFileDirectory)..\build\x64\, %(FullPath)))</Link>
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+
+    <!-- x86 -->
+    <ItemGroup Condition="'$(CopyVlc86)' == 'true'">
+      <!-- Expand selectors and compute absolute paths for include, exclude and MainLibraries -->
+      <VlcIncludeWindows86Plugins Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\build\x86\plugins\%(VlcIncludeWindowsPlugins.Identity)))" />
+      <VlcExcludeWindows86Plugins Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\build\x86\plugins\%(VlcExcludeWindowsPlugins.Identity)))" Condition="'%(VlcExcludeWindowsPlugins.Identity)'!=''" />
+      <VlcMainWindows86Libraries Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\build\x86\%(VlcMainWindowsLibraries.Identity)))" />
+
+      <!-- We have gathered all the full path of what should be copied and what should be skipped, let's include that as Content that gets copied -->
+      <Content Include="@(VlcMainWindows86Libraries);@(VlcIncludeWindows86Plugins)" Exclude="@(VlcExcludeWindows86Plugins)">
+        <Link>$(VlcLib86TargetDir)\$([MSBuild]::MakeRelative($(MSBuildThisFileDirectory)..\build\x86\, %(FullPath)))</Link>
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+  </Target>
 </Project>

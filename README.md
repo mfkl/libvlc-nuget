@@ -79,9 +79,10 @@ To-do:
 
 # How do I configure what gets copied to my output directory?
 
-Currently, you can customize two things during the build:
+Currently, you can customize three things during the build:
 - Whether the library gets copied or not
 - Where the library is placed in the output folder
+- Which plugins are copied
 
 ## Enable/Disable a copy for a specific configuration
 
@@ -126,3 +127,66 @@ Example : put libvlc to `native/x86`/`native/x64`
     <VlcLib86TargetDir>native/x86</VlcLib86TargetDir>
   </PropertyGroup>
 ```
+
+## Exclude some plugins from copy
+Sometimes, you want to build a minimal package for one of these reasons:
+- Reduce your package size
+- Remove attacking surface of your software by limiting its features
+- Speed up build times : Fastest copies are those that do not occur.
+- Just because you don't need that plugin, it's cleaner not to copy it.
+
+In your csproj, you can exclude some of the plugins by including them in a
+`VlcExcludeWindowsPlugins` item group.
+That exclusion will apply to all windows builds of libvlc (x86 and x64).
+
+There is not such inclusion/exclusion mechanism for Android because libvlc is built as one monolithic library on this platform.
+
+A few things to note:
+
+- It's in an `ItemGroup`, not in a `PropertyGroup` as before
+- Even if it's an exclude, we use `Include` to choose which plugins to exclude
+- You may use wildcards, but you need to escape them as `%2A`
+
+Some examples:
+```
+<ItemGroup>
+  <!-- You can exclude plugin-by-plugin: -->
+  <VlcExcludeWindowsPlugins Include="gui/libqt_plugin.dll" />
+
+  <!-- You can exclude a whole folder -->
+  <VlcExcludeWindowsPlugins Include="lua" />
+
+  <!-- You can exclude with wildcards -->
+  <VlcExcludeWindowsPlugins Include="%2A/%2Adummy%2A" />
+</ItemGroup>
+```
+
+You can merge several VlcExcludeWindowsPlugins definitions into one with semicolons. This is equivalent to the three declarations above
+
+```
+<ItemGroup>
+  <VlcExcludeWindowsPlugins Include="gui/libqt_plugin.dll;lua;%2A/%2Adummy%2A" />
+</ItemGroup>
+```
+
+## Include selectively items
+Another solution to achieve the goals mentioned above is to copy only the plugins that you want in your build.
+
+The syntax is very similar, here are some examples:
+```
+<ItemGroup>
+  <!-- Includes the codec folder. Notice how the wildcard is mandatory when doing include on folders -->
+  <VlcIncludeWindowsPlugins Include="codec/%2A" />
+
+  <!-- You can include plugin-by-plugin -->
+  <VlcIncludeWindowsPlugins Include="audio_output/libdirectsound_plugin.dll" />
+
+  <!-- You can include with wildcards all in d3d9/d3d11 -->
+  <VlcIncludeWindowsPlugins Include="d3d%2A/%2A" />
+
+  <!-- You can still exclude things from what you've included -->
+  <VlcExcludeWindowsPlugins Include="codec/libddummy_plugin.dll" />
+</ItemGroup>
+```
+
+Of course, you can group items with `;` as above
