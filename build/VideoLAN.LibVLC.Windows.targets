@@ -8,10 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Include relative path to the main dlls -->
-    <VlcMainWindowsLibraries Include="libvlc.dll;libvlccore.dll" />
-    <!-- If no VlcIncludeWindowsPlugins was declared previously, include all plugins by default by specifying ** -->
-    <VlcIncludeWindowsPlugins Condition="'@(VlcIncludeWindowsPlugins)'==''" Include="%2A%2A" />
+    <!-- If no VlcIncludeWindowsFiles was declared previously, include all plugins by default by specifying ** -->
+    <VlcIncludeWindowsFiles Condition="'@(VlcIncludeWindowsFiles)'==''" Include="libvlc.dll;libvlccore.dll;plugins/%2A%2A" />
   </ItemGroup>
 
   <Target Name="CollectVlcFilesToCopyWindow" BeforeTargets="BeforeBuild">
@@ -26,12 +24,11 @@
     <!-- x64 -->
     <ItemGroup Condition="'$(CopyVlc64)' == 'true'">
       <!-- Expand selectors and compute absolute paths for include, exclude and MainLibraries -->
-      <VlcIncludeWindows64Plugins Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\build\x64\plugins\%(VlcIncludeWindowsPlugins.Identity)))" />
-      <VlcExcludeWindows64Plugins Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\build\x64\plugins\%(VlcExcludeWindowsPlugins.Identity)))" Condition="'%(VlcExcludeWindowsPlugins.Identity)'!=''" />
-      <VlcMainWindows64Libraries Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\build\x64\%(VlcMainWindowsLibraries.Identity)))" />
+      <VlcIncludeWindows64Files Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\build\x64\plugins\%(VlcIncludeWindowsFiles.Identity)))" />
+      <VlcExcludeWindows64Files Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\build\x64\plugins\%(VlcExcludeWindowsFiles.Identity)))" Condition="'%(VlcExcludeWindowsPlugins.Identity)'!=''" />
 
       <!-- We have gathered all the full path of what should be copied and what should be skipped, let's include that as Content that gets copied -->
-      <Content Include="@(VlcMainWindows64Libraries);@(VlcIncludeWindows64Plugins)" Exclude="@(VlcExcludeWindows64Plugins)">
+      <Content Include="@(VlcIncludeWindows64Files)" Exclude="@(VlcExcludeWindows64Files)">
         <Link>$(VlcLib64TargetDir)\$([MSBuild]::MakeRelative($(MSBuildThisFileDirectory)..\build\x64\, %(FullPath)))</Link>
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
@@ -40,12 +37,11 @@
     <!-- x86 -->
     <ItemGroup Condition="'$(CopyVlc86)' == 'true'">
       <!-- Expand selectors and compute absolute paths for include, exclude and MainLibraries -->
-      <VlcIncludeWindows86Plugins Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\build\x86\plugins\%(VlcIncludeWindowsPlugins.Identity)))" />
-      <VlcExcludeWindows86Plugins Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\build\x86\plugins\%(VlcExcludeWindowsPlugins.Identity)))" Condition="'%(VlcExcludeWindowsPlugins.Identity)'!=''" />
-      <VlcMainWindows86Libraries Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\build\x86\%(VlcMainWindowsLibraries.Identity)))" />
+      <VlcIncludeWindows86Plugins Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\build\x86\plugins\%(VlcIncludeWindowsFiles.Identity)))" />
+      <VlcExcludeWindows86Plugins Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\build\x86\plugins\%(VlcExcludeWindowsFiles.Identity)))" Condition="'%(VlcExcludeWindowsPlugins.Identity)'!=''" />
 
       <!-- We have gathered all the full path of what should be copied and what should be skipped, let's include that as Content that gets copied -->
-      <Content Include="@(VlcMainWindows86Libraries);@(VlcIncludeWindows86Plugins)" Exclude="@(VlcExcludeWindows86Plugins)">
+      <Content Include="@(VlcIncludeWindows86Files)" Exclude="@(VlcExcludeWindows86Files)">
         <Link>$(VlcLib86TargetDir)\$([MSBuild]::MakeRelative($(MSBuildThisFileDirectory)..\build\x86\, %(FullPath)))</Link>
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
