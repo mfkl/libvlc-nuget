@@ -45,7 +45,7 @@ Minimum OS version supported by LibVLC 3.0:
 - iOS 7
 - Android 2.3
 
-## Windows (x86/x64)
+## Windows
 ```cmd
  dotnet add package VideoLAN.LibVLC.Windows --version 3.0.0-alpha2
 ```
@@ -69,8 +69,20 @@ https://www.nuget.org/packages/VideoLAN.LibVLC.Android/
 - x86
 - x86_64
 
+## iOS
+```cmd
+dotnet add package VideoLAN.LibVLC.iOS --version 3.0.0-alpha	
+```
+https://www.nuget.org/packages/VideoLAN.LibVLC.iOS/
+
+#### Supported CPU architectures:
+- i386
+- x86_64
+
+_TODO: Add device builds_
+
+
 To-do:
-- iOS
 - macOS
 - WindowsRT x86/x64 (10)
 - Linux
