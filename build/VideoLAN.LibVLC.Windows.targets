@@ -1,18 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <VlcLib64TargetDir Condition=" '$(VlcLib64TargetDir)' == '' ">libvlc\win-x64</VlcLib64TargetDir>
-    <VlcLib86TargetDir Condition=" '$(VlcLib86TargetDir)' == '' ">libvlc\win-x86</VlcLib86TargetDir>
-    <CopyVlc64 Condition="'$(CopyVlc64)' == '' AND ('$(Platform)' == 'x64' OR '$(Platform)' == 'AnyCPU')">true</CopyVlc64>
-    <CopyVlc86 Condition="'$(CopyVlc86)' == '' AND ('$(Platform)' == 'x86' OR '$(Platform)' == 'AnyCPU')">true</CopyVlc86>
+    <VlcWindowsX64TargetDir Condition=" '$(VlcWindowsX64TargetDir)' == '' ">libvlc\win-x64</VlcLib64TargetDir>
+    <VlcWindowsX86TargetDir Condition=" '$(VlcWindowsX86TargetDir)' == '' ">libvlc\win-x86</VlcLib86TargetDir>
+    <VlcWindowsX64Enabled Condition="'$(VlcWindowsX64Enabled)' == '' AND ('$(Platform)' == 'x64' OR '$(Platform)' == 'AnyCPU')">true</CopyVlc64>
+    <VlcWindowsX86Enabled Condition="'$(VlcWindowsX86Enabled)' == '' AND ('$(Platform)' == 'x86' OR '$(Platform)' == 'AnyCPU')">true</CopyVlc86>
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- If no VlcIncludeWindowsFiles was declared previously, include all plugins by default by specifying ** -->
-    <VlcIncludeWindowsFiles Condition="'@(VlcIncludeWindowsFiles)'==''" Include="libvlc.dll;libvlccore.dll;plugins/%2A%2A" />
+    <!-- If no VlcWindows[...]IncludeFiles was declared previously, include all plugins by default by specifying ** -->
+    <VlcWindowsX64IncludeFiles Condition="'@(VlcWindowsX64IncludeFiles)'==''" Include="libvlc.dll;libvlccore.dll;plugins/%2A%2A" />
+    <VlcWindowsX86IncludeFiles Condition="'@(VlcWindowsX86IncludeFiles)'==''" Include="libvlc.dll;libvlccore.dll;plugins/%2A%2A" />
   </ItemGroup>
 
-  <Target Name="CollectVlcFilesToCopyWindow" BeforeTargets="BeforeBuild">
+  <Target Name="CollectVlcFilesToCopyWindows" BeforeTargets="BeforeBuild">
     <!-- We need a target in order to make batching work -->
     <!-- Some useful links to understand how it works:
       http://sedotech.com/Resources#Batching (4 parts of excellent explanation of Batching. Link 2 is dead, but can be found in parts 3 and above)
@@ -22,27 +23,27 @@
     <!-- First, transform the escaped, relative, platform-independant file path into real path, relative to 32/64 folders -->
 
     <!-- x64 -->
-    <ItemGroup Condition="'$(CopyVlc64)' == 'true'">
+    <ItemGroup Condition="'$(VlcWindowsX64Enabled)' == 'true'">
       <!-- Expand selectors and compute absolute paths for include, exclude and MainLibraries -->
-      <VlcIncludeWindows64Files Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\build\x64\plugins\%(VlcIncludeWindowsFiles.Identity)))" />
-      <VlcExcludeWindows64Files Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\build\x64\plugins\%(VlcExcludeWindowsFiles.Identity)))" Condition="'%(VlcExcludeWindowsPlugins.Identity)'!=''" />
+      <VlcWindowsX64IncludeFilesFullPath Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\build\x64\plugins\%(VlcWindowsX64IncludeFiles.Identity)))" />
+      <VlcWindowsX64ExcludeFilesFullPath Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\build\x64\plugins\%(VlcWindowsX64ExcludeFiles.Identity)))" Condition="'%(VlcWindowsX64ExcludeFiles.Identity)'!=''" />
 
       <!-- We have gathered all the full path of what should be copied and what should be skipped, let's include that as Content that gets copied -->
-      <Content Include="@(VlcIncludeWindows64Files)" Exclude="@(VlcExcludeWindows64Files)">
-        <Link>$(VlcLib64TargetDir)\$([MSBuild]::MakeRelative($(MSBuildThisFileDirectory)..\build\x64\, %(FullPath)))</Link>
+      <Content Include="@(VlcWindowsX64IncludeFilesFullPath)" Exclude="@(VlcWindowsX64ExcludeFilesFullPath)">
+        <Link>$(VlcWindowsX64TargetDir)\$([MSBuild]::MakeRelative($(MSBuildThisFileDirectory)..\build\x64\, %(FullPath)))</Link>
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
     </ItemGroup>
 
     <!-- x86 -->
-    <ItemGroup Condition="'$(CopyVlc86)' == 'true'">
+    <ItemGroup Condition="'$(VlcWindowsX86Enabled)' == 'true'">
       <!-- Expand selectors and compute absolute paths for include, exclude and MainLibraries -->
-      <VlcIncludeWindows86Plugins Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\build\x86\plugins\%(VlcIncludeWindowsFiles.Identity)))" />
-      <VlcExcludeWindows86Plugins Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\build\x86\plugins\%(VlcExcludeWindowsFiles.Identity)))" Condition="'%(VlcExcludeWindowsPlugins.Identity)'!=''" />
+      <VlcWindowsX86IncludeFilesFullPath Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\build\x86\plugins\%(VlcWindowsX86IncludeFiles.Identity)))" />
+      <VlcWindowsX86ExcludeFilesFullPath Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\build\x86\plugins\%(VlcWindowsX86ExcludeFiles.Identity)))" Condition="'%(VlcWindowsX86ExcludeFiles.Identity)'!=''" />
 
       <!-- We have gathered all the full path of what should be copied and what should be skipped, let's include that as Content that gets copied -->
-      <Content Include="@(VlcIncludeWindows86Files)" Exclude="@(VlcExcludeWindows86Files)">
-        <Link>$(VlcLib86TargetDir)\$([MSBuild]::MakeRelative($(MSBuildThisFileDirectory)..\build\x86\, %(FullPath)))</Link>
+      <Content Include="@(VlcWindowsX86IncludeFilesFullPath)" Exclude="@(VlcWindowsX86ExcludeFilesFullPath)">
+        <Link>$(VlcWindowsX86TargetDir)\$([MSBuild]::MakeRelative($(MSBuildThisFileDirectory)..\build\x86\, %(FullPath)))</Link>
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
     </ItemGroup>

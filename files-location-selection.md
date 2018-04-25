@@ -9,7 +9,7 @@ You can change that to your liking:
 Example : put libvlc to `native/x86`/`native/x64`
 ```
   <PropertyGroup>
-    <VlcLib64TargetDir>native/x64</VlcLib64TargetDir>
-    <VlcLib86TargetDir>native/x86</VlcLib86TargetDir>
+    <VlcWindowsX64TargetDir>native/x64</VlcWindowsX64TargetDir>
+    <VlcWindowsX86TargetDir>native/x86</VlcWindowsX86TargetDir>
   </PropertyGroup>
 ```
