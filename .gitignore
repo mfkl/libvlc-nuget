@@ -34,3 +34,10 @@ _ReSharper*/
 #Nuget packages folder
 packages/
 *.nupkg
+
+#Exclude build folders and temp files
+native
+x64
+x64.7z
+x86
+x86.7z

@@ -73,8 +73,8 @@ The syntax is very similar, here are some examples:
 Of course, you can group items with `;` as with the exclusive strategy.
 
 **Note**: This example is really dumb. You should probably  include at least `libvlccore.dll` and `libvlc.dll`.
-The default value of `VlcWindowsX64IncludeFiles` is:
+The default value of `VlcWindowsX64IncludeFiles` and `VlcWindowsX86IncludeFiles` is:
 
 ```
-libvlc.dll;libvlccore.dll;plugins/%2A%2A
+libvlc.dll;libvlccore.dll;hrtfs/%2A%2A;locale/%2A%2A;lua/%2A%2A;plugins/%2A%2A
 ```
