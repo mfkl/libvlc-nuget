@@ -20,13 +20,13 @@ Some examples:
 ```
 <ItemGroup>
   <!-- You can exclude plugin-by-plugin: -->
-  <VlcWindowsX64ExcludeFiles Include="plugins/gui/libqt_plugin.dll" />
+  <VlcWindowsX64ExcludeFiles Include="plugins\gui\libqt_plugin.dll" />
 
-  <!-- You can exclude a whole folder -->
-  <VlcWindowsX64ExcludeFiles Include="plugins/lua" />
+  <!-- You can exclude a whole folder. Notice how the wildcard is mandatory when doing exclude on folders -->
+  <VlcWindowsX64ExcludeFiles Include="plugins\lua\%2A" />
 
   <!-- You can exclude with wildcards -->
-  <VlcWindowsX64ExcludeFiles Include="plugins/%2A/%2Adummy%2A" />
+  <VlcWindowsX64ExcludeFiles Include="plugins\%2A\%2Adummy%2A" />
 
   <!-- You can exclude the same files for Windows x86 -->
   <VlcWindowsX86ExcludeFiles Include="@(VlcWindowsX64ExcludeFiles)" />
@@ -37,7 +37,7 @@ You can merge several `VlcWindowsX64ExcludeFiles` definitions into one with semi
 
 ```
 <ItemGroup>
-  <VlcWindowsX64ExcludeFiles Include="plugins/gui/libqt_plugin.dll;plugins/lua;plugins/%2A/%2Adummy%2A" />
+  <VlcWindowsX64ExcludeFiles Include="plugins\gui\libqt_plugin.dll;plugins\lua\%2A;plugins\%2A\%2Adummy%2A" />
   <VlcWindowsX86ExcludeFiles Include="@(VlcWindowsX64ExcludeFiles)" />
 </ItemGroup>
 ```
@@ -45,6 +45,7 @@ You can merge several `VlcWindowsX64ExcludeFiles` definitions into one with semi
 A few things to note:
 
 - You may use wildcards, but you need to escape them as `%2A`
+- Always use backslashes (`\`) rather than forward slashes (`/`), until this issue is resolved : [https://github.com/Microsoft/msbuild/issues/1024](https://github.com/Microsoft/msbuild/issues/1024)
 - The syntax may be misleading, but the `...ExcludeFiles` item group requires the use of the `Include` attribute to choose which plugins to exclude. You are really adding string items to a list named "Exclude"
 
 ## Cherry-pick the files you need
@@ -54,16 +55,16 @@ The syntax is very similar, here are some examples:
 ```
 <ItemGroup>
   <!-- Includes the codec folder. Notice how the wildcard is mandatory when doing include on folders -->
-  <VlcWindowsX64IncludeFiles Include="plugins/codec/%2A" />
+  <VlcWindowsX64IncludeFiles Include="plugins\codec\%2A" />
 
   <!-- You can include plugin-by-plugin -->
-  <VlcWindowsX64IncludeFiles Include="plugins/audio_output/libdirectsound_plugin.dll" />
+  <VlcWindowsX64IncludeFiles Include="plugins\audio_output\libdirectsound_plugin.dll" />
 
   <!-- You can include with wildcards all in d3d9/d3d11 -->
-  <VlcWindowsX64IncludeFiles Include="plugins/d3d%2A/%2A" />
+  <VlcWindowsX64IncludeFiles Include="plugins\d3d%2A\%2A" />
 
   <!-- You can still exclude things from what you have included -->
-  <VlcWindowsX64IncludeFiles Include="plugins/codec/libddummy_plugin.dll" />
+  <VlcWindowsX64IncludeFiles Include="plugins\codec\libddummy_plugin.dll" />
 
   <!-- You can include the same files for Windows x86 -->
   <VlcWindowsX86IncludeFiles Include="@(VlcWindowsX64IncludeFiles)" />
@@ -76,5 +77,5 @@ Of course, you can group items with `;` as with the exclusive strategy.
 The default value of `VlcWindowsX64IncludeFiles` and `VlcWindowsX86IncludeFiles` is:
 
 ```
-libvlc.dll;libvlccore.dll;hrtfs/%2A%2A;locale/%2A%2A;lua/%2A%2A;plugins/%2A%2A
+libvlc.dll;libvlccore.dll;hrtfs\%2A%2A;locale\%2A%2A;lua\%2A%2A;plugins\%2A%2A
 ```
