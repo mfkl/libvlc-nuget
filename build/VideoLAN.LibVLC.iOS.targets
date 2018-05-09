@@ -1,6 +1,11 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <ItemGroup Condition="(('$(Platform)' == 'iPhoneSimulator') OR ('$(Platform)' == 'AnyCPU'))">
+  <ItemGroup Condition="(('$(Platform)' == 'iPhoneSimulator'))">
     <Content Include="$(MSBuildThisFileDirectory)ios-simulator\libvlc.dylib">
+      <Link>libvlc.dylib</Link>
+    </Content>
+  </ItemGroup>
+  <ItemGroup Condition="(('$(Platform)' == 'iPhone'))">
+    <Content Include="$(MSBuildThisFileDirectory)ios-device\libvlc.dylib">
       <Link>libvlc.dylib</Link>
     </Content>
   </ItemGroup>

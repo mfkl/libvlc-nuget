@@ -17,6 +17,6 @@
   <files>
     <file src="build\VideoLAN.LibVLC.iOS.targets" target="build\VideoLAN.LibVLC.iOS.targets"/>
     <file src="build\ios-simulator\libvlc.dylib" target="build\ios-simulator\libvlc.dylib"/>
-    <!-- <file src="build\ios-device\**" target="build\ios-device"/> -->
+    <file src="build\ios-device\libvlc.dylib" target="build\ios-device\libvlc.dylib"/>
   </files>
 </package>

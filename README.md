@@ -71,15 +71,15 @@ https://www.nuget.org/packages/VideoLAN.LibVLC.Android/
 
 ## iOS
 ```cmd
-dotnet add package VideoLAN.LibVLC.iOS --version 3.0.0-alpha	
+dotnet add package VideoLAN.LibVLC.iOS --version 3.0.0-alpha1
 ```
 https://www.nuget.org/packages/VideoLAN.LibVLC.iOS/
 
 #### Supported CPU architectures:
 - i386
 - x86_64
-
-_TODO: Add device builds_
+- ARMv7
+- ARM64
 
 
 To-do:
