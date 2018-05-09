@@ -91,50 +91,7 @@ To-do:
 
 # How do I configure what gets copied to my output directory?
 
-Currently, you can customize two things during the build:
-- Whether the library gets copied or not
-- Where the library is placed in the output folder
-
-## Enable/Disable a copy for a specific configuration
-
-Suppose you have a custom build platform named `MyFancyBuildPlatformx64` instead of the default `x64`.
-
-This package doesn't know if it should copy x86 or x64 libraries for that unknown platform.
-You have to tell msbuild explicitly.
-
-In your csproj, you can define the `<CopyVlc64>` property.
-(`<CopyVlc86>` is also available, as you guessed it, for x86)
-
-Examples:
-
-Adding x64 libraries for the `MyFancyBuildPlatformx64` platform:
-```
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|MyFancyBuildPlatformx64'">
-    <CopyVlc64>true</CopyVlc64>
-  </PropertyGroup>
-```
-
-Don't copy x86 libraries for the AnyCPU builds:
-
-```
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <CopyVlc86>false</CopyVlc86>
-  </PropertyGroup>
-```
-
-For the newer csproj format, you must place that before the `<PackageReference`
-tag for this package.
-
-## Specify the location where libvlc will be copied
-
-The default locations are `libvlc/win-x64` and `libvlc/win-x86`
-
-You can change that to your liking:
-
-Example : put libvlc to `native/x86`/`native/x64`
-```
-  <PropertyGroup>
-    <VlcLib64TargetDir>native/x64</VlcLib64TargetDir>
-    <VlcLib86TargetDir>native/x86</VlcLib86TargetDir>
-  </PropertyGroup>
-```
+Currently, you can customize three things during the build:
+- [Whether the library gets copied or not](library-copy-enabling.md)
+- [Where the library is placed in the output folder](files-location-selection.md)
+- [Which files are copied](cherry-picking.md)
