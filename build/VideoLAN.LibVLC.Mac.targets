@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <VlcMacX64TargetDir Condition=" '$(VlcMacX64TargetDir)' == '' ">libvlc\osx-x64</VlcMacX64TargetDir>
+    <VlcMacX64Enabled Condition="'$(VlcMacX64Enabled)' == '' AND ('$(Platform)' == 'x64' OR '$(Platform)' == 'AnyCPU')">true</VlcMacX64Enabled>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- If no VlcMac[...]IncludeFiles was declared previously, include all plugins by default by specifying ** (escaped, so %2A%2A) -->
+    <VlcMacX64IncludeFiles Condition="'@(VlcMacX64IncludeFiles)'==''" Include="lib\%2A%2A;share\hrtfs\%2A%2A;share\locale\%2A%2A;share\lua\%2A%2A;plugins\%2A%2A" />
+  </ItemGroup>
+
+  <Target Name="CollectVlcFilesToCopyMac" BeforeTargets="BeforeBuild">
+    <!-- We need a target in order to make batching work -->
+    <!-- Some useful links to understand how it works:
+      http://sedotech.com/Resources#Batching (4 parts of excellent explanation of Batching. Link 2 is dead, but can be found in parts 3 and above)
+      http://sedodream.com/2010/10/21/MSBuildFilterListTake2.aspx
+    -->
+
+    <!-- First, transform the escaped, relative, platform-independant file path into real path, relative to 32/64 folders -->
+
+    <!-- x64 -->
+    <ItemGroup Condition="'$(VlcMacX64Enabled)' == 'true'">
+      <!-- Expand selectors and compute absolute paths for include, exclude and MainLibraries -->
+      <VlcMacX64IncludeFilesFullPath Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\build\x64\%(VlcMacX64IncludeFiles.Identity)))" />
+      <VlcMacX64ExcludeFilesFullPath Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\build\x64\%(VlcMacX64ExcludeFiles.Identity)))" Condition="'%(VlcMacX64ExcludeFiles.Identity)'!=''" />
+
+      <!-- We have gathered all the full path of what should be copied and what should be skipped, let's include that as Content that gets copied -->
+      <Content Include="@(VlcMacX64IncludeFilesFullPath)" Exclude="@(VlcMacX64ExcludeFilesFullPath)">
+        <Link>$(VlcMacX64TargetDir)\$([MSBuild]::MakeRelative($(MSBuildThisFileDirectory)..\build\x64\, %(FullPath)))</Link>
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+  </Target>
+</Project>
