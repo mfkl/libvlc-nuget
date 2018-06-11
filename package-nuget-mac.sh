@@ -16,7 +16,7 @@ echo "unzipping vlc..."
 
 echo "copying dlls, libs and headers files..."
 mkdir -p build/osx-x64/
-cp -R VLC\ media\ player/VLC.app/Contents/MacOS/{include,lib,plugins,share} build/osx-x64/
+cp -R mac/VLC\ media\ player/VLC.app/Contents/MacOS/{include,lib,plugins,share} build/osx-x64/
 
 echo "cleaning up..."
 rm -rf ./mac ./VLC\ media\ player ./mac.dmg
