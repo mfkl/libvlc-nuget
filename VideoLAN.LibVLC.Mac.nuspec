@@ -16,6 +16,6 @@
   </metadata>
   <files>
     <file src="build\VideoLAN.LibVLC.Mac.targets" target="build\VideoLAN.LibVLC.Mac.targets"/>
-    <file src="build\osx-x64\**" target="build\x64"/>
+    <file src="build\osx-x64\**" target="build\osx-x64"/>
   </files>
 </package>
