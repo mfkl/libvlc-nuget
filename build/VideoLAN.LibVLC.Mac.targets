@@ -1,18 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <PropertyGroup>
-	    <CreateAppBundleDependsOn>$(CreateAppBundleDependsOn);CollectVlcFilesToCopyMac</CreateAppBundleDependsOn>
-	</PropertyGroup>
-
-  <Target Name="CollectVlcFilesToCopyMac">
-    <ItemGroup>
-            <VlcMacX64IncludeLibFiles Include="$(MSBuildThisFileDirectory)osx-x64/lib/**/*" />
-            <VlcMacX64IncludePluginsFiles Include="$(MSBuildThisFileDirectory)osx-x64/plugins/**/*" />
-        </ItemGroup>
-	    <Copy SourceFiles="@(VlcMacX64IncludeLibFiles)" 
-      DestinationFiles="@(VlcMacX64IncludeLibFiles->'$(AppBundleDir)/Contents/MonoBundle/lib/%(RecursiveDir)%(Filename)%(Extension)')" />
-      
-      <Copy SourceFiles="@(VlcMacX64IncludePluginsFiles)"
-      DestinationFiles="@(VlcMacX64IncludePluginsFiles->'$(AppBundleDir)/Contents/MonoBundle/plugins/%(RecursiveDir)%(Filename)%(Extension)')" />
-  </Target>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <NativeReference Include="$(MSBuildThisFileDirectory)osx-x64\VLCKit.framework">
+      <Kind>Framework</Kind>
+      <SmartLink>False</SmartLink>
+    </NativeReference>
+  </ItemGroup>
 </Project>
