@@ -81,9 +81,16 @@ https://www.nuget.org/packages/VideoLAN.LibVLC.iOS/
 - ARMv7
 - ARM64
 
+## macOS
+```cmd
+dotnet add package VideoLAN.LibVLC.Mac --version 3.1.2-alpha
+```
+https://www.nuget.org/packages/VideoLAN.LibVLC.Mac/
+
+#### Supported CPU architecture:
+- x86_64
 
 To-do:
-- macOS
 - WindowsRT x86/x64 (10)
 - Linux
 - Tizen
