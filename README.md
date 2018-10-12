@@ -38,7 +38,7 @@ There are usually 2 ways to go about consuming C code from .NET:
 
 Versioning of the nuget packages naturally follow the libvlc versioning.
 
-#### 3.0.0: https://github.com/videolan/vlc-3.0/releases/tag/3.0.0
+#### 3.0.4: https://github.com/videolan/vlc-3.0/releases/tag/3.0.4
 Minimum OS version supported by LibVLC 3.0:
 - Windows XP
 - macOS 10.7
@@ -47,7 +47,7 @@ Minimum OS version supported by LibVLC 3.0:
 
 ## Windows
 ```cmd
- dotnet add package VideoLAN.LibVLC.Windows --version 3.0.0-alpha2
+ dotnet add package VideoLAN.LibVLC.Windows --version 3.0.4
 ```
 https://www.nuget.org/packages/VideoLAN.LibVLC.Windows/
 
