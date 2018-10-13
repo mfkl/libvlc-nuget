@@ -3,10 +3,10 @@
 version=$1
 echo "packaging version $version"
 
-downloadUrlArm7="http://download.videolan.org/pub/videolan/vlc-android/$version/VLC-Android-$version-ARMv7.apk"
-downloadUrlArm8="http://download.videolan.org/pub/videolan/vlc-android/$version/VLC-Android-$version-ARMv8.apk"
-downloadUrlx86="http://download.videolan.org/pub/videolan/vlc-android/$version/VLC-Android-$version-x86.apk"
-downloadUrlx86_64="http://download.videolan.org/pub/videolan/vlc-android/$version/VLC-Android-$version-x86_64.apk"
+downloadUrlArm7="https://download.videolan.org/pub/videolan/vlc-android/$version/VLC-Android-$version-ARMv7.apk"
+downloadUrlArm8="https://download.videolan.org/pub/videolan/vlc-android/$version/VLC-Android-$version-ARMv8.apk"
+downloadUrlx86="https://download.videolan.org/pub/videolan/vlc-android/$version/VLC-Android-$version-x86.apk"
+downloadUrlx86_64="https://download.videolan.org/pub/videolan/vlc-android/$version/VLC-Android-$version-x86_64.apk"
 
 packageName="VideoLAN.LibVLC.Android"
 echo "package name $packageName"
