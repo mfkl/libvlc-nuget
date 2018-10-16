@@ -1,28 +1,29 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <ItemGroup>
+<!--   <ItemGroup>
     <NativeReference Include="$(MSBuildThisFileDirectory)osx-x64\VLCKit.framework">
       <Kind>Framework</Kind>
       <SmartLink>False</SmartLink>
     </NativeReference>
-  </ItemGroup>
+  </ItemGroup> -->
 
-  <PropertyGroup>
-    <VlcMacX64TargetDir Condition=" '$(VlcMacX64TargetDir)' == '' ">libvlc\osx-x64</VlcMacX64TargetDir>
-  </PropertyGroup>
-
-  <ItemGroup>
-      <VlcMacX64IncludeFile Condition="'@(VlcMacX64IncludeFile)'==''" Include="VLCKit.framework\libvlc.dylib" />
-  </ItemGroup>
-
-<Target Name="CopyLibVLCMac" BeforeTargets="BeforeBuild" Condition=" '$(TargetFramework)' == 'net' ">
-  <ItemGroup>
-    <VlcMacX64IncludeFileFullPath Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\build\osx-x64\%(VlcMacX64IncludeFile.Identity)))" />
-
-    <Content Include="@(VlcMacX64IncludeFileFullPath)">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Link>$(VlcMacX64TargetDir)\$([MSBuild]::MakeRelative($(MSBuildThisFileDirectory)..\build\osx-x64\, %(FullPath)))</Link>
-    </Content>
-
-  </ItemGroup>
+<!-- Works, but conditional targetframeworks does not -->
+  <Target Name="CopyMacOutput" BeforeTargets="BeforeBuild">
+    <ItemGroup>
+      <Content Include="$(MSBuildThisFileDirectory)osx-x64\VLCKit.framework\libvlc.dylib">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
   </Target>
+
+<!-- Does not get called (with or without condition). Looks like stuff needs to be in a Target, but Choose/When does not work with Targets -->
+<!-- 
+  <Choose>
+    <When Condition=" '$(TargetFramework)' == 'net47' ">
+      <ItemGroup>
+        <Content Include="$(MSBuildThisFileDirectory)osx-x64\VLCKit.framework\libvlc.dylib">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+      </ItemGroup>
+    </When>
+  </Choose> -->
 </Project>
