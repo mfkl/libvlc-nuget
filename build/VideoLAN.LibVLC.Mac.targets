@@ -5,4 +5,24 @@
       <SmartLink>False</SmartLink>
     </NativeReference>
   </ItemGroup>
+
+  <PropertyGroup>
+    <VlcMacX64TargetDir Condition=" '$(VlcMacX64TargetDir)' == '' ">libvlc\osx-x64</VlcMacX64TargetDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+      <VlcMacX64IncludeFile Condition="'@(VlcMacX64IncludeFile)'==''" Include="VLCKit.framework\libvlc.dylib" />
+  </ItemGroup>
+
+<Target Name="CopyLibVLCMac" BeforeTargets="BeforeBuild" Condition=" '$(TargetFramework)' == 'net' ">
+  <ItemGroup>
+    <VlcMacX64IncludeFileFullPath Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\build\osx-x64\%(VlcMacX64IncludeFile.Identity)))" />
+
+    <Content Include="@(VlcMacX64IncludeFileFullPath)">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>$(VlcMacX64TargetDir)\$([MSBuild]::MakeRelative($(MSBuildThisFileDirectory)..\build\osx-x64\, %(FullPath)))</Link>
+    </Content>
+
+  </ItemGroup>
+  </Target>
 </Project>
