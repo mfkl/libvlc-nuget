@@ -1,9 +1,19 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <!-- net4.x and netcoreapp targets -->
+    <ItemGroup Condition="$(TargetFramework.StartsWith('net'))">
+        <Content Include="$(MSBuildThisFileDirectory)osx-x64\libvlc.dylib">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+
+    <!-- xamarin.mac target -->
     <PropertyGroup>
         <CreateAppBundleDependsOn>$(CreateAppBundleDependsOn);CopyLibvlcDylib</CreateAppBundleDependsOn>
     </PropertyGroup>
-	<Target Name="CopyLibvlcDylib" Inputs="$(MSBuildThisFileDirectory)osx-x64\libvlc.dylib" Outputs="$(AppBundleDir)/Contents/MonoBundle/libvlc.dylib">
-		<Message Text="Copying libvlc.dylib to appbundle..." />
-	    <Copy SourceFiles="$(MSBuildThisFileDirectory)osx-x64\libvlc.dylib" DestinationFiles="$(AppBundleDir)/Contents/MonoBundle/libvlc.dylib" />
+	<Target Name="CopyLibvlcDylib" 
+        Inputs="$(MSBuildThisFileDirectory)osx-x64\libvlc.dylib"
+        Outputs="$(AppBundleDir)/Contents/MonoBundle/libvlc.dylib">
+            <Message Text="Copying libvlc.dylib to appbundle..." />
+            <Copy SourceFiles="$(MSBuildThisFileDirectory)osx-x64\libvlc.dylib" DestinationFiles="$(AppBundleDir)/Contents/MonoBundle/libvlc.dylib" />
     </Target>
 </Project>
