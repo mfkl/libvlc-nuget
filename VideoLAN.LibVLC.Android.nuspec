@@ -13,7 +13,7 @@
     <tags>libvlc vlc videolan native c/c++ video audio</tags>
     <projectUrl>https://github.com/mfkl/libvlc-nuget</projectUrl>
     <licenseUrl>https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html</licenseUrl>
-    <iconUrl>http://images1.videolan.org/images/vlc64x64.png</iconUrl>
+    <iconUrl>https://images1.videolan.org/images/vlc64x64.png</iconUrl>
   </metadata>
   <files>
     <file src="build\VideoLAN.LibVLC.Android.targets" target="build\VideoLAN.LibVLC.Android.targets"/>
