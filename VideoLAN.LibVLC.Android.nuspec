@@ -12,7 +12,7 @@
     <releaseNotes></releaseNotes>
     <tags>libvlc vlc videolan native c/c++ video audio</tags>
     <projectUrl>https://github.com/mfkl/libvlc-nuget</projectUrl>
-    <licenseUrl>https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html</licenseUrl>
+    <license type="expression">LGPL-2.1-or-later</license>
     <iconUrl>https://images1.videolan.org/images/vlc64x64.png</iconUrl>
   </metadata>
   <files>
