@@ -38,59 +38,80 @@ There are usually 2 ways to go about consuming C code from .NET:
 
 Versioning of the nuget packages naturally follow the libvlc versioning.
 
-#### 3.0.4: https://github.com/videolan/vlc-3.0/releases/tag/3.0.4
-Minimum OS version supported by LibVLC 3.0:
+#### LibVLC 3:
+
+Latest stable version is [3.0.5](https://github.com/videolan/vlc-3.0/releases/tag/3.0.5). Feel free to check out the [release notes](https://github.com/videolan/vlc-3.0/blob/master/NEWS).
+
+Minimum OS version supported by LibVLC 3.x:
+
 - Windows XP
 - macOS 10.7
 - iOS 7
 - Android 2.3
 
 ## Windows
+
 ```cmd
- dotnet add package VideoLAN.LibVLC.Windows --version 3.0.4
+ dotnet add package VideoLAN.LibVLC.Windows
 ```
-https://www.nuget.org/packages/VideoLAN.LibVLC.Windows/
+
+[![NuGet version](https://img.shields.io/nuget/v/VideoLAN.LibVLC.Windows.svg)](https://www.nuget.org/packages/VideoLAN.LibVLC.Windows)
+[![NuGet downloads](https://img.shields.io/nuget/dt/VideoLAN.LibVLC.Windows.svg)](https://www.nuget.org/packages/VideoLAN.LibVLC.Windows)
 
 #### Supported CPU architectures:
+
 - x86
 - x64
 
 *Note: if you intend to use libvlc with UWP projects, you probably need to install the WindowsRT package instead because this build directly uses win32 APIs.*
 
 ## Android
+
 ```cmd
 dotnet add package VideoLAN.LibVLC.Android
 ```
-https://www.nuget.org/packages/VideoLAN.LibVLC.Android/
+
+[![NuGet Stats](https://img.shields.io/nuget/v/VideoLAN.LibVLC.Android.svg)](https://www.nuget.org/packages/VideoLAN.LibVLC.Android)
+[![NuGet Stats](https://img.shields.io/nuget/dt/VideoLAN.LibVLC.Android.svg)](https://www.nuget.org/packages/VideoLAN.LibVLC.Android)
 
 #### Supported CPU architectures:
+
 - armeabi-v7a
 - arm64-v8a
 - x86
 - x86_64
 
 ## iOS
+
 ```cmd
-dotnet add package VideoLAN.LibVLC.iOS --version 3.0.0-alpha1
+dotnet add package VideoLAN.LibVLC.iOS --version 3.1.5-alpha
 ```
-https://www.nuget.org/packages/VideoLAN.LibVLC.iOS/
+
+[![NuGet Stats](https://img.shields.io/nuget/v/VideoLAN.LibVLC.iOS.svg)](https://www.nuget.org/packages/VideoLAN.LibVLC.iOS)
+[![NuGet Stats](https://img.shields.io/nuget/dt/VideoLAN.LibVLC.iOS.svg)](https://www.nuget.org/packages/VideoLAN.LibVLC.iOS)
 
 #### Supported CPU architectures:
+
 - i386
 - x86_64
 - ARMv7
 - ARM64
 
 ## macOS
+
 ```cmd
-dotnet add package VideoLAN.LibVLC.Mac --version 3.1.2-alpha
+dotnet add package VideoLAN.LibVLC.Mac
 ```
-https://www.nuget.org/packages/VideoLAN.LibVLC.Mac/
+
+[![NuGet Stats](https://img.shields.io/nuget/v/VideoLAN.LibVLC.Mac.svg)](https://www.nuget.org/packages/VideoLAN.LibVLC.Mac)
+[![NuGet Stats](https://img.shields.io/nuget/dt/VideoLAN.LibVLC.Mac.svg)](https://www.nuget.org/packages/VideoLAN.LibVLC.Mac)
 
 #### Supported CPU architecture:
+
 - x86_64
 
 To-do:
+
 - WindowsRT x86/x64 (10)
 - Linux
 - Tizen
@@ -99,6 +120,7 @@ To-do:
 # How do I configure what gets copied to my output directory?
 
 Currently, you can customize three things during the build:
+
 - [Whether the library gets copied or not](library-copy-enabling.md)
 - [Where the library is placed in the output folder](files-location-selection.md)
 - [Which files are copied](cherry-picking.md)
