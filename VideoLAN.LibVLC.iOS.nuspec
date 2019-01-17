@@ -8,8 +8,9 @@
     <owners>VideoLAN</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <summary>LibVLC is a modular multimedia framework</summary>
-    <description>LibVLC is a modular multimedia framework</description>
-    <tags>libvlc vlc videolan native c/c++ video audio</tags>
+    <description>LibVLC is a modular multimedia framework that can render video and output audio as well as encode and stream. 
+    As it is native code, you will need to use a wrapper library such as LibVLCSharp to use it from .NET.</description>
+    <tags>libvlc;vlc;videolan;native;c/c++;video;audio;player;media;mediaplayer;codec;ffmpeg;xamarin;graphics;ios;android;linux;windows;macos;cross-platform</tags>
     <projectUrl>https://code.videolan.org/videolan/libvlc-nuget</projectUrl>
     <license type="expression">LGPL-2.1-or-later</license>
     <iconUrl>https://images1.videolan.org/images/vlc64x64.png</iconUrl>
