@@ -40,7 +40,7 @@ Versioning of the nuget packages naturally follow the libvlc versioning.
 
 #### LibVLC 3:
 
-Latest stable version is [3.0.5](https://github.com/videolan/vlc-3.0/releases/tag/3.0.5). Feel free to check out the [release notes](https://github.com/videolan/vlc-3.0/blob/master/NEWS).
+Latest stable version is [3.0.6](https://github.com/videolan/vlc-3.0/releases/tag/3.0.6). Feel free to check out the [release notes](https://github.com/videolan/vlc-3.0/blob/master/NEWS).
 
 Minimum OS version supported by LibVLC 3.x:
 
@@ -110,12 +110,16 @@ dotnet add package VideoLAN.LibVLC.Mac
 
 - x86_64
 
+## Linux
+
+For Ubuntu, follow this [guide](https://code.videolan.org/videolan/LibVLCSharp/blob/master/docs/linux-setup.md).
+
 To-do:
 
 - WindowsRT x86/x64 (10)
-- Linux
-- Tizen
+- tvOS
 - WebAssembly
+- Tizen
 
 # How do I configure what gets copied to my output directory?
 
