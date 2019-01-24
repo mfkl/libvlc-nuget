@@ -1,0 +1,12 @@
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Condition="(('$(Platform)' == 'iPhoneSimulator'))">
+    <NativeReference Include="$(MSBuildThisFileDirectory)tvOS-simulator\DynamicTVVLCKit.framework">
+      <Kind>Framework</Kind>
+    </NativeReference>
+  </ItemGroup>
+  <ItemGroup Condition="(('$(Platform)' == 'iPhone'))">
+    <NativeReference Include="$(MSBuildThisFileDirectory)tvOS-device\DynamicTVVLCKit.framework">
+      <Kind>Framework</Kind>
+    </NativeReference>
+  </ItemGroup>
+</Project>
