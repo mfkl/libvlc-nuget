@@ -110,6 +110,20 @@ dotnet add package VideoLAN.LibVLC.Mac
 
 - x86_64
 
+## tvOS
+
+```cmd
+ dotnet add package VideoLAN.LibVLC.tvOS --version 3.2.0-alpha 
+```
+
+[![NuGet Stats](https://img.shields.io/nuget/v/VideoLAN.LibVLC.tvOS.svg)](https://www.nuget.org/packages/VideoLAN.LibVLC.tvOS)
+[![NuGet Stats](https://img.shields.io/nuget/dt/VideoLAN.LibVLC.tvOS.svg)](https://www.nuget.org/packages/VideoLAN.LibVLC.tvOS)
+
+#### Supported CPU architecture:
+
+- x86_64
+- ARM64
+
 ## Linux
 
 For Ubuntu, follow this [guide](https://code.videolan.org/videolan/LibVLCSharp/blob/master/docs/linux-setup.md).
@@ -117,7 +131,6 @@ For Ubuntu, follow this [guide](https://code.videolan.org/videolan/LibVLCSharp/b
 To-do:
 
 - WindowsRT x86/x64 (10)
-- tvOS
 - WebAssembly
 - Tizen
 
