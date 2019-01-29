@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <VlcWindowsRTX64TargetDir Condition=" '$(VlcWindowsRTX64TargetDir)' == '' ">libvlc\win10-x64</VlcWindowsRTX64TargetDir>
+    <VlcWindowsRTX86TargetDir Condition=" '$(VlcWindowsRTX86TargetDir)' == '' ">libvlc\win10-x86</VlcWindowsRTX86TargetDir>
+    <VlcWindowsRTARMTargetDir Condition=" '$(VlcWindowsRTARMTargetDir)' == '' ">libvlc\win10-arm</VlcWindowsRTARMTargetDir>
+    <VlcWindowsRTX64Enabled Condition="'$(VlcWindowsRTX64Enabled)' == '' AND ('$(Platform)' == 'x64' OR '$(Platform)' == 'AnyCPU')">true</VlcWindowsRTX64Enabled>
+    <VlcWindowsRTX86Enabled Condition="'$(VlcWindowsRTX86Enabled)' == '' AND ('$(Platform)' == 'x86' OR '$(Platform)' == 'AnyCPU')">true</VlcWindowsRTX86Enabled>
+    <VlcWindowsRTARMEnabled Condition="'$(VlcWindowsRTARMEnabled)' == '' AND ('$(Platform)' == 'ARM')">true</VlcWindowsRTARMEnabled>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- If no VlcWindows[...]IncludeFiles was declared previously, include all plugins by default by specifying ** (escaped, so %2A%2A) -->
+    <VlcWindowsRTX64IncludeFiles Condition="'@(VlcWindowsRTX64IncludeFiles)'==''" Include="libvlc.*;libvlccore.*;hrtfs\%2A%2A;locale\%2A%2A;lua\%2A%2A;plugins\%2A%2A" />
+    <VlcWindowsRTX86IncludeFiles Condition="'@(VlcWindowsRTX86IncludeFiles)'==''" Include="libvlc.*;libvlccore.*;hrtfs\%2A%2A;locale\%2A%2A;lua\%2A%2A;plugins\%2A%2A" />
+    <VlcWindowsRTARMIncludeFiles Condition="'@(VlcWindowsRTARMIncludeFiles)'==''" Include="libvlc.*;libvlccore.*;hrtfs\%2A%2A;locale\%2A%2A;lua\%2A%2A;plugins\%2A%2A" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <SDKReference Include="Microsoft.VCLibs.120, Version=14.0">
+      <Name>Microsoft Visual C++ 2013 Runtime Package for Windows Universal</Name>
+    </SDKReference>
+  </ItemGroup>
+
+  <Target Name="CollectVlcFilesToCopyWindowsRT" BeforeTargets="BeforeBuild">
+    <!-- We need a target in order to make batching work -->
+    <!-- Some useful links to understand how it works:
+      http://sedotech.com/Resources#Batching (4 parts of excellent explanation of Batching. Link 2 is dead, but can be found in parts 3 and above)
+      http://sedodream.com/2010/10/21/MSBuildFilterListTake2.aspx
+    -->
+
+    <!-- First, transform the escaped, relative, platform-independant file path into real path, relative to 32/64 folders -->
+
+    <!-- x64 -->
+    <ItemGroup Condition="'$(VlcWindowsRTX64Enabled)' == 'true'">
+      <!-- Expand selectors and compute absolute paths for include, exclude and MainLibraries -->
+      <VlcWindowsRTX64IncludeFilesFullPath Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\build\win10-x64\%(VlcWindowsRTX64IncludeFiles.Identity)))" />
+      <VlcWindowsRTX64ExcludeFilesFullPath Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\build\win10-x64\%(VlcWindowsRTX64ExcludeFiles.Identity)))" 
+        Condition="'%(VlcWindowsRTX64ExcludeFiles.Identity)'!=''" />
+
+      <!-- We have gathered all the full path of what should be copied and what should be skipped, let's include that as Content that gets copied -->
+      <Content Include="@(VlcWindowsRTX64IncludeFilesFullPath)" Exclude="@(VlcWindowsRTX64ExcludeFilesFullPath)">
+        <Link>$(VlcWindowsRTX64TargetDir)\$([MSBuild]::MakeRelative($(MSBuildThisFileDirectory)..\build\win10-x64\, %(FullPath)))</Link>
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+
+    <!-- x86 -->
+    <ItemGroup Condition="'$(VlcWindowsRTX86Enabled)' == 'true'">
+      <!-- Expand selectors and compute absolute paths for include, exclude and MainLibraries -->
+      <VlcWindowsRTX86IncludeFilesFullPath Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\build\win10-x86\%(VlcWindowsRTX86IncludeFiles.Identity)))" />
+      <VlcWindowsRTX86ExcludeFilesFullPath Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\build\win10-x86\%(VlcWindowsRTX86ExcludeFiles.Identity)))" Condition="'%(VlcWindowsX86ExcludeFiles.Identity)'!=''" />
+
+      <!-- We have gathered all the full path of what should be copied and what should be skipped, let's include that as Content that gets copied -->
+      <Content Include="@(VlcWindowsRTX86IncludeFilesFullPath)" Exclude="@(VlcWindowsRTX86ExcludeFilesFullPath)">
+        <Link>$(VlcWindowsRTX86TargetDir)\$([MSBuild]::MakeRelative($(MSBuildThisFileDirectory)..\build\win10-x86\, %(FullPath)))</Link>
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+
+     <!-- ARM -->
+    <ItemGroup Condition="'$(VlcWindowsRTARMEnabled)' == 'true'">
+      <!-- Expand selectors and compute absolute paths for include, exclude and MainLibraries -->
+      <VlcWindowsRTARMIncludeFilesFullPath Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\build\win10-arm\%(VlcWindowsRTARMIncludeFiles.Identity)))" />
+      <VlcWindowsRTARMExcludeFilesFullPath Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\build\win10-arm\%(VlcWindowsRTARMExcludeFiles.Identity)))" Condition="'%(VlcWindowsARMExcludeFiles.Identity)'!=''" />
+
+      <!-- We have gathered all the full path of what should be copied and what should be skipped, let's include that as Content that gets copied -->
+      <Content Include="@(VlcWindowsRTARMIncludeFilesFullPath)" Exclude="@(VlcWindowsRTARMExcludeFilesFullPath)">
+        <Link>$(VlcWindowsRTARMTargetDir)\$([MSBuild]::MakeRelative($(MSBuildThisFileDirectory)..\build\win10-arm\, %(FullPath)))</Link>
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+  </Target>
+</Project>
