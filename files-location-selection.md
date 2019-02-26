@@ -1,6 +1,6 @@
 # Specify the location where libvlc will be copied
 
-_**This page does not apply to Android builds**_
+_**This page details operations that currently apply only to Windows builds**_
 
 The default locations are `libvlc/win-x64` and `libvlc/win-x86`
 

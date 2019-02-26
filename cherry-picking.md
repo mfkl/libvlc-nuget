@@ -1,6 +1,6 @@
 # How to select which files are copied?
 
-_**This page does not apply to Android builds**_
+_**This page details operations that currently apply only to Windows builds**_
 
 Sometimes, you want to build a minimal package for one of these reasons:
 - Reduce your package size

@@ -1,6 +1,6 @@
 # Enable/Disable a copy for a specific configuration
 
-_**This page does not apply to Android builds**_
+_**This page details operations that currently apply only to Windows builds**_
 
 Why?
 
