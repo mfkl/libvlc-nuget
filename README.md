@@ -2,9 +2,20 @@
 
 This repository is about presenting `libvlc` and its capabilities to .NET developers.
 It also contains packaging tools and files for nuget packaging/deployment.
-
 In other words: It's just the same thing as if you had downloaded the files from VideoLAN's website, in a NuGet package,
 that you can add in your .NET project so that it gets copied into the output directory.
+
+- [What is libvlc?](#What-is-libvlc)
+- [How do I use this thing from .NET?](#How-do-I-use-this-thing-from-.NET)
+- [Build and packaging customization with MSBuild](#Build-and-packaging-customization-with-MSBuild)
+- [Supported platforms](#Supported-platforms)
+  - [Windows](#windows)
+  - [Android](#android)
+  - [iOS](#iOS)
+  - [macOS](#macOS)
+  - [tvOS](#tvOS)
+  - [Linux](#linux)
+- [Roadmap](#roadmap)
 
 # What is libvlc?
 
@@ -37,6 +48,18 @@ There are usually 2 ways to go about consuming C code from .NET:
 - Using [P/Invoke](http://www.mono-project.com/docs/advanced/pinvoke/). If crossplatform is a focus, you should checkout [LibVLCSharp](https://github.com/videolan/libvlcsharp).
 
 Versioning of the nuget packages naturally follow the libvlc versioning.
+
+# Build and packaging customization with MSBuild
+
+How do I configure what gets copied to my output directory?
+
+Currently, you can customize three things during the build:
+
+- [Whether the library gets copied or not](library-copy-enabling.md)
+- [Where the library is placed in the output folder](files-location-selection.md)
+- [Which files are copied](cherry-picking.md)
+
+# Supported platforms
 
 #### LibVLC 3:
 
@@ -128,16 +151,9 @@ dotnet add package VideoLAN.LibVLC.Mac
 
 For Ubuntu, follow this [guide](https://code.videolan.org/videolan/LibVLCSharp/blob/master/docs/linux-setup.md).
 
-To-do:
+# Roadmap
 
-- WindowsRT x86/x64 (10)
+- WindowsRT x86/x64/ARM
+- Unity and other game engines
 - WebAssembly
-- Tizen
-
-# How do I configure what gets copied to my output directory?
-
-Currently, you can customize three things during the build:
-
-- [Whether the library gets copied or not](library-copy-enabling.md)
-- [Where the library is placed in the output folder](files-location-selection.md)
-- [Which files are copied](cherry-picking.md)
+- Tizen?
