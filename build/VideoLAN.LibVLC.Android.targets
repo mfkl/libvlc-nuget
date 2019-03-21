@@ -1,20 +1,45 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-    <ItemGroup>
+    <PropertyGroup>
+        <CopyLibcppShared Condition="'$(CopyLibcppShared)' == ''">true</CopyLibcppShared>
+    </PropertyGroup>
+    <ItemGroup Condition="$(AndroidSupportedAbis.Contains('armeabi-v7a'))">
         <AndroidNativeLibrary Include="$(MSBuildThisFileDirectory)android-armv7\libvlc.so">
             <Link>libvlc-armv7\libvlc.so</Link>
-             <Abi>armeabi-v7a</Abi>
+            <Abi>armeabi-v7a</Abi>
         </AndroidNativeLibrary>
+        <AndroidNativeLibrary Condition="'$(CopyLibcppShared)' == 'true'" Include="$(MSBuildThisFileDirectory)android-armv7\libc++_shared.so">
+            <Link>libvlc-armv7\libc++_shared.so</Link>
+            <Abi>armeabi-v7a</Abi>
+        </AndroidNativeLibrary>
+    </ItemGroup>
+    <ItemGroup Condition="$(AndroidSupportedAbis.Contains('arm64-v8a'))">
         <AndroidNativeLibrary Include="$(MSBuildThisFileDirectory)android-armv8\libvlc.so">
             <Link>libvlc-armv8\libvlc.so</Link>
-             <Abi>arm64-v8a</Abi>
+            <Abi>arm64-v8a</Abi>
         </AndroidNativeLibrary>
-         <AndroidNativeLibrary Include="$(MSBuildThisFileDirectory)android-x86\libvlc.so">
+        <AndroidNativeLibrary Condition="'$(CopyLibcppShared)' == 'true'" Include="$(MSBuildThisFileDirectory)android-armv8\libc++_shared.so">
+            <Link>libvlc-armv8\libc++_shared.so</Link>
+            <Abi>arm64-v8a</Abi>
+        </AndroidNativeLibrary>
+    </ItemGroup>
+    <ItemGroup Condition="$(AndroidSupportedAbis.Contains('x86'))">
+        <AndroidNativeLibrary Include="$(MSBuildThisFileDirectory)android-x86\libvlc.so">
             <Link>libvlc-x86\libvlc.so</Link>
-             <Abi>x86</Abi>
+            <Abi>x86</Abi>
         </AndroidNativeLibrary>
+        <AndroidNativeLibrary Condition="'$(CopyLibcppShared)' == 'true'" Include="$(MSBuildThisFileDirectory)android-x86\libc++_shared.so">
+            <Link>libvlc-x86\libc++_shared.so</Link>
+            <Abi>x86</Abi>
+        </AndroidNativeLibrary>
+    </ItemGroup>
+    <ItemGroup Condition="$(AndroidSupportedAbis.Contains('x86_64'))">
         <AndroidNativeLibrary Include="$(MSBuildThisFileDirectory)android-x86_64\libvlc.so">
             <Link>libvlc-x86_64\libvlc.so</Link>
-             <Abi>x86_64</Abi>
+            <Abi>x86_64</Abi>
+        </AndroidNativeLibrary>
+        <AndroidNativeLibrary Condition="'$(CopyLibcppShared)' == 'true'" Include="$(MSBuildThisFileDirectory)android-x86_64\libc++_shared.so">
+            <Link>libvlc-x86_64\libc++_shared.so</Link>
+            <Abi>x86_64</Abi>
         </AndroidNativeLibrary>
     </ItemGroup>
 </Project>
