@@ -27,6 +27,11 @@ echo "unzipping libvlc.so ..."
 # 7z e x86.7z lib/x86/libvlc.so -obuild/android-x86
 # 7z e x86_64.7z lib/x86_64/libvlc.so -obuild/android-x86_64
 
+touch build/android-armv7/libvlc.so
+touch build/android-armv8/libvlc.so
+touch build/android-x86/libvlc.so
+touch build/android-x86_64/libvlc.so
+
 #curl -Lsfo sources.zip $sourceUrl --progress-bar --verbose
 
 7z e sources.zip vlc-android-$version/libvlc/src/org/videolan/libvlc/AWindow.java -obuild/toBuild
