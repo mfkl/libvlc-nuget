@@ -16,6 +16,12 @@
     <VlcWindowsRTARMIncludeFiles Condition="'@(VlcWindowsRTARMIncludeFiles)'==''" Include="libvlc.*;libvlccore.*;hrtfs\%2A%2A;locale\%2A%2A;lua\%2A%2A;plugins\%2A%2A" />
   </ItemGroup>
 
+  <ItemGroup>
+    <SDKReference Include="Microsoft.VCLibs.120, Version=14.0">
+      <Name>Microsoft Visual C++ 2013 Runtime Package for Windows Universal</Name>
+    </SDKReference>
+  </ItemGroup>
+
   <Target Name="CollectVlcFilesToCopyWindowsRT" BeforeTargets="BeforeBuild">
     <!-- We need a target in order to make batching work -->
     <!-- Some useful links to understand how it works:

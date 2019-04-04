@@ -16,7 +16,7 @@
     <iconUrl>https://images1.videolan.org/images/vlc64x64.png</iconUrl>
   </metadata>
   <files>
-    <file src="build\VideoLAN.LibVLC.WindowsRT.targets" target="build\VideoLAN.LibVLC.WindowsRT.targets"/>  
+    <file src="build\VideoLAN.LibVLC.WindowsRT.targets" target="build\VideoLAN.LibVLC.WindowsRT.targets"/>
     <file src="build\win10-x86\native\**" target="build\win10-x86"/>
     <file src="build\win10-x64\native\**" target="build\win10-x64"/>
     <file src="build\win10-arm\native\**" target="build\win10-arm"/>
