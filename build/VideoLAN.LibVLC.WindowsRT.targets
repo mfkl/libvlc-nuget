@@ -11,9 +11,9 @@
 
   <ItemGroup>
     <!-- If no VlcWindows[...]IncludeFiles was declared previously, include all plugins by default by specifying ** (escaped, so %2A%2A) -->
-    <VlcWindowsRTX64IncludeFiles Condition="'@(VlcWindowsRTX64IncludeFiles)'==''" Include="libvlc.dll;libvlccore.dll;hrtfs\%2A%2A;locale\%2A%2A;lua\%2A%2A;plugins\%2A%2A" />
-    <VlcWindowsRTX86IncludeFiles Condition="'@(VlcWindowsRTX86IncludeFiles)'==''" Include="libvlc.dll;libvlccore.dll;hrtfs\%2A%2A;locale\%2A%2A;lua\%2A%2A;plugins\%2A%2A" />
-    <VlcWindowsRTARMIncludeFiles Condition="'@(VlcWindowsRTARMIncludeFiles)'==''" Include="libvlc.dll;libvlccore.dll;hrtfs\%2A%2A;locale\%2A%2A;lua\%2A%2A;plugins\%2A%2A" />
+    <VlcWindowsRTX64IncludeFiles Condition="'@(VlcWindowsRTX64IncludeFiles)'==''" Include="libvlc.*;libvlccore.*;hrtfs\%2A%2A;locale\%2A%2A;lua\%2A%2A;plugins\%2A%2A" />
+    <VlcWindowsRTX86IncludeFiles Condition="'@(VlcWindowsRTX86IncludeFiles)'==''" Include="libvlc.*;libvlccore.*;hrtfs\%2A%2A;locale\%2A%2A;lua\%2A%2A;plugins\%2A%2A" />
+    <VlcWindowsRTARMIncludeFiles Condition="'@(VlcWindowsRTARMIncludeFiles)'==''" Include="libvlc.*;libvlccore.*;hrtfs\%2A%2A;locale\%2A%2A;lua\%2A%2A;plugins\%2A%2A" />
   </ItemGroup>
 
   <Target Name="CollectVlcFilesToCopyWindowsRT" BeforeTargets="BeforeBuild">
