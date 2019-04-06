@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <VlcWindowsRTX64TargetDir Condition=" '$(VlcWindowsRTX64TargetDir)' == '' ">libvlc\win10-x64</VlcWindowsRTX64TargetDir>
-    <VlcWindowsRTX86TargetDir Condition=" '$(VlcWindowsRTX86TargetDir)' == '' ">libvlc\win10-x86</VlcWindowsRTX86TargetDir>
-    <VlcWindowsRTARMTargetDir Condition=" '$(VlcWindowsRTARMTargetDir)' == '' ">libvlc\win10-arm</VlcWindowsRTARMTargetDir>
     <VlcWindowsRTX64Enabled Condition="'$(VlcWindowsRTX64Enabled)' == '' AND ('$(Platform)' == 'x64' OR '$(Platform)' == 'AnyCPU')">true</VlcWindowsRTX64Enabled>
     <VlcWindowsRTX86Enabled Condition="'$(VlcWindowsRTX86Enabled)' == '' AND ('$(Platform)' == 'x86' OR '$(Platform)' == 'AnyCPU')">true</VlcWindowsRTX86Enabled>
     <VlcWindowsRTARMEnabled Condition="'$(VlcWindowsRTARMEnabled)' == '' AND ('$(Platform)' == 'ARM')">true</VlcWindowsRTARMEnabled>
@@ -40,7 +37,7 @@
 
       <!-- We have gathered all the full path of what should be copied and what should be skipped, let's include that as Content that gets copied -->
       <Content Include="@(VlcWindowsRTX64IncludeFilesFullPath)" Exclude="@(VlcWindowsRTX64ExcludeFilesFullPath)">
-        <Link>$(VlcWindowsRTX64TargetDir)\$([MSBuild]::MakeRelative($(MSBuildThisFileDirectory)..\build\win10-x64\, %(FullPath)))</Link>
+        <Link>$([MSBuild]::MakeRelative($(MSBuildThisFileDirectory)..\build\win10-x64\, %(FullPath)))</Link>
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
     </ItemGroup>
@@ -53,7 +50,7 @@
 
       <!-- We have gathered all the full path of what should be copied and what should be skipped, let's include that as Content that gets copied -->
       <Content Include="@(VlcWindowsRTX86IncludeFilesFullPath)" Exclude="@(VlcWindowsRTX86ExcludeFilesFullPath)">
-        <Link>$(VlcWindowsRTX86TargetDir)\$([MSBuild]::MakeRelative($(MSBuildThisFileDirectory)..\build\win10-x86\, %(FullPath)))</Link>
+        <Link>$([MSBuild]::MakeRelative($(MSBuildThisFileDirectory)..\build\win10-x86\, %(FullPath)))</Link>
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
     </ItemGroup>
@@ -66,7 +63,7 @@
 
       <!-- We have gathered all the full path of what should be copied and what should be skipped, let's include that as Content that gets copied -->
       <Content Include="@(VlcWindowsRTARMIncludeFilesFullPath)" Exclude="@(VlcWindowsRTARMExcludeFilesFullPath)">
-        <Link>$(VlcWindowsRTARMTargetDir)\$([MSBuild]::MakeRelative($(MSBuildThisFileDirectory)..\build\win10-arm\, %(FullPath)))</Link>
+        <Link>$([MSBuild]::MakeRelative($(MSBuildThisFileDirectory)..\build\win10-arm\, %(FullPath)))</Link>
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
     </ItemGroup>
