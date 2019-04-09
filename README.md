@@ -87,16 +87,16 @@ Minimum OS version supported by LibVLC 3.x:
 - x86
 - x64
 
-*Note: if you intend to use libvlc with UWP projects, you probably need to install the [WindowsRT](#windows-universal) package instead because this build directly uses win32 APIs.*
+*Note: if you intend to use libvlc with UWP projects, you probably need to install the [UWP](#windows-universal) package instead because this build directly uses win32 APIs.*
 
 ## Windows Universal
 
 ```cmd
- dotnet add package VideoLAN.LibVLC.WindowsRT
+ dotnet add package VideoLAN.LibVLC.UWP
 ```
 
-[![NuGet version](https://img.shields.io/nuget/v/VideoLAN.LibVLC.WindowsRT.svg)](https://www.nuget.org/packages/VideoLAN.LibVLC.WindowsRT)
-[![NuGet downloads](https://img.shields.io/nuget/dt/VideoLAN.LibVLC.WindowsRT.svg)](https://www.nuget.org/packages/VideoLAN.LibVLC.WindowsRT)
+[![NuGet version](https://img.shields.io/nuget/v/VideoLAN.LibVLC.UWP.svg)](https://www.nuget.org/packages/VideoLAN.LibVLC.UWP)
+[![NuGet downloads](https://img.shields.io/nuget/dt/VideoLAN.LibVLC.UWP.svg)](https://www.nuget.org/packages/VideoLAN.LibVLC.UWP)
 
 #### Supported CPU architectures:
 
