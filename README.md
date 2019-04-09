@@ -9,7 +9,8 @@ that you can add in your .NET project so that it gets copied into the output dir
 - [How do I use this thing from .NET?](#How-do-I-use-this-thing-from-.NET)
 - [Build and packaging customization with MSBuild](#Build-and-packaging-customization-with-MSBuild)
 - [Supported platforms](#Supported-platforms)
-  - [Windows](#windows)
+  - [Windows Classic](#windows-classic)
+  - [Windows Universal](#windows-universal)
   - [Android](#android)
   - [iOS](#iOS)
   - [macOS](#macOS)
@@ -72,7 +73,7 @@ Minimum OS version supported by LibVLC 3.x:
 - iOS 7
 - Android 2.3
 
-## Windows
+## Windows Classic
 
 ```cmd
  dotnet add package VideoLAN.LibVLC.Windows
@@ -86,7 +87,22 @@ Minimum OS version supported by LibVLC 3.x:
 - x86
 - x64
 
-*Note: if you intend to use libvlc with UWP projects, you probably need to install the WindowsRT package instead because this build directly uses win32 APIs.*
+*Note: if you intend to use libvlc with UWP projects, you probably need to install the [WindowsRT](#windows-universal) package instead because this build directly uses win32 APIs.*
+
+## Windows Universal
+
+```cmd
+ dotnet add package VideoLAN.LibVLC.WindowsRT
+```
+
+[![NuGet version](https://img.shields.io/nuget/v/VideoLAN.LibVLC.WindowsRT.svg)](https://www.nuget.org/packages/VideoLAN.LibVLC.WindowsRT)
+[![NuGet downloads](https://img.shields.io/nuget/dt/VideoLAN.LibVLC.WindowsRT.svg)](https://www.nuget.org/packages/VideoLAN.LibVLC.WindowsRT)
+
+#### Supported CPU architectures:
+
+- x86
+- x64
+- ARM
 
 ## Android
 
@@ -153,7 +169,6 @@ For Ubuntu, follow this [guide](https://code.videolan.org/videolan/LibVLCSharp/b
 
 # Roadmap
 
-- WindowsRT x86/x64/ARM
 - Unity and other game engines
 - WebAssembly
 - Tizen?
