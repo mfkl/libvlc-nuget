@@ -123,7 +123,7 @@ dotnet add package VideoLAN.LibVLC.Android
 ## iOS
 
 ```cmd
-dotnet add package VideoLAN.LibVLC.iOS --version 3.1.5-alpha
+dotnet add package VideoLAN.LibVLC.iOS
 ```
 
 [![NuGet Stats](https://img.shields.io/nuget/v/VideoLAN.LibVLC.iOS.svg)](https://www.nuget.org/packages/VideoLAN.LibVLC.iOS)
@@ -152,7 +152,7 @@ dotnet add package VideoLAN.LibVLC.Mac
 ## tvOS
 
 ```cmd
- dotnet add package VideoLAN.LibVLC.tvOS --version 3.2.0-alpha 
+ dotnet add package VideoLAN.LibVLC.tvOS 
 ```
 
 [![NuGet Stats](https://img.shields.io/nuget/v/VideoLAN.LibVLC.tvOS.svg)](https://www.nuget.org/packages/VideoLAN.LibVLC.tvOS)
