@@ -171,4 +171,3 @@ For Ubuntu, follow this [guide](https://code.videolan.org/videolan/LibVLCSharp/b
 
 - Unity and other game engines
 - WebAssembly
-- Tizen?
