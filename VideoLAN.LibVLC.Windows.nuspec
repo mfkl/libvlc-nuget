@@ -14,6 +14,7 @@ As it is native code, you will need to use a wrapper library such as LibVLCSharp
     <projectUrl>https://code.videolan.org/videolan/libvlc-nuget</projectUrl>
     <license type="expression">LGPL-2.1-or-later</license>
     <iconUrl>https://images1.videolan.org/images/vlc64x64.png</iconUrl>
+    <releaseNotes>https://code.videolan.org/videolan/vlc/blob/master/NEWS</releaseNotes>
   </metadata>
   <files>
     <file src="build\VideoLAN.LibVLC.Windows.targets" target="build\VideoLAN.LibVLC.Windows.targets"/>
