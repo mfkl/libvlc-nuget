@@ -16,6 +16,7 @@ that you can add in your .NET project so that it gets copied into the output dir
   - [macOS](#macOS)
   - [tvOS](#tvOS)
   - [Linux](#linux)
+  - [Unity3D](#Unity3D)
 - [Roadmap](#roadmap)
 
 # What is libvlc?
@@ -169,7 +170,17 @@ dotnet add package VideoLAN.LibVLC.Mac
 
 For Ubuntu, follow this [guide](https://code.videolan.org/videolan/LibVLCSharp/blob/master/docs/linux-setup.md).
 
+## Unity3D
+
+| Platform          |  Unity Store Asset                              |
+| ----------------- | ----------------------------------------------- |
+| Windows           | [![VLCUnityWindowsBadge]][VLCUnityWindows]      |
+
+[RVLCUnityWindows]: https://assetstore.unity.com/packages/tools/video/vlc-for-unity-windows-133979
+[VLCUnityWindows]: https://assetstore.unity.com/packages/tools/video/vlc-for-unity-windows-133979
+[VLCUnityWindowsBadge]: https://img.shields.io/badge/Made%20with-Unity-57b9d3.svg?style=flat&logo=unity
+
 # Roadmap
 
-- Unity and other game engines
+- More Unity back-ends and other game engines
 - WebAssembly
