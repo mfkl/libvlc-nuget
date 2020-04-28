@@ -13,12 +13,13 @@ As it is native code, you will need to use a wrapper library such as LibVLCSharp
     <tags>libvlc;vlc;videolan;native;c/c++;video;audio;player;media;mediaplayer;codec;ffmpeg;xamarin;graphics;ios;android;linux;windows;macos;cross-platform</tags>
     <projectUrl>https://code.videolan.org/videolan/libvlc-nuget</projectUrl>
     <license type="expression">LGPL-2.1-or-later</license>
-    <iconUrl>https://raw.githubusercontent.com/mfkl/libvlc-nuget/master/icon.png</iconUrl>
+    <icon>icon.png</icon>
     <releaseNotes>https://code.videolan.org/videolan/vlc/blob/master/NEWS</releaseNotes>
   </metadata>
   <files>
     <file src="build\VideoLAN.LibVLC.Windows.targets" target="build\VideoLAN.LibVLC.Windows.targets"/>
     <file src="build\win7-x64\native\**" target="build\x64"/>
     <file src="build\win7-x86\native\**" target="build\x86"/>
+    <file src="icon.png" target="" />
   </files>
 </package>
