@@ -17,6 +17,11 @@ var nightlyVersion = "vlc-4.0.0-dev";
 var packageLocationX64 = Directory("./build/win7-x64/native");
 string todayPartialLink = null;
 const string ext = ".7z";
+string packageVersion = null;
+string WindowsPackageName = "VideoLAN.LibVLC.Windows";
+string nupkg = "nupkg";
+string WindowsNuGetSourceURL = "https://f.feedz.io/videolan/libvlc-windows/nuget/index.json";
+string feedz = "feedz";
 
 //////////////////////////////////////////////////////////////////////
 // PREPARATION
@@ -34,10 +39,10 @@ Task("Clean")
 {
     CleanDirectory(artifactDir);
     CleanDirectory(packageLocationX64);
+    DeleteFiles(GetFiles($"./*.{nupkg}"));
     if(FileExists($"{artifact}.{ext}"))
         DeleteFile($"{artifact}.{ext}");
 });
-
 
 Task("Package-win64-nightly")
     .IsDependentOn("Clean")
@@ -46,6 +51,19 @@ Task("Package-win64-nightly")
     await DownloadArtifact();
 
     CreateNuGetPackage();
+});
+
+Task("Publish")
+    .IsDependentOn("Package-win64-nightly")
+    .Does(() =>
+{
+    var nugetPushSettings = new NuGetPushSettings 
+    {
+        Source = WindowsNuGetSourceURL,
+        ApiKey = EnvironmentVariable(feedz)
+    };
+
+    NuGetPush($"./{WindowsPackageName}.{packageVersion}.{nupkg}", nugetPushSettings);
 });
 
 using System;
@@ -91,6 +109,7 @@ async Task DownloadArtifact()
     if (todayLinkEnding == null) throw new NullReferenceException();
 
     client.Dispose();
+    packageVersion = todayPartialLink.Trim('/').Replace('-', '.');
 
     Console.WriteLine("Found the nightly artifact URL");
 
@@ -150,7 +169,7 @@ void CreateNuGetPackage()
 
     NuGetPack("./VideoLAN.LibVLC.Windows.nuspec", new NuGetPackSettings
     {
-        Version = todayPartialLink.Trim('/').Replace('-', '.')
+        Version = packageVersion
     });
 }
 
@@ -175,7 +194,7 @@ static List<string> ExtractLinks(string html)
 //////////////////////////////////////////////////////////////////////
 
 Task("Default")
-    .IsDependentOn("Package-win64-nightly");
+    .IsDependentOn("Publish");
 
 //////////////////////////////////////////////////////////////////////
 // EXECUTION
