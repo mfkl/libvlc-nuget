@@ -38,7 +38,8 @@ _ReSharper*/
 #Nuget packages folder
 packages/
 *.nupkg
-
+tools/
+artifact/
 #Exclude build folders and temp files
 native
 x64
