@@ -1,7 +1,5 @@
 steps:
-- task: PowerShell@2
-  displayName: 'Build all'
-  inputs:
-    targetType: filePath
-    filePath: ./buildsystem/build.ps1
-    workingDirectory: buildsystem
+- bash: |
+   #!/bin/bash
+   ./buildsystem/build.sh
+  displayName: 'Package and deploy'
