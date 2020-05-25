@@ -84,6 +84,7 @@ using System.Net;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 // download and extract nightly build.
 async Task DownloadArtifact(string arch)
@@ -143,7 +144,12 @@ async Task DownloadArtifact(string arch)
         Console.WriteLine("Done...");
     }
 
-    Unzip($"../artifacts/{artifact}{ext}", $"../artifacts/{artifact}");
+    ProcessStartInfo p = new ProcessStartInfo();
+    p.FileName = "/usr/bin/7z";
+    p.Arguments = $"x ../artifacts/{artifact}{ext} -o../artifacts/{artifact}";
+    p.WindowStyle = ProcessWindowStyle.Hidden;
+    Process x = Process.Start(p);
+    x.WaitForExit();
 }
 
 // move files in proper locations for nuget pack
