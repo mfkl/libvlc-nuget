@@ -36,6 +36,7 @@ Task("Clean")
 {
     CleanDirectory(artifactsLocation);
     CleanDirectory(packageLocationX64);
+    CleanDirectory(packageLocationX86);
     DeleteFiles(GetFiles($"./*.{nupkg}"));
     // if(FileExists($"{artifact}.{ext}"))
     //     DeleteFile($"{artifact}.{ext}");
