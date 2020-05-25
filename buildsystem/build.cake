@@ -8,13 +8,16 @@
 var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Release");
 
-
-// var artifactDir = Directory(artifact);
+//////////////////////////////////////////////////////////////////////
+// PREPARATION
+//////////////////////////////////////////////////////////////////////
 
 var nightlyVersion = "vlc-4.0.0-dev";
 
-var packageLocationX64 = Directory("./build/win7-x64/native");
-var packageLocationX86 = Directory("./build/win7-x86/native");
+var artifactsLocation = Directory("../artifacts");
+var packageLocationX64 = Directory("../build/win7-x64/native");
+var packageLocationX86 = Directory("../build/win7-x86/native");
+
 string todayPartialLink = null;
 const string ext = ".7z";
 string packageVersionWin32 = null;
@@ -24,12 +27,6 @@ string nupkg = "nupkg";
 string WindowsNuGetSourceURL = "https://f.feedz.io/videolan/libvlc-windows/nuget/index.json";
 string feedz = "feedz";
 
-//////////////////////////////////////////////////////////////////////
-// PREPARATION
-//////////////////////////////////////////////////////////////////////
-
-// Define directories.
-var buildDir = Directory("./src/Example/bin") + Directory(configuration);
 
 //////////////////////////////////////////////////////////////////////
 // TASKS
@@ -38,7 +35,7 @@ var buildDir = Directory("./src/Example/bin") + Directory(configuration);
 Task("Clean")
     .Does(() =>
 {
-    // CleanDirectory(artifactDir);
+    CleanDirectory(artifactsLocation);
     CleanDirectory(packageLocationX64);
     DeleteFiles(GetFiles($"./*.{nupkg}"));
     // if(FileExists($"{artifact}.{ext}"))
@@ -77,6 +74,7 @@ Task("Publish")
         ApiKey = EnvironmentVariable(feedz)
     };
 
+    Console.WriteLine($"Attempting to push ./{WindowsPackageName}.{packageVersionWin64}.{nupkg}");
     NuGetPush($"./{WindowsPackageName}.{packageVersionWin64}.{nupkg}", nugetPushSettings);
 });
 
@@ -125,12 +123,12 @@ async Task DownloadArtifact(string arch)
 
     if(arch == "win32")
     {
-        packageVersionWin32 = todayPartialLink.Trim('/').Replace('-', '.');
+        packageVersionWin32 = todayPartialLink.Trim('/').Take(8).ToString();
         artifact = $"artifact-{packageVersionWin32}-{arch}";
     }
     else if(arch == "win64")
     {
-        packageVersionWin64 = todayPartialLink.Trim('/').Replace('-', '.');
+        packageVersionWin64 = todayPartialLink.Trim('/').Take(8).ToString();
         artifact = $"artifact-{packageVersionWin64}-{arch}";
     }   
 
@@ -142,15 +140,15 @@ async Task DownloadArtifact(string arch)
         Console.WriteLine($"requesting {url}");
 
         webClient.DownloadProgressChanged += (s, e) => Console.Write($"\r{e.ProgressPercentage}%");
-        await webClient.DownloadFileTaskAsync(url, $"{artifact}.{ext}");
+        await webClient.DownloadFileTaskAsync(url, $"../artifacts/{artifact}.{ext}");
         Console.WriteLine(Environment.NewLine);
         Console.WriteLine("Done...");
     }
     
     Console.WriteLine("Extracting archive...");
-    using (ArchiveFile archiveFile = new ArchiveFile($"{artifact}.{ext}"))
+    using (ArchiveFile archiveFile = new ArchiveFile($"../artifacts/{artifact}.{ext}"))
     {
-        archiveFile.Extract($"./{artifact}");
+        archiveFile.Extract($"../artifacts/{artifact}");
     }
 }
 
@@ -159,8 +157,8 @@ void PrepareForPackaging()
 {
     Console.WriteLine("PrepareForPackaging...");
 
-    var artifactwin32 = $"artifact-{packageVersionWin32}-win32";
-    var artifactwin64 = $"artifact-{packageVersionWin64}-win64";
+    var artifactwin32 = $"../artifacts/artifact-{packageVersionWin32}-win32";
+    var artifactwin64 = $"../artifacts/artifact-{packageVersionWin64}-win64";
 
     var files = new []
     { 
@@ -211,7 +209,8 @@ void CreateNuGetPackage()
 {
     PrepareForPackaging();
 
-    NuGetPack("./VideoLAN.LibVLC.Windows.nuspec", new NuGetPackSettings
+    Console.WriteLine("Version for package: " + packageVersionWin64);
+    NuGetPack("../VideoLAN.LibVLC.Windows.nuspec", new NuGetPackSettings
     {
         // package version URLs differ from the same nightly build depending on the arch.
         // using the number from win64
