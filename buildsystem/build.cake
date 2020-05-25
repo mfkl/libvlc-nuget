@@ -1,5 +1,4 @@
 #tool nuget:?package=NUnit.ConsoleRunner&version=3.4.0
-#addin nuget:?package=SevenZipExtractor&version=1.0.15
 
 //////////////////////////////////////////////////////////////////////
 // ARGUMENTS
@@ -85,7 +84,6 @@ using System.Net;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using SevenZipExtractor;
 
 // download and extract nightly build.
 async Task DownloadArtifact(string arch)
@@ -140,16 +138,12 @@ async Task DownloadArtifact(string arch)
         Console.WriteLine($"requesting {url}");
 
         webClient.DownloadProgressChanged += (s, e) => Console.Write($"\r{e.ProgressPercentage}%");
-        await webClient.DownloadFileTaskAsync(url, $"../artifacts/{artifact}.{ext}");
+        await webClient.DownloadFileTaskAsync(url, $"../artifacts/{artifact}{ext}");
         Console.WriteLine(Environment.NewLine);
         Console.WriteLine("Done...");
     }
-    
-    Console.WriteLine("Extracting archive...");
-    using (ArchiveFile archiveFile = new ArchiveFile($"../artifacts/{artifact}.{ext}"))
-    {
-        archiveFile.Extract($"../artifacts/{artifact}");
-    }
+
+    Unzip($"../artifacts/{artifact}{ext}", $"../artifacts/{artifact}");
 }
 
 // move files in proper locations for nuget pack
