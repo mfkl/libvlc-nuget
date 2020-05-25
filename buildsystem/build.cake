@@ -75,7 +75,7 @@ Task("Publish")
     };
 
     Console.WriteLine($"Attempting to push ./{WindowsPackageName}.{packageVersionWin64}.{nupkg}");
-    NuGetPush($"./{WindowsPackageName}.{packageVersionWin64}.{nupkg}", nugetPushSettings);
+    NuGetPush($"./{WindowsPackageName}.4.0.0-alpha-{packageVersionWin64}.{nupkg}", nugetPushSettings);
 });
 
 using System;
@@ -123,12 +123,12 @@ async Task DownloadArtifact(string arch)
 
     if(arch == "win32")
     {
-        packageVersionWin32 = todayPartialLink.Trim('/').Take(8).ToString();
+        packageVersionWin32 = today;
         artifact = $"artifact-{packageVersionWin32}-{arch}";
     }
     else if(arch == "win64")
     {
-        packageVersionWin64 = todayPartialLink.Trim('/').Take(8).ToString();
+        packageVersionWin64 = today;
         artifact = $"artifact-{packageVersionWin64}-{arch}";
     }   
 
@@ -214,7 +214,7 @@ void CreateNuGetPackage()
     {
         // package version URLs differ from the same nightly build depending on the arch.
         // using the number from win64
-        Version = packageVersionWin64
+        Version = $"4.0.0-alpha-{packageVersionWin64}"
     });
 }
 
