@@ -1,0 +1,12 @@
+trigger:
+- master
+
+pr:
+- master
+
+jobs:
+- job: Linux
+  pool:
+    vmImage: 'ubuntu-18.04'
+  steps:
+  - template: linux-build.yml
