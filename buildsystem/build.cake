@@ -24,7 +24,7 @@ string packageVersionWin64 = null;
 string WindowsPackageName = "VideoLAN.LibVLC.Windows";
 string nupkg = "nupkg";
 string WindowsNuGetSourceURL = "https://f.feedz.io/videolan/libvlc-windows/nuget/index.json";
-string feedz = "feedz";
+string FEEDZ = "FEEDZ";
 
 
 //////////////////////////////////////////////////////////////////////
@@ -71,7 +71,7 @@ Task("Publish")
     var nugetPushSettings = new NuGetPushSettings 
     {
         Source = WindowsNuGetSourceURL,
-        ApiKey = EnvironmentVariable(feedz)
+        ApiKey = EnvironmentVariable(FEEDZ)
     };
 
     Console.WriteLine($"Attempting to push ./{WindowsPackageName}.{packageVersionWin64}.{nupkg}");

@@ -4,3 +4,5 @@ steps:
    ./build.sh
   workingDirectory: buildsystem
   displayName: 'Package and deploy'
+  env:
+    FEEDZ: $(FEEDZ)
