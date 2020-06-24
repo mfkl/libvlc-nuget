@@ -1,9 +1,9 @@
-<?xml version="1.0"?>
+﻿<?xml version="1.0"?>
 <package >
   <metadata>
     <id>VideoLAN.LibVLC.Mac</id>
     <title>VideoLAN.LibVLC.Mac</title>
-    <version>3.1.3.1</version>
+    <version>3.2.1</version>
     <authors>VideoLAN</authors>
     <owners>VideoLAN</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -18,6 +18,6 @@ As it is native code, you will need to use a wrapper library such as LibVLCSharp
   </metadata>
   <files>
     <file src="build\VideoLAN.LibVLC.Mac.targets" target="build\VideoLAN.LibVLC.Mac.targets"/>
-    <file src="build\osx-x64\libvlc.dylib" target="build\osx-x64\libvlc.dylib"/>
+    <file src="build\osx-x64\**" target="build\osx-x64"/>
   </files>
 </package>
