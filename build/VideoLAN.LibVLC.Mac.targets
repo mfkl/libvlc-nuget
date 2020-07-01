@@ -1,18 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
+    <VlcMacX64TargetDir Condition=" '$(VlcMacX64TargetDir)' == '' ">libvlc\osx-x64</VlcMacX64TargetDir>
+    <VlcMacX64Enabled Condition="'$(VlcMacX64Enabled)' == '' AND ('$(Platform)' == 'x64' OR '$(Platform)' == 'AnyCPU')">true</VlcMacX64Enabled>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <VlcMacX64IncludeFiles Condition="'@(VlcMacX64IncludeFiles)'==''" Include="lib\%2A%2A;plugins\%2A%2A;share\%2A%2A" />
+  </ItemGroup>
+  
+  <Target Name="CopyLibVLC" BeforeTargets="BeforeBuild" Condition="$(TargetFramework.StartsWith('net'))">
+    <ItemGroup Condition="'$(VlcMacX64Enabled)' == 'true'">
+      <!-- Expand selectors and compute absolute paths for include, exclude and MainLibraries -->
+      <VlcMacX64IncludeFilesFullPath Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\build\osx-x64\%(VlcMacX64IncludeFiles.Identity)))" />
+      <VlcMacX64ExcludeFilesFullPath Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\build\osx-x64\%(VlcMacX64ExcludeFiles.Identity)))" Condition="'%(VlcMacX64ExcludeFiles.Identity)'!=''" />
+
+      <!-- We have gathered all the full path of what should be copied and what should be skipped, let's include that as Content that gets copied -->
+      <Content Include="@(VlcMacX64IncludeFilesFullPath)" Exclude="@(VlcMacX64ExcludeFilesFullPath)">
+        <Link>$(VlcMacX64TargetDir)\$([MSBuild]::MakeRelative($(MSBuildThisFileDirectory)..\build\osx-x64\, %(FullPath)))</Link>
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+  </Target>
+
+  <!-- net4.x and netcoreapp targets -->
+  <!-- <ItemGroup Condition="$(TargetFramework.StartsWith('net'))">
+      <Content Include="@(VlcMacX64IncludeLibFiles)">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <Content Include="@(VlcMacX64IncludePluginsFiles)">
+        <Link></Link>
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <Content Include="@(VlcMacX64IncludeShareFiles)">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+  </ItemGroup> -->
+
+  <!-- xamarin.mac target -->
+  <PropertyGroup>
 	    <CreateAppBundleDependsOn>$(CreateAppBundleDependsOn);CollectVlcFilesToCopyMac</CreateAppBundleDependsOn>
 	</PropertyGroup>
-
   <Target Name="CollectVlcFilesToCopyMac">
-    <ItemGroup>
-            <VlcMacX64IncludeLibFiles Include="$(MSBuildThisFileDirectory)osx-x64/lib/*.dylib" />
-            <VlcMacX64IncludePluginsFiles Include="$(MSBuildThisFileDirectory)osx-x64/plugins/*.dylib" />
-        </ItemGroup>
-	    <Copy SourceFiles="@(VlcMacX64IncludeLibFiles)" 
-      DestinationFiles="@(VlcMacX64IncludeLibFiles->'$(AppBundleDir)/Contents/MonoBundle/lib/%(RecursiveDir)%(Filename)%(Extension)')" />
+    
+    <Copy SourceFiles="@(VlcMacX64IncludeLibFiles)" 
+    DestinationFiles="@(VlcMacX64IncludeLibFiles->'$(AppBundleDir)/Contents/MonoBundle/lib/%(RecursiveDir)%(Filename)%(Extension)')" />
 
-      <Copy SourceFiles="@(VlcMacX64IncludePluginsFiles)"
-      DestinationFiles="@(VlcMacX64IncludePluginsFiles->'$(AppBundleDir)/Contents/MonoBundle/plugins/%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Copy SourceFiles="@(VlcMacX64IncludePluginsFiles)"
+    DestinationFiles="@(VlcMacX64IncludePluginsFiles->'$(AppBundleDir)/Contents/MonoBundle/plugins/%(RecursiveDir)%(Filename)%(Extension)')" />
+
+    <Copy SourceFiles="@(VlcMacX64IncludeShareFiles)"
+    DestinationFiles="@(VlcMacX64IncludeShareFiles->'$(AppBundleDir)/Contents/MonoBundle/share/%(RecursiveDir)%(Filename)%(Extension)')" />
   </Target>
 </Project>
