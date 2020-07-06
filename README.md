@@ -18,6 +18,7 @@ that you can add in your .NET project so that it gets copied into the output dir
   - [Linux](#linux)
   - [Unity3D](#Unity3D)
 - [Roadmap](#roadmap)
+- [Commercial services](#Commercial-services)
 
 # What is libvlc?
 
@@ -184,3 +185,16 @@ For Ubuntu, follow this [guide](https://code.videolan.org/videolan/LibVLCSharp/b
 
 - More Unity back-ends and other game engines
 - WebAssembly
+- LibVLC 4
+
+# Commercial services
+
+If you would like VLC developers to provide you with:
+- custom development on LibVLC and/or LibVLCSharp, 
+- training and workshops,
+- commercial licenses,
+- support services,
+- consulting services,
+- other multimedia services.
+
+Feel free to [contact us](https://videolabs.io/#contact).
