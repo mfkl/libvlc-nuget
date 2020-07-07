@@ -3,7 +3,7 @@
   <metadata>
     <id>VideoLAN.LibVLC.Mac</id>
     <title>VideoLAN.LibVLC.Mac</title>
-    <version>3.2.1</version>
+    <version>3.2.0</version>
     <authors>VideoLAN</authors>
     <owners>VideoLAN</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -13,11 +13,12 @@ As it is native code, you will need to use a wrapper library such as LibVLCSharp
     <tags>libvlc;vlc;videolan;native;c/c++;video;audio;player;media;mediaplayer;codec;ffmpeg;xamarin;graphics;ios;android;linux;windows;macos;cross-platform</tags>
     <projectUrl>https://code.videolan.org/videolan/libvlc-nuget</projectUrl>
     <license type="expression">LGPL-2.1-or-later</license>
-    <iconUrl>https://raw.githubusercontent.com/mfkl/libvlc-nuget/master/icon.png</iconUrl>
+    <icon>icon.png</icon>
     <releaseNotes>https://code.videolan.org/videolan/vlc/blob/master/NEWS</releaseNotes>
   </metadata>
   <files>
     <file src="build\VideoLAN.LibVLC.Mac.targets" target="build\VideoLAN.LibVLC.Mac.targets"/>
     <file src="build\osx-x64\**" target="build\osx-x64"/>
+    <file src="icon.png" target="" />
   </files>
 </package>

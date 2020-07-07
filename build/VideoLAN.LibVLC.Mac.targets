@@ -3,13 +3,13 @@
   <PropertyGroup>
     <VlcMacX64TargetDir Condition=" '$(VlcMacX64TargetDir)' == '' ">libvlc\osx-x64</VlcMacX64TargetDir>
     <VlcMacX64Enabled Condition="'$(VlcMacX64Enabled)' == '' AND ('$(Platform)' == 'x64' OR '$(Platform)' == 'AnyCPU')">true</VlcMacX64Enabled>
-  </PropertyGroup>
-
+    <CreateAppBundleDependsOn Condition="$(TargetFramework.StartsWith('xamarin.mac'))">$(CreateAppBundleDependsOn);CopyLibVLCToAppBundle</CreateAppBundleDependsOn>
+</PropertyGroup>
   <ItemGroup>
     <VlcMacX64IncludeFiles Condition="'@(VlcMacX64IncludeFiles)'==''" Include="lib\%2A%2A;plugins\%2A%2A;share\%2A%2A" />
   </ItemGroup>
   
-  <Target Name="CopyLibVLC" BeforeTargets="BeforeBuild" Condition="$(TargetFramework.StartsWith('net'))">
+  <Target Name="CopyLibVLCToOutput" BeforeTargets="BeforeBuild" Condition="$(TargetFramework.StartsWith('net'))">
     <ItemGroup Condition="'$(VlcMacX64Enabled)' == 'true'">
       <!-- Expand selectors and compute absolute paths for include, exclude and MainLibraries -->
       <VlcMacX64IncludeFilesFullPath Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\build\osx-x64\%(VlcMacX64IncludeFiles.Identity)))" />
@@ -23,26 +23,7 @@
     </ItemGroup>
   </Target>
 
-  <!-- net4.x and netcoreapp targets -->
-  <!-- <ItemGroup Condition="$(TargetFramework.StartsWith('net'))">
-      <Content Include="@(VlcMacX64IncludeLibFiles)">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
-      <Content Include="@(VlcMacX64IncludePluginsFiles)">
-        <Link></Link>
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
-      <Content Include="@(VlcMacX64IncludeShareFiles)">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
-  </ItemGroup> -->
-
-  <!-- xamarin.mac target -->
-  <PropertyGroup>
-	    <CreateAppBundleDependsOn>$(CreateAppBundleDependsOn);CollectVlcFilesToCopyMac</CreateAppBundleDependsOn>
-	</PropertyGroup>
-  <Target Name="CollectVlcFilesToCopyMac">
-    
+  <Target Name="CopyLibVLCToAppBundle">
     <Copy SourceFiles="@(VlcMacX64IncludeLibFiles)" 
     DestinationFiles="@(VlcMacX64IncludeLibFiles->'$(AppBundleDir)/Contents/MonoBundle/lib/%(RecursiveDir)%(Filename)%(Extension)')" />
 
