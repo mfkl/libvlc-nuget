@@ -15,13 +15,14 @@ Use this LibVLC build for Windows Universal projects (UAP) on Windows 10 Desktop
     <tags>libvlc;vlc;videolan;native;c/c++;video;audio;player;media;mediaplayer;codec;ffmpeg;xamarin;graphics;ios;android;linux;windows;macos;cross-platform</tags>
     <projectUrl>https://code.videolan.org/videolan/libvlc-nuget</projectUrl>
     <license type="expression">LGPL-2.1-or-later</license>
-    <iconUrl>https://raw.githubusercontent.com/mfkl/libvlc-nuget/master/icon.png</iconUrl>
     <releaseNotes>https://code.videolan.org/videolan/vlc/blob/master/NEWS</releaseNotes>
+    <icon>icon.png</icon>
   </metadata>
   <files>
     <file src="build\VideoLAN.LibVLC.UWP.targets" target="build\VideoLAN.LibVLC.UWP.targets"/>
     <file src="build\win10-x86\native\**" target="build\win10-x86"/>
     <file src="build\win10-x64\native\**" target="build\win10-x64"/>
     <file src="build\win10-arm\native\**" target="build\win10-arm"/>
+    <file src="icon.png" target="" />
   </files>
 </package>
