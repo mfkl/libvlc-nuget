@@ -23,7 +23,7 @@ string packageVersionWin32 = null;
 string packageVersionWin64 = null;
 string WindowsPackageName = "VideoLAN.LibVLC.Windows";
 string nupkg = "nupkg";
-string WindowsNuGetSourceURL = "https://f.feedz.io/videolan/libvlc-windows/nuget/index.json";
+string FeedzSourceURL = "https://f.feedz.io/videolan/libvlc/nuget/index.json";
 string FEEDZ = "FEEDZ";
 
 
@@ -70,7 +70,7 @@ Task("Publish")
 {
     var nugetPushSettings = new NuGetPushSettings 
     {
-        Source = WindowsNuGetSourceURL,
+        Source = FeedzSourceURL,
         ApiKey = EnvironmentVariable(FEEDZ)
     };
 
