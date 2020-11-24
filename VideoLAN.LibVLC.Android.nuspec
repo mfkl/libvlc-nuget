@@ -13,7 +13,7 @@ As it is native code, you will need to use a wrapper library such as LibVLCSharp
     <tags>libvlc;vlc;videolan;native;c/c++;video;audio;player;media;mediaplayer;codec;ffmpeg;xamarin;graphics;ios;android;linux;windows;macos;cross-platform</tags>
     <projectUrl>https://code.videolan.org/videolan/libvlc-nuget</projectUrl>
     <license type="expression">LGPL-2.1-or-later</license>
-    <iconUrl>https://raw.githubusercontent.com/mfkl/libvlc-nuget/master/icon.png</iconUrl>
+    <icon>icon.png</icon>
     <releaseNotes>https://code.videolan.org/videolan/vlc/blob/master/NEWS</releaseNotes>
   </metadata>
   <files>
@@ -26,5 +26,6 @@ As it is native code, you will need to use a wrapper library such as LibVLCSharp
     <file src="build\android-x86\libc++_shared.so" target="build\android-x86\libc++_shared.so"/>
     <file src="build\android-x86_64\libvlc.so" target="build\android-x86_64\libvlc.so"/>
     <file src="build\android-x86_64\libc++_shared.so" target="build\android-x86_64\libc++_shared.so"/>
+    <file src="icon.png" target="" />
   </files>
 </package>
