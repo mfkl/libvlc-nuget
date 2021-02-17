@@ -1,4 +1,10 @@
 steps:
+- task: UseDotNet@2
+  displayName: 'Use .NET Core SDK'
+  inputs:
+    packageType: sdk
+    version: 5.0.101
+
 - task: DotNetCoreCLI@2
   displayName: 'Install Cake'
   inputs:
@@ -8,9 +14,10 @@ steps:
 
 - task: DotNetCoreCLI@2
   displayName: 'Package and deploy'
+  env:
+    FEEDZ: $(FEEDZ)
   inputs:
     command: custom
     custom: 'cake'
     workingDirectory: buildsystem
-  env:
-    FEEDZ: $(FEEDZ)
+  
