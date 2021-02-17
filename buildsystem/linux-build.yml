@@ -1,8 +1,16 @@
 steps:
-- bash: |
-   chmod +x build.sh
-   ./build.sh
-  workingDirectory: buildsystem
+- task: DotNetCoreCLI@2
+  displayName: 'Install Cake'
+  inputs:
+    command: custom
+    custom: 'tool'
+    arguments: 'install cake.tool --global'
+
+- task: DotNetCoreCLI@2
   displayName: 'Package and deploy'
+  inputs:
+    command: custom
+    custom: 'cake'
+    workingDirectory: buildsystem
   env:
     FEEDZ: $(FEEDZ)
