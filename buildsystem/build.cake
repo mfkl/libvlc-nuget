@@ -74,9 +74,23 @@ Task("Publish")
         ApiKey = EnvironmentVariable(FEEDZ)
     };
 
-    Console.WriteLine($"Attempting to push ./{WindowsPackageName}.{packageVersionWin64}.{nupkg}");
-    NuGetPush($"./{WindowsPackageName}.4.0.0-alpha-{packageVersionWin64}.{nupkg}", nugetPushSettings);
+    if(IsPrBuild())
+    {
+        Console.WriteLine("Don't actually deploy on PR builds!");
+    }
+    else
+    {
+        Console.WriteLine($"Attempting to push ./{WindowsPackageName}.{packageVersionWin64}.{nupkg}");
+        NuGetPush($"./{WindowsPackageName}.4.0.0-alpha-{packageVersionWin64}.{nupkg}", nugetPushSettings);   
+    }
 });
+
+bool IsPrBuild()
+{
+    if(!BuildSystem.IsRunningOnAzurePipelines && !BuildSystem.IsRunningOnAzurePipelinesHosted) return false;
+
+    return BuildSystem.AzurePipelines.Environment.PullRequest.Number > 0;
+}
 
 using System;
 using System.Collections.Generic;
