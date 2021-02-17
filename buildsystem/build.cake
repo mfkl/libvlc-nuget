@@ -71,7 +71,8 @@ Task("Publish")
     var nugetPushSettings = new NuGetPushSettings 
     {
         Source = FeedzSourceURL,
-        ApiKey = EnvironmentVariable(FEEDZ)
+        ApiKey = EnvironmentVariable(FEEDZ),
+        SkipDuplicate = true
     };
 
     if(IsPrBuild())
