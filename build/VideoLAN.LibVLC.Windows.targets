@@ -32,6 +32,7 @@
       <Content Include="@(VlcWindowsX64IncludeFilesFullPath)" Exclude="@(VlcWindowsX64ExcludeFilesFullPath)">
         <Link>$(VlcWindowsX64TargetDir)\$([MSBuild]::MakeRelative($(MSBuildThisFileDirectory)..\build\x64\, %(FullPath)))</Link>
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       </Content>
     </ItemGroup>
 
@@ -45,6 +46,7 @@
       <Content Include="@(VlcWindowsX86IncludeFilesFullPath)" Exclude="@(VlcWindowsX86ExcludeFilesFullPath)">
         <Link>$(VlcWindowsX86TargetDir)\$([MSBuild]::MakeRelative($(MSBuildThisFileDirectory)..\build\x86\, %(FullPath)))</Link>
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       </Content>
     </ItemGroup>
   </Target>
