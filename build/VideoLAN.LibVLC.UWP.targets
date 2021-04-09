@@ -39,6 +39,7 @@
       <Content Include="@(VlcUWPX64IncludeFilesFullPath)" Exclude="@(VlcUWPX64ExcludeFilesFullPath)">
         <Link>$([MSBuild]::MakeRelative($(MSBuildThisFileDirectory)..\build\win10-x64\, %(FullPath)))</Link>
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       </Content>
     </ItemGroup>
 
@@ -52,6 +53,7 @@
       <Content Include="@(VlcUWPX86IncludeFilesFullPath)" Exclude="@(VlcUWPX86ExcludeFilesFullPath)">
         <Link>$([MSBuild]::MakeRelative($(MSBuildThisFileDirectory)..\build\win10-x86\, %(FullPath)))</Link>
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       </Content>
     </ItemGroup>
 
@@ -65,6 +67,7 @@
       <Content Include="@(VlcUWPARMIncludeFilesFullPath)" Exclude="@(VlcUWPARMExcludeFilesFullPath)">
         <Link>$([MSBuild]::MakeRelative($(MSBuildThisFileDirectory)..\build\win10-arm\, %(FullPath)))</Link>
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       </Content>
     </ItemGroup>
   </Target>
