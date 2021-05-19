@@ -176,11 +176,14 @@ void PrepareForPackaging()
     var artifactwin32 = $"../artifacts/artifact-{packageVersionWin32}-win32";
     var artifactwin64 = $"../artifacts/artifact-{packageVersionWin64}-win64";
 
-    var files = new []
+    var libsWin32 = new []
     { 
         $"./{artifactwin32}/{nightlyVersion}/libvlc.dll", 
-        $"./{artifactwin32}/{nightlyVersion}/libvlccore.dll",
+        $"./{artifactwin32}/{nightlyVersion}/libvlccore.dll"
+    };
 
+    var libsWin64 = new []
+    {
         $"./{artifactwin64}/{nightlyVersion}/libvlc.dll", 
         $"./{artifactwin64}/{nightlyVersion}/libvlccore.dll" 
     };
@@ -203,8 +206,8 @@ void PrepareForPackaging()
     };
 
     Console.WriteLine("Copying files for packaging... ");
-    CopyFiles(files, packageLocationX64);
-    CopyFiles(files, packageLocationX86);
+    CopyFiles(libsWin64, packageLocationX64);
+    CopyFiles(libsWin32, packageLocationX86);
 
     CopyDirectory(Directory($"./{artifactwin32}/{nightlyVersion}/hrtfs"), Directory($"{packageLocationX86}/hrtfs"));
     CopyDirectory(Directory($"./{artifactwin32}/{nightlyVersion}/locale"), Directory($"{packageLocationX86}/locale"));
