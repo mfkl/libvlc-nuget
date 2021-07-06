@@ -1,5 +1,7 @@
 # `libvlc` for .NET
 
+[![Join the chat at https://discord.gg/3h3K3JF](https://img.shields.io/discord/716939396464508958?label=discord)](https://discord.gg/3h3K3JF)
+
 This repository is about presenting `libvlc` and its capabilities to .NET developers.
 It also contains packaging tools and files for nuget packaging/deployment.
 In other words: It's just the same thing as if you had downloaded the files from VideoLAN's website, in a NuGet package,
