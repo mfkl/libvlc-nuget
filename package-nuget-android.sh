@@ -37,7 +37,7 @@ touch build/android-x86_64/libc++_shared.so
 curl -Lsfo sources.zip $sourceUrl --progress-bar --verbose
 
 7z e sources.zip vlc-android-$version/libvlc/src/org/videolan/libvlc/AWindow.java -obuild/toBuild -y
-7z e sources.zip vlc-android-$version/libvlc/src/org/videolan/libvlc/IVLCVout.java -obuild/toBuild -y
+7z e sources.zip vlc-android-$version/libvlc/src/org/videolan/libvlc/interfaces/IVLCVout.java -obuild/toBuild -y
 7z e sources.zip vlc-android-$version/libvlc/src/org/videolan/libvlc/util/AndroidUtil.java -obuild/toBuild -y
 
 #mono nuget.exe pack "$packageName".nuspec -Version "$version"
