@@ -1,11 +1,11 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Condition="(('$(Platform)' == 'iPhoneSimulator'))">
-    <NativeReference Include="$(MSBuildThisFileDirectory)ios-simulator\DynamicMobileVLCKit.framework">
+    <NativeReference Include="$(MSBuildThisFileDirectory)ios-simulator\MobileVLCKit.framework">
       <Kind>Framework</Kind>
     </NativeReference>
   </ItemGroup>
   <ItemGroup Condition="(('$(Platform)' == 'iPhone'))">
-    <NativeReference Include="$(MSBuildThisFileDirectory)ios-device\DynamicMobileVLCKit.framework">
+    <NativeReference Include="$(MSBuildThisFileDirectory)ios-device\MobileVLCKit.framework">
       <Kind>Framework</Kind>
     </NativeReference>
   </ItemGroup>
