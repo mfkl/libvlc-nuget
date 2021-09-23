@@ -55,7 +55,7 @@ jobs:
     steps:
       - uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '11.0'
+          xcode-version: '11.7.0'
       - name: LibVLC iOS build
         shell: bash
         run: |
