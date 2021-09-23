@@ -66,5 +66,5 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: libvlc-ios-build
-          path: ./build/**
+          path: $GITHUB_WORKSPACE/vlckit/build
         
