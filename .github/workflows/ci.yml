@@ -62,9 +62,13 @@ jobs:
           git clone https://github.com/videolan/vlckit
           cd vlckit && git checkout tags/3.3.10
           ./buildMobileVLCKit.sh -f
+          ls
+          ls build
+          pwd
       - name: Upload build
         uses: actions/upload-artifact@v2
         with:
           name: libvlc-ios-build
-          path: $GITHUB_WORKSPACE/vlckit/build
+          path: /Users/runner/work/libvlc-nuget/libvlc-nuget/vlckit/build
+          if-no-files-found: error
         
