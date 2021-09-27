@@ -61,7 +61,7 @@ jobs:
         run: |
           git clone https://github.com/videolan/vlckit
           cd vlckit && git checkout tags/3.3.10
-          ./buildMobileVLCKit.sh -f
+          ./buildMobileVLCKit.sh -fd
           ls
           ls build
           pwd
