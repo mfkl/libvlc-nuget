@@ -3,7 +3,7 @@
   <metadata>
     <id>VideoLAN.LibVLC.tvOS</id>
     <title>VideoLAN.LibVLC.tvOS</title>
-    <version>3.2.0.1</version>
+    <version>3.3.17</version>
     <authors>VideoLAN</authors>
     <owners>VideoLAN</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -18,8 +18,8 @@ As it is native code, you will need to use a wrapper library such as LibVLCSharp
   </metadata>
   <files>
     <file src="build\VideoLAN.LibVLC.tvOS.targets" target="build\VideoLAN.LibVLC.tvOS.targets"/>
-    <file src="build\tvOS-simulator\DynamicTVVLCKit.framework\*" target="build\tvOS-simulator\DynamicTVVLCKit.framework"/>
-    <file src="build\tvOS-device\DynamicTVVLCKit.framework\*" target="build\tvOS-device\DynamicTVVLCKit.framework"/>
+    <file src="build\tvOS-simulator\TVVLCKit.framework\*" target="build\tvOS-simulator\TVVLCKit.framework"/>
+    <file src="build\tvOS-device\TVVLCKit.framework\*" target="build\tvOS-device\TVVLCKit.framework"/>
     <file src="icon.png" target="" />
   </files>
 </package>
