@@ -27,10 +27,6 @@ variables:
 # Common rules
 .base-template:
     stage: build
-    only:
-        refs:
-            - merge_requests
-            - 3.0.x@videolan/vlc
     except:
         - schedules
     artifacts:
