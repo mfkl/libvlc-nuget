@@ -65,6 +65,7 @@ jobs:
         with:
           inlineScript: |
             Invoke-WebRequest -Uri "https://code.videolan.org/mfkl/libvlc-nuget/-/jobs/artifacts/uwp-v3/download?job=uwp64-libvlc-llvm" -OutFile "build.zip"
+          azPSVersion : '3.1.0'
       - name: Download LibVLC
         shell: bash
         run: | 
