@@ -49,4 +49,21 @@ jobs:
         with:
           name: libvlc-ios-build
           path: ./*.nupkg
-          
+
+  UWP_access_v3:
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.id != github.event.pull_request.base.repo.id
+    runs-on: windows-latest
+    steps:
+      - name: LibVLC UWP access build
+        shell: bash
+        run: |
+          git clone https://code.videolan.org/videolan/vlc-winrt
+          cd vlc-winrt
+      - name: MSBuild
+        working-directory: modules/libaccess_winrt_plugin.UWP
+        run: msbuild libaccess_winrt_plugin.UWP.vcxproj
+      # - name: Upload build
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: libvlc-uwp-access-build
+      #     path: ./*.nupkg
