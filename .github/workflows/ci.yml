@@ -73,16 +73,13 @@ jobs:
           # TODO: parameterize arch, version
           7z e build.zip && 7z x vlc-3.0.16-win64.7z -obuild
           mv build/vlc-3.0.16/ build/Release
+          cd build/Release/sdk && mv * ../ && cd ../../../
           mv build/Release vlc-winrt/libvlc/Universal/vlc-amd64
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v1.0.3
-      - name: Download LibVLC
-        shell: bash
-        run: | 
-          pwd
       - name: MSBuild
         working-directory: vlc-winrt/modules/libaccess_winrt_plugin.UWP
-        run: msbuild libaccess_winrt_plugin.UWP.vcxproj
+        run: msbuild libaccess_winrt_plugin.UWP.vcxproj /p:Configuration=Release
       # - name: Upload build
       #   uses: actions/upload-artifact@v2
       #   with:
