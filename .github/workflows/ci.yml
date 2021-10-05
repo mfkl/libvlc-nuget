@@ -54,18 +54,21 @@ jobs:
     if: github.event_name == 'push' || github.event.pull_request.head.repo.id != github.event.pull_request.base.repo.id
     runs-on: windows-latest
     steps:
-      - name: LibVLC UWP access build
+      - name: Checkout libvlc uwp access module code
         shell: bash
         run: |
           git clone https://code.videolan.org/videolan/vlc-winrt
           # TODO: parameterize arch
           mkdir -p vlc-winrt/libvlc/Universal/vlc-amd64
+      - name: wget
+        uses: wei/wget@v1
+        with:
+          args: -O build.zip https://code.videolan.org/mfkl/libvlc-nuget/-/jobs/artifacts/uwp-v3/download?job=uwp64-libvlc-llvm
       - name: Download LibVLC
         shell: bash
         run: | 
           # TODO: change uwp-v3 by master
           # TODO: parameterize arch, version
-          wget -O build.zip https://code.videolan.org/mfkl/libvlc-nuget/-/jobs/artifacts/uwp-v3/download?job=uwp64-libvlc-llvm
           7z e build.zip && 7z x vlc-3.0.16-win64.7z -obuild
           mv build/vlc-3.0.16/ build/Release
           mv build/Release vlc-winrt/libvlc/Universal/vlc-amd64
