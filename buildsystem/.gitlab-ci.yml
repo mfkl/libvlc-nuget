@@ -39,7 +39,6 @@ variables:
     extends: .win-common
     except:
     after_script:
-        - pwd
         - cd vlc
         - wget -O disable-npapi.patch https://code.videolan.org/-/snippets/1364/raw
         - git apply disable-npapi.patch
