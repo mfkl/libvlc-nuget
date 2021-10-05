@@ -50,9 +50,9 @@ jobs:
   #         name: libvlc-ios-build
   #         path: ./*.nupkg
 
-  UWP_access_v3:
+  PrepareEnvUWPAccessV3:
     if: github.event_name == 'push' || github.event.pull_request.head.repo.id != github.event.pull_request.base.repo.id
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout libvlc uwp access module code
         shell: bash
@@ -72,6 +72,11 @@ jobs:
           7z e build.zip && 7z x vlc-3.0.16-win64.7z -obuild
           mv build/vlc-3.0.16/ build/Release
           mv build/Release vlc-winrt/libvlc/Universal/vlc-amd64
+  UWP_access_v3:
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.id != github.event.pull_request.base.repo.id
+    runs-on: windows-latest
+    needs: [PrepareEnvUWPAccessV3]
+    steps: 
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v1.0.3
       - name: MSBuild
