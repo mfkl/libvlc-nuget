@@ -80,8 +80,8 @@ jobs:
       - name: MSBuild
         working-directory: vlc-winrt/modules/libaccess_winrt_plugin.UWP
         run: msbuild libaccess_winrt_plugin.UWP.vcxproj /p:Configuration=Release /p:Platform=x64
-      # - name: Upload build
-      #   uses: actions/upload-artifact@v2
-      #   with:
-      #     name: libvlc-uwp-access-build
-      #     path: ./*.nupkg
+      - name: Upload build
+        uses: actions/upload-artifact@v2
+        with:
+          name: libvlc-uwp-access-build
+          path: vlc-winrt/modules/libaccess_winrt_plugin.UWP/Release/libaccess_winrt_plugin.UWP
