@@ -70,9 +70,9 @@ jobs:
         shell: bash
         run: | 
           # TODO: parameterize arch, version
+          pwd
+          ls
           7z x vlc-3.0.x.zip -ovlc
-          echo "ls vlc/vlc-3.0.x/include"
-          ls vlc/vlc-3.0.x/include
           mv vlc/vlc-3.0.x/include vlc-winrt/libvlc/Universal/vlc-amd64/Release
           echo "ls vlc-winrt/libvlc/Universal/vlc-amd64/Release"
           ls vlc-winrt/libvlc/Universal/vlc-amd64/Release
