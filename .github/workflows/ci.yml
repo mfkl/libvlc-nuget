@@ -64,7 +64,7 @@ jobs:
         uses: azure/powershell@v1
         with:
           inlineScript: |
-            Invoke-WebRequest -Uri "https://code.videolan.org/videolan/vlc/-/archive/3.0.x/vlc-3.0.x.zip"
+            Invoke-WebRequest -Uri "https://code.videolan.org/videolan/vlc/-/archive/3.0.x/vlc-3.0.x.zip" -OutFile "vlc-3.0.x.zip"
           azPSVersion : '3.1.0'
       - name: Extract LibVLC
         shell: bash
