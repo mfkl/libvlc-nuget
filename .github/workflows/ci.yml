@@ -59,22 +59,19 @@ jobs:
         run: |
           git clone https://code.videolan.org/mfkl/vlc-winrt && cd vlc-winrt && git checkout uwp-access-v3
           # TODO: parameterize arch
-          mkdir -p libvlc/Universal/vlc-amd64
-      - name: Download LibVLC
+          mkdir -p libvlc/Universal/vlc-amd64/Release
+      - name: Download VLC headers
         uses: azure/powershell@v1
         with:
           inlineScript: |
-            Invoke-WebRequest -Uri "https://code.videolan.org/mfkl/libvlc-nuget/-/jobs/artifacts/uwp-v3/download?job=uwp64-libvlc-llvm" -OutFile "build.zip"
+            Invoke-WebRequest -Uri "https://code.videolan.org/videolan/vlc/-/archive/3.0.x/vlc-3.0.x.zip" -OutFile "build.zip"
           azPSVersion : '3.1.0'
       - name: Extract LibVLC
         shell: bash
         run: | 
-          # TODO: change uwp-v3 by master
           # TODO: parameterize arch, version
-          7z e build.zip && 7z x vlc-3.0.16-win64.7z -obuild
-          mv build/vlc-3.0.16/ build/Release
-          cd build/Release/sdk && mv * ../ && cd ../../../
-          mv build/Release vlc-winrt/libvlc/Universal/vlc-amd64
+          7z x build.zip -obuild
+          mv build/vlc-3.0.x/include vlc-winrt/libvlc/Universal/vlc-amd64/Release
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v1.0.3
       - name: MSBuild
