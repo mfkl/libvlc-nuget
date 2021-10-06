@@ -70,17 +70,16 @@ jobs:
         shell: bash
         run: | 
           # TODO: parameterize arch, version
-          pwd
-          ls
           7z x vlc-3.0.x.zip -ovlc
           mv vlc/vlc-3.0.x/include vlc-winrt/libvlc/Universal/vlc-amd64/Release
           echo "ls vlc-winrt/libvlc/Universal/vlc-amd64/Release"
+          pwd
           ls vlc-winrt/libvlc/Universal/vlc-amd64/Release
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v1.0.3
       - name: MSBuild
         working-directory: vlc-winrt/modules/libaccess_winrt_plugin.UWP
-        run: msbuild libaccess_winrt_plugin.UWP.vcxproj /p:Configuration=Release /p:Platform=x64
+        run: msbuild libaccess_winrt_plugin.UWP.vcxproj /p:Configuration=Release /p:Platform=x64 /v:diag
       - name: Upload build
         uses: actions/upload-artifact@v2
         with:
