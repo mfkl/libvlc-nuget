@@ -57,9 +57,9 @@ jobs:
       - name: Checkout libvlc uwp access module code
         shell: bash
         run: |
-          git clone https://code.videolan.org/videolan/vlc-winrt
+          git clone https://code.videolan.org/mfkl/vlc-winrt && cd vlc-winrt && git checkout uwp-access-v3
           # TODO: parameterize arch
-          mkdir -p vlc-winrt/libvlc/Universal/vlc-amd64
+          mkdir -p libvlc/Universal/vlc-amd64
       - name: Download LibVLC
         uses: azure/powershell@v1
         with:
@@ -75,16 +75,11 @@ jobs:
           mv build/vlc-3.0.16/ build/Release
           cd build/Release/sdk && mv * ../ && cd ../../../
           mv build/Release vlc-winrt/libvlc/Universal/vlc-amd64
-      - name: Extract LibVLC
-        shell: bash
-        run: | 
-          ls vlc-winrt/modules/libaccess_winrt_plugin.UWP
-          ls vlc-winrt/libvlc/Universal/vlc-amd64/Release
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v1.0.3
       - name: MSBuild
         working-directory: vlc-winrt/modules/libaccess_winrt_plugin.UWP
-        run: msbuild libaccess_winrt_plugin.UWP.vcxproj /p:Configuration=Release
+        run: msbuild libaccess_winrt_plugin.UWP.vcxproj /p:Configuration=Release /p:Platform=x64
       # - name: Upload build
       #   uses: actions/upload-artifact@v2
       #   with:
