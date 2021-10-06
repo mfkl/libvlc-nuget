@@ -64,14 +64,18 @@ jobs:
         uses: azure/powershell@v1
         with:
           inlineScript: |
-            Invoke-WebRequest -Uri "https://code.videolan.org/videolan/vlc/-/archive/3.0.x/vlc-3.0.x.zip" -OutFile "build.zip"
+            Invoke-WebRequest -Uri "https://code.videolan.org/videolan/vlc/-/archive/3.0.x/vlc-3.0.x.zip"
           azPSVersion : '3.1.0'
       - name: Extract LibVLC
         shell: bash
         run: | 
           # TODO: parameterize arch, version
-          7z x build.zip -obuild
-          mv build/vlc-3.0.x/include vlc-winrt/libvlc/Universal/vlc-amd64/Release
+          7z x vlc-3.0.x.zip -ovlc-3.0.x
+          echo "ls vlc-3.0.x/include"
+          ls vlc-3.0.x/include
+          mv vlc-3.0.x/include vlc-winrt/libvlc/Universal/vlc-amd64/Release
+          echo "ls vlc-winrt/libvlc/Universal/vlc-amd64/Release"
+          ls vlc-winrt/libvlc/Universal/vlc-amd64/Release
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v1.0.3
       - name: MSBuild
