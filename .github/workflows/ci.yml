@@ -52,14 +52,16 @@ jobs:
 
   UWP_access_v3:
     if: github.event_name == 'push' || github.event.pull_request.head.repo.id != github.event.pull_request.base.repo.id
+    strategy:
+      matrix:
+        arch: [x64, x86, arm]
     runs-on: windows-latest
     steps:
       - name: Checkout libvlc uwp access module code
         shell: bash
         run: |
           git clone https://code.videolan.org/mfkl/vlc-winrt && cd vlc-winrt && git checkout uwp-access-v3
-          # TODO: parameterize arch
-          mkdir -p libvlc/Universal/vlc-amd64/Release
+          mkdir -p libvlc/Universal/vlc-${{ matrix.arch }}/Release
       - name: Download VLC headers
         uses: azure/powershell@v1
         with:
@@ -69,14 +71,14 @@ jobs:
       - name: Extract LibVLC
         shell: bash
         run: | 
-          # TODO: parameterize arch, version
+          # TODO: parameterize version
           7z x vlc-3.0.x.zip -ovlc
-          mv vlc/vlc-3.0.x/include vlc-winrt/libvlc/Universal/vlc-amd64/Release
+          mv vlc/vlc-3.0.x/include vlc-winrt/libvlc/Universal/vlc-${{ matrix.arch }}/Release
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v1.0.3
       - name: MSBuild
         working-directory: vlc-winrt/modules/libaccess_winrt_plugin.UWP
-        run: msbuild libaccess_winrt_plugin.UWP.vcxproj /p:Configuration=Release /p:Platform=x64
+        run: msbuild libaccess_winrt_plugin.UWP.vcxproj /p:Configuration=Release /p:Platform=${{ matrix.arch }}
       - name: Upload build
         uses: actions/upload-artifact@v2
         with:
