@@ -49,4 +49,42 @@ jobs:
         with:
           name: libvlc-ios-build
           path: ./*.nupkg
-          
+
+  UWP_access_v3:
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.id != github.event.pull_request.base.repo.id
+    strategy:
+      matrix:
+        arch: [x64, x86, arm]
+    runs-on: windows-latest
+    steps:
+      - name: Checkout libvlc uwp access module code
+        shell: bash
+        run: |
+          git clone https://code.videolan.org/mfkl/vlc-winrt && cd vlc-winrt && git checkout uwp-access-v3
+          mkdir -p libvlc/Universal/vlc-${{ matrix.arch }}/Release
+      - name: Download VLC headers
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            Invoke-WebRequest -Uri "https://code.videolan.org/videolan/vlc/-/archive/3.0.x/vlc-3.0.x.zip" -OutFile "vlc-3.0.x.zip"
+          azPSVersion : '3.1.0'
+      - name: Extract LibVLC
+        shell: bash
+        run: | 
+          7z x vlc-3.0.x.zip -ovlc
+          mv vlc/vlc-3.0.x/include vlc-winrt/libvlc/Universal/vlc-${{ matrix.arch }}/Release
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.0.3
+      - name: MSBuild x64/ARM
+        if: matrix.arch != 'x86'
+        working-directory: vlc-winrt/modules/libaccess_winrt_plugin.UWP
+        run: msbuild libaccess_winrt_plugin.UWP.vcxproj /p:Configuration=Release /p:Platform=${{ matrix.arch }}
+      - name: MSBuild x86
+        if: matrix.arch == 'x86'
+        working-directory: vlc-winrt/modules/libaccess_winrt_plugin.UWP
+        run: msbuild libaccess_winrt_plugin.UWP.vcxproj /p:Configuration=Release /p:Platform=Win32
+      - name: Upload build
+        uses: actions/upload-artifact@v2
+        with:
+          name: libvlc-uwp-access-build
+          path: vlc-winrt/modules/libaccess_winrt_plugin.UWP/Release/libaccess_winrt_plugin.UWP

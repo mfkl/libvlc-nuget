@@ -1,0 +1,58 @@
+stages:
+    - build
+
+variables:
+    VLC_UWP_LLVM_IMAGE: registry.videolan.org/vlc-debian-llvm-uwp:20200706065223
+   
+.variables-win32: &variables-win32
+        SHORTARCH: win32
+        HOST_ARCH: i686
+        TRIPLET: $HOST_ARCH-w64-mingw32
+
+.variables-win64: &variables-win64
+        SHORTARCH: win64
+        HOST_ARCH: x86_64
+        TRIPLET: $HOST_ARCH-w64-mingw32
+
+# Common rules
+.base-template:
+    stage: build
+    except:
+        - schedules
+
+# Common rules for jobs using docker
+.docker-template:
+    extends: .base-template
+    tags:
+        - docker
+        - amd64
+
+#
+# Windows
+#
+.win-common:
+    extends: .docker-template
+    script: |
+        git clone https://code.videolan.org/videolan/vlc && cd vlc && git checkout 3.0.x
+        extras/package/win32/build.sh -c -a $HOST_ARCH $NIGHTLY_EXTRA_BUILD_FLAGS $LIBVLC_EXTRA_BUILD_FLAGS $UWP_EXTRA_BUILD_FLAGS
+.nightly-win-common:
+    extends: .win-common
+    except:
+    after_script:
+        - cd vlc
+        - wget -O disable-npapi.patch https://code.videolan.org/-/snippets/1364/raw
+        - git apply disable-npapi.patch
+        - cd $SHORTARCH-uwp
+        - make package-win32-7zip
+    artifacts:
+        paths:
+            - vlc/$SHORTARCH-uwp/vlc-3.0.16-win64.7z
+
+uwp64-libvlc-llvm:
+    extends: .nightly-win-common
+    image:
+        name: $VLC_UWP_LLVM_IMAGE
+    variables:
+        <<: *variables-win64
+        LIBVLC_EXTRA_BUILD_FLAGS: -z
+        UWP_EXTRA_BUILD_FLAGS: -u -w
