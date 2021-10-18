@@ -71,7 +71,6 @@ jobs:
       - name: Extract LibVLC
         shell: bash
         run: | 
-          # TODO: parameterize version
           7z x vlc-3.0.x.zip -ovlc
           mv vlc/vlc-3.0.x/include vlc-winrt/libvlc/Universal/vlc-${{ matrix.arch }}/Release
       - name: Add msbuild to PATH
