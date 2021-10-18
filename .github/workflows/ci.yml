@@ -55,7 +55,7 @@ jobs:
     strategy:
       matrix:
         #arch: [x64, x86, arm]
-        arch: [arm]
+        arch: [x86]
     runs-on: windows-latest
     steps:
       - name: Checkout libvlc uwp access module code
