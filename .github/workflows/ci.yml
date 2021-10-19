@@ -86,5 +86,5 @@ jobs:
       - name: Upload build
         uses: actions/upload-artifact@v2
         with:
-          name: libvlc-uwp-access-build
+          name: libvlc-uwp-access-build-${{ matrix.arch }}
           path: vlc-winrt/modules/libaccess_winrt_plugin.UWP/Release/libaccess_winrt_plugin.UWP
