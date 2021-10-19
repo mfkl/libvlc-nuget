@@ -1,18 +1,28 @@
 stages:
     - build
+    - package
 
 variables:
     VLC_UWP_LLVM_IMAGE: registry.videolan.org/vlc-debian-llvm-uwp:20200706065223
+    VLC_VERSION: 3.0.16
    
 .variables-win32: &variables-win32
         SHORTARCH: win32
         HOST_ARCH: i686
         TRIPLET: $HOST_ARCH-w64-mingw32
+        BUILD_PATH: vlc/$SHORTARCH-uwp/vlc-$VLC_VERSION-$SHORTARCH.7z
 
 .variables-win64: &variables-win64
         SHORTARCH: win64
         HOST_ARCH: x86_64
         TRIPLET: $HOST_ARCH-w64-mingw32
+        BUILD_PATH: vlc/$SHORTARCH-uwp/vlc-$VLC_VERSION-$SHORTARCH.7z
+
+.variables-win-arm: &variables-win-arm
+        SHORTARCH: winarm
+        HOST_ARCH: armv7
+        TRIPLET: $HOST_ARCH-w64-mingw32
+        BUILD_PATH: vlc/$SHORTARCH-uwp/vlc-$VLC_VERSION-win32.7z
 
 # Common rules
 .base-template:
@@ -32,6 +42,7 @@ variables:
 #
 .win-common:
     extends: .docker-template
+    stage: build
     script: |
         git clone https://code.videolan.org/videolan/vlc && cd vlc && git checkout 3.0.x
         extras/package/win32/build.sh -c -a $HOST_ARCH $NIGHTLY_EXTRA_BUILD_FLAGS $LIBVLC_EXTRA_BUILD_FLAGS $UWP_EXTRA_BUILD_FLAGS
@@ -46,13 +57,30 @@ variables:
         - make package-win32-7zip
     artifacts:
         paths:
-            - vlc/$SHORTARCH-uwp/vlc-3.0.16-win64.7z
-
-uwp64-libvlc-llvm:
+            - $BUILD_PATH
+uwp-x64:
     extends: .nightly-win-common
     image:
         name: $VLC_UWP_LLVM_IMAGE
     variables:
         <<: *variables-win64
+        LIBVLC_EXTRA_BUILD_FLAGS: -z
+        UWP_EXTRA_BUILD_FLAGS: -u -w
+
+uwp-x86:
+    extends: .nightly-win-common
+    image:
+        name: $VLC_UWP_LLVM_IMAGE
+    variables:
+        <<: *variables-win32
+        LIBVLC_EXTRA_BUILD_FLAGS: -z
+        UWP_EXTRA_BUILD_FLAGS: -u -w
+
+uwp-arm:
+    extends: .nightly-win-common
+    image:
+        name: $VLC_UWP_LLVM_IMAGE
+    variables:
+        <<: *variables-win-arm
         LIBVLC_EXTRA_BUILD_FLAGS: -z
         UWP_EXTRA_BUILD_FLAGS: -u -w
