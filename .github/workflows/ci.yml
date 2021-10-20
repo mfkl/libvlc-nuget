@@ -97,13 +97,15 @@ jobs:
     needs: UWP_access_v3
     steps:
       - uses: actions/checkout@v2
+      - uses: actions/download-artifact@v2
+        with:
+          path: libvlc-uwp-access-build-arm
       - name: Create NuGet folders
         shell: bash
         run: |
           mkdir -p build/win10-arm/native
           mkdir -p build/win10-x64/native
           mkdir -p build/win10-x86/native
-
       - name: Download uwp builds
         env:
             VLC_VERSION: 3.0.16
@@ -116,14 +118,29 @@ jobs:
           7z x arm.zip -oarm -y
           7z x arm/vlc/winarm-uwp/vlc-$VLC_VERSION-win32.7z -oarm/vlc/winarm-uwp -y
 
+          7z x x86.zip -ox86 -y
+          7z x x86/vlc/win32-uwp/vlc-$VLC_VERSION-win32.7z -ox86/vlc/win32-uwp -y
+
+          7z x x64.zip -ox64 -y
+          7z x x64/vlc/win64-uwp/vlc-$VLC_VERSION-win64.7z -ox64/vlc/win64-uwp -y
+
           mv arm/vlc/winarm-uwp/vlc-$VLC_VERSION/lua build/win10-arm/native
           mv arm/vlc/winarm-uwp/vlc-$VLC_VERSION/plugins build/win10-arm/native
+          mv libvlc-uwp-access-build-arm/libaccess_winrt_plugin.dll build/win10-arm/native/plugins/access
           mv arm/vlc/winarm-uwp/vlc-$VLC_VERSION/sdk build/win10-arm/native
           mv arm/vlc/winarm-uwp/vlc-$VLC_VERSION/libvlc.dll build/win10-arm/native
           mv arm/vlc/winarm-uwp/vlc-$VLC_VERSION/libvlccore.dll build/win10-arm/native
-      - uses: actions/download-artifact@v2
-        with:
-          path: libvlc-uwp-access-build-arm
-      - name: Display structure of downloaded files
-        run: ls -R
-        working-directory: libvlc-uwp-access-build-arm
+
+          mv x86/vlc/win32-uwp/vlc-$VLC_VERSION/lua build/win10-x86/native
+          mv x86/vlc/win32-uwp/vlc-$VLC_VERSION/plugins build/win10-x86/native
+          mv libvlc-uwp-access-build-x86/libaccess_winrt_plugin.dll build/win10-x86/native/plugins/access
+          mv x86/vlc/win32-uwp/vlc-$VLC_VERSION/sdk build/win10-x86/native
+          mv x86/vlc/win32-uwp/vlc-$VLC_VERSION/libvlc.dll build/win10-x86/native
+          mv x86/vlc/win32-uwp/vlc-$VLC_VERSION/libvlccore.dll build/win10-x86/native
+
+          mv x64/vlc/win64-uwp/vlc-$VLC_VERSION/lua build/win10-x64/native
+          mv x64/vlc/win64-uwp/vlc-$VLC_VERSION/plugins build/win10-x64/native
+          mv libvlc-uwp-access-build-x64/libaccess_winrt_plugin.dll build/win10-x64/native/plugins/access
+          mv x64/vlc/win64-uwp/vlc-$VLC_VERSION/sdk build/win10-x64/native
+          mv x64/vlc/win64-uwp/vlc-$VLC_VERSION/libvlc.dll build/win10-x64/native
+          mv x64/vlc/win64-uwp/vlc-$VLC_VERSION/libvlccore.dll build/win10-x64/native
