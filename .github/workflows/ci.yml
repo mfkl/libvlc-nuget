@@ -93,18 +93,22 @@ jobs:
   
   UWP_NuGet:
     if: github.event_name == 'push' || github.event.pull_request.head.repo.id != github.event.pull_request.base.repo.id
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     needs: UWP_access_v3
     steps:
       - uses: actions/checkout@v2
       - uses: actions/download-artifact@v2
+      - name: Setup .NET SDK v5.0.x
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 5.0.x
       - name: Create NuGet folders
         shell: bash
         run: |
           mkdir -p build/win10-arm/native
           mkdir -p build/win10-x64/native
           mkdir -p build/win10-x86/native
-      - name: Download uwp builds
+      - name: Download and extract UWP builds
         env:
             VLC_VERSION: 3.0.16
         shell: bash
