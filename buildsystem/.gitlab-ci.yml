@@ -1,11 +1,8 @@
-stages:
-    - build
-    - package
-
 variables:
     VLC_UWP_LLVM_IMAGE: registry.videolan.org/vlc-debian-llvm-uwp:20200706065223
     VLC_VERSION: 3.0.16
-   
+    UWP_LIBVLC_BUILD_FLAGS: -z -r -u -w
+
 .variables-win32: &variables-win32
         SHORTARCH: win32
         HOST_ARCH: i686
@@ -26,7 +23,6 @@ variables:
 
 # Common rules
 .base-template:
-    stage: build
     except:
         - schedules
 
@@ -40,47 +36,36 @@ variables:
 #
 # Windows
 #
-.win-common:
+.winrt-common:
     extends: .docker-template
-    stage: build
     script: |
         git clone https://code.videolan.org/videolan/vlc && cd vlc && git checkout 3.0.x
-        extras/package/win32/build.sh -c -a $HOST_ARCH $NIGHTLY_EXTRA_BUILD_FLAGS $LIBVLC_EXTRA_BUILD_FLAGS $UWP_EXTRA_BUILD_FLAGS
-.nightly-win-common:
-    extends: .win-common
-    except:
-    after_script:
-        - cd vlc
-        - wget -O disable-npapi.patch https://code.videolan.org/-/snippets/1364/raw
-        - git apply disable-npapi.patch
-        - cd $SHORTARCH-uwp
-        - make package-win32-7zip
+        wget -O fix-uwp-build.patch https://code.videolan.org/-/snippets/1371/raw/main/release-uwp.patch
+        git apply fix-uwp-build.patch
+        extras/package/win32/build.sh -c -a $HOST_ARCH $UWP_LIBVLC_BUILD_FLAGS
+
+.nightly-winrt-common:
+    extends: .winrt-common
     artifacts:
         paths:
             - $BUILD_PATH
 uwp-x64:
-    extends: .nightly-win-common
+    extends: .nightly-winrt-common
     image:
         name: $VLC_UWP_LLVM_IMAGE
     variables:
         <<: *variables-win64
-        LIBVLC_EXTRA_BUILD_FLAGS: -z
-        UWP_EXTRA_BUILD_FLAGS: -u -w
 
 uwp-x86:
-    extends: .nightly-win-common
+    extends: .nightly-winrt-common
     image:
         name: $VLC_UWP_LLVM_IMAGE
     variables:
         <<: *variables-win32
-        LIBVLC_EXTRA_BUILD_FLAGS: -z
-        UWP_EXTRA_BUILD_FLAGS: -u -w
 
 uwp-arm:
-    extends: .nightly-win-common
+    extends: .nightly-winrt-common
     image:
         name: $VLC_UWP_LLVM_IMAGE
     variables:
         <<: *variables-win-arm
-        LIBVLC_EXTRA_BUILD_FLAGS: -z
-        UWP_EXTRA_BUILD_FLAGS: -u -w
