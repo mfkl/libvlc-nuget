@@ -98,8 +98,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/download-artifact@v2
-      - name: Install mono
-        run: sudo apt-get install -y mono-devel
       - name: Download NuGet
         shell: bash
         run: |
@@ -156,4 +154,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: libvlc-uwp
-          path: VideoLAN.LibVLC.UWP.nupkg
+          path: '*.nupkg'
