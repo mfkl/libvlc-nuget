@@ -93,15 +93,17 @@ jobs:
   
   UWP_NuGet:
     if: github.event_name == 'push' || github.event.pull_request.head.repo.id != github.event.pull_request.base.repo.id
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     needs: UWP_access_v3
     steps:
       - uses: actions/checkout@v2
       - uses: actions/download-artifact@v2
-      - name: Setup .NET SDK v5.0.x
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: 5.0.x
+      - name: Install mono
+        run: sudo apt-get install -y mono-devel
+      - name: Download NuGet
+        shell: bash
+        run: |
+          wget https://dist.nuget.org/win-x86-commandline/v5.11.0/nuget.exe
       - name: Create NuGet folders
         shell: bash
         run: |
@@ -146,3 +148,12 @@ jobs:
           mv x64/vlc/win64-uwp/vlc-$VLC_VERSION/sdk build/win10-x64/native
           mv x64/vlc/win64-uwp/vlc-$VLC_VERSION/libvlc.dll build/win10-x64/native
           mv x64/vlc/win64-uwp/vlc-$VLC_VERSION/libvlccore.dll build/win10-x64/native
+      - name: Package NuGet
+        shell: bash
+        run: |
+          mono nuget.exe pack VideoLAN.LibVLC.UWP.nuspec
+      - name: Upload NuGet package
+        uses: actions/upload-artifact@v2
+        with:
+          name: libvlc-uwp
+          path: VideoLAN.LibVLC.UWP.nupkg
