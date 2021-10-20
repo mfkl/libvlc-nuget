@@ -94,6 +94,7 @@ jobs:
   UWP_NuGet:
     if: github.event_name == 'push' || github.event.pull_request.head.repo.id != github.event.pull_request.base.repo.id
     runs-on: ubuntu-latest
+    needs: UWP_access_v3
     steps:
       - uses: actions/checkout@v2
       - name: Create NuGet folders
