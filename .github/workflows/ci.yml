@@ -113,7 +113,7 @@ jobs:
         run: |
           wget -O arm.zip https://code.videolan.org/videolan/libvlc-nuget/-/jobs/artifacts/master/download?job=uwp-arm
           wget -O x86.zip https://code.videolan.org/videolan/libvlc-nuget/-/jobs/artifacts/master/download?job=uwp-x86
-          wget -O x64.zip https://code.videolan.org/videolan/libvlc-nuget/-/jobs/artifacts/master/download?job=uwp-x86
+          wget -O x64.zip https://code.videolan.org/videolan/libvlc-nuget/-/jobs/artifacts/master/download?job=uwp-x64
 
           7z x arm.zip -oarm -y
           7z x arm/vlc/winarm-uwp/vlc-$VLC_VERSION-win32.7z -oarm/vlc/winarm-uwp -y
