@@ -98,13 +98,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/download-artifact@v2
-        with:
-          path: libvlc-uwp-access-build-arm
-      - name: TEssst
-        shell: bash
-        run: |
-          ls -l
-          ls libvlc-uwp-access-build-arm/libvlc-uwp-access-build-arm
       - name: Create NuGet folders
         shell: bash
         run: |
