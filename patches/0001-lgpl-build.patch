@@ -1,22 +1,22 @@
-From 11bd4fbc866c0df8be045ea7dc4b1e2d9d8c9d3b Mon Sep 17 00:00:00 2001
+From a96d3a736bfe0c72b6e037adf219c0bf48ccdd79 Mon Sep 17 00:00:00 2001
 From: Martin Finkel <me@martinfinkel.com>
 Date: Tue, 26 Oct 2021 14:17:28 +0700
-Subject: [PATCH 1/1] copy previous winrt config
+Subject: [PATCH 1/1] lgpl build
 
 ---
  extras/package/win32/build.sh     | 30 ++++++++++++++++++++++++++++++
- extras/package/win32/configure.sh |  1 -
- 2 files changed, 30 insertions(+), 1 deletion(-)
+ extras/package/win32/configure.sh |  5 ++---
+ 2 files changed, 32 insertions(+), 3 deletions(-)
 
 diff --git a/extras/package/win32/build.sh b/extras/package/win32/build.sh
-index 654ac99d59..2de2e29114 100755
+index 654ac99d59..ec657a1d6d 100755
 --- a/extras/package/win32/build.sh
 +++ b/extras/package/win32/build.sh
 @@ -280,6 +280,8 @@ fi
  export CFLAGS
  export CXXFLAGS
  
-+CONTRIBFLAGS="$CONTRIBFLAGS --disable-schroedinger --disable-vncserver --disable-chromaprint --enable-zvbi --enable-gme --enable-vorbis --enable-mad --enable-sidplay2 --enable-samplerate --enable-iconv --disable-goom --enable-dca --disable-gpg-error --enable-ass --disable-gnuv3 --enable-ssh2 --disable-vncclient --enable-jpeg --enable-postproc --enable-vpx --disable-aom"
++CONTRIBFLAGS="$CONTRIBFLAGS --disable-schroedinger --disable-vncserver --disable-chromaprint --enable-zvbi --enable-gme --enable-vorbis --disable-mad --disable-sidplay2 --disable-samplerate --enable-iconv --disable-goom --disable-dca --disable-gpg-error --enable-ass --disable-gpl --enable-ad-clauses --enable-ssh2 --disable-vncclient --enable-jpeg --disable-postproc --enable-vpx --disable-aom"
 +
  ${VLC_ROOT_PATH}/contrib/bootstrap --host=$TRIPLET --prefix=../$CONTRIB_PREFIX $CONTRIBFLAGS
  
@@ -31,7 +31,7 @@ index 654ac99d59..2de2e29114 100755
 +      --enable-theora
 +      --disable-twolame
 +      --enable-avcodec --enable-merge-ffmpeg
-+      --enable-dca
++      --disable-dca
 +      --enable-mpc
 +      --enable-libass
 +      --disable-x264
@@ -43,25 +43,34 @@ index 654ac99d59..2de2e29114 100755
 +      --enable-sse --enable-mmx
 +      --disable-libcddb
 +      --enable-zvbi --disable-telx
-+      --enable-mad
++      --disable-mad
 +      --disable-a52
 +      --enable-dsm
 +      --disable-smbclient
 +      --enable-flac
 +      --enable-jpeg
 +      --enable-vpx
-+      --enable-postproc
++      --disable-postproc
 +      --enable-gme"
 +
  ${SCRIPT_PATH}/configure.sh --host=$TRIPLET --with-contrib=../contrib/$CONTRIB_PREFIX $CONFIGFLAGS
  
  info "Compiling"
 diff --git a/extras/package/win32/configure.sh b/extras/package/win32/configure.sh
-index 455ff18dd3..dbf95ea8e2 100755
+index 455ff18dd3..59331cbe9d 100755
 --- a/extras/package/win32/configure.sh
 +++ b/extras/package/win32/configure.sh
-@@ -10,7 +10,6 @@ OPTIONS="
-       --enable-dca
+@@ -3,14 +3,13 @@
+ OPTIONS="
+       --enable-update-check
+       --enable-lua
+-      --enable-faad
++      --disable-faad
+       --enable-flac
+       --enable-theora
+       --enable-avcodec --enable-merge-ffmpeg
+-      --enable-dca
++      --disable-dca
        --enable-mpc
        --enable-libass
 -      --enable-schroedinger
