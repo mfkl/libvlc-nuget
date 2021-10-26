@@ -1,0 +1,54 @@
+From 33601ed11e7975c430e120e4d26e8abc81321c28 Mon Sep 17 00:00:00 2001
+From: Martin Finkel <me@martinfinkel.com>
+Date: Mon, 25 Oct 2021 14:27:06 +0700
+Subject: [PATCH 1/1] build: disable npapi/nsis/mix
+
+---
+ extras/package/win32/package.mak | 21 +++------------------
+ 1 file changed, 3 insertions(+), 18 deletions(-)
+
+diff --git a/extras/package/win32/package.mak b/extras/package/win32/package.mak
+index 2045de887a..7568b8c697 100644
+--- a/extras/package/win32/package.mak
++++ b/extras/package/win32/package.mak
+@@ -90,7 +90,7 @@ package-win-npapi: build-npapi
+ 	mkdir -p "$(win32_destdir)/sdk/activex/"
+ 	cp $(top_builddir)/npapi-vlc/activex/README.TXT $(top_builddir)/npapi-vlc/share/test/test.html $(win32_destdir)/sdk/activex/
+ 
+-package-win-strip: package-win-common package-win-npapi
++package-win-strip: package-win-common
+ 	mkdir -p "$(win32_debugdir)"/
+ 	find $(win32_destdir) -type f \( -name '*$(LIBEXT)' -or -name '*$(EXEEXT)' \) | while read i; \
+ 	do if test -n "$$i" ; then \
+@@ -171,26 +171,11 @@ package-win32-debug-7zip: package-win-common
+ package-win32-cleanup:
+ 	rm -Rf $(win32_destdir) $(win32_debugdir) $(win32_xpi_destdir)
+ 
+-package-win32: package-win32-zip package-win32-7zip package-win32-exe package-win32-xpi
++package-win32: package-win32-zip package-win32-7zip
+ 
+ package-win32-debug: package-win32-debug-zip package-win32-debug-7zip
+ 
+-package-win32-release: package-win-strip $(win32_destdir)/NSIS/nsProcess.dll package-win-sdk
+-	cp    $(top_builddir)/extras/package/win32/NSIS/vlc.win32.nsi "$(win32_destdir)/"
+-	cp    $(top_builddir)/extras/package/win32/NSIS/spad.nsi      "$(win32_destdir)/"
+-	cp -r $(srcdir)/extras/package/win32/NSIS/languages    		  "$(win32_destdir)/"
+-	cp -r $(srcdir)/extras/package/win32/NSIS/helpers      		  "$(win32_destdir)/"
+-	cp "$(top_srcdir)/extras/package/win32/NSIS/nsProcess.nsh" "$(win32_destdir)/NSIS/"
+-	cp "$(top_srcdir)/extras/package/win32/NSIS/vlc_branding.bmp" "$(win32_destdir)/NSIS/"
+-
+-	mkdir -p "$(win32_destdir)/msi/"
+-	cp    $(top_builddir)/extras/package/win32/msi/config.wxi	  "$(win32_destdir)/msi/"
+-	cp    $(top_srcdir)/extras/package/win32/msi/axvlc.wxs		  "$(win32_destdir)/msi/"
+-	cp    $(top_srcdir)/extras/package/win32/msi/bannrbmp.bmp	  "$(win32_destdir)/msi/"
+-	cp    $(top_srcdir)/extras/package/win32/msi/extensions.wxs	  "$(win32_destdir)/msi/"
+-	cp    $(top_srcdir)/extras/package/win32/msi/LICENSE.rtf	  "$(win32_destdir)/msi/"
+-	cp    $(top_srcdir)/extras/package/win32/msi/product.wxs	  "$(win32_destdir)/msi/"
+-
++package-win32-release: package-win-strip package-win-sdk
+ 	7z a $(7Z_OPTS) $(WINVERSION)-release.7z $(win32_debugdir) "$(win32_destdir)/"
+ 
+ #######
+-- 
+2.32.0.windows.1
+

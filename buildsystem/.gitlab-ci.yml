@@ -1,5 +1,5 @@
 variables:
-    VLC_UWP_LLVM_IMAGE: registry.videolan.org/vlc-debian-llvm-uwp:20200706065223
+    VLC_UWP_LLVM_IMAGE: registry.videolan.org/vlc-debian-llvm-uwp:20211020111246
     VLC_VERSION: 3.0.16
     UWP_LIBVLC_BUILD_FLAGS: -z -r -u -w
 
@@ -40,8 +40,14 @@ variables:
     extends: .docker-template
     script: |
         git clone https://code.videolan.org/videolan/vlc && cd vlc && git checkout 3.0.x
-        wget -O fix-uwp-build.patch https://code.videolan.org/-/snippets/1371/raw/main/release-uwp.patch
-        git apply fix-uwp-build.patch
+        git config --global user.email "cone@example.com"
+        git config --local user.name "Cony Cone"
+        git am -3 ../patches/*.patch
+        if [ $? -ne 0 ]; then
+            git am --abort
+            echo "Applying the patches failed, aborting git-am"
+            exit 1
+        fi
         extras/package/win32/build.sh -c -a $HOST_ARCH $UWP_LIBVLC_BUILD_FLAGS
 
 .nightly-winrt-common:
