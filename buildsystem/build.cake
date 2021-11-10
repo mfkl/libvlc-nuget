@@ -14,8 +14,8 @@ var configuration = Argument("configuration", "Release");
 var nightlyVersion = "vlc-4.0.0-dev";
 
 var artifactsLocation = Directory("../artifacts");
-var packageLocationX64 = Directory("../build/win7-x64/native");
-var packageLocationX86 = Directory("../build/win7-x86/native");
+var packageLocationX64 = Directory("../Windows/win7-x64/native");
+var packageLocationX86 = Directory("../Windows/win7-x86/native");
 
 string todayPartialLink = null;
 const string ext = ".7z";
