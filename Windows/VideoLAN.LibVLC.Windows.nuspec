@@ -17,9 +17,9 @@ As it is native code, you will need to use a wrapper library such as LibVLCSharp
     <releaseNotes>https://code.videolan.org/videolan/vlc/blob/master/NEWS</releaseNotes>
   </metadata>
   <files>
-    <file src="build\VideoLAN.LibVLC.Windows.targets" target="build\VideoLAN.LibVLC.Windows.targets"/>
-    <file src="build\win7-x64\native\**" target="build\x64"/>
-    <file src="build\win7-x86\native\**" target="build\x86"/>
+    <file src="VideoLAN.LibVLC.Windows.targets" target="VideoLAN.LibVLC.Windows.targets"/>
+    <file src="win7-x64\native\**" target="x64"/>
+    <file src="win7-x86\native\**" target="x86"/>
     <file src="icon.png" target="" />
   </files>
 </package>
