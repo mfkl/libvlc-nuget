@@ -234,7 +234,7 @@ void CreateNuGetPackage()
     PrepareForPackaging();
 
     Console.WriteLine("Version for package: " + packageVersionWin64);
-    NuGetPack("../VideoLAN.LibVLC.Windows.nuspec", new NuGetPackSettings
+    NuGetPack($"../Windows/{WindowsPackageName}", new NuGetPackSettings
     {
         // package version URLs differ from the same nightly build depending on the arch.
         // using the number from win64
