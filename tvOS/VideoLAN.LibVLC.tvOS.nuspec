@@ -20,6 +20,7 @@ As it is native code, you will need to use a wrapper library such as LibVLCSharp
     <file src="VideoLAN.LibVLC.tvOS.targets" target="VideoLAN.LibVLC.tvOS.targets"/>
     <file src="tvOS-simulator\TVVLCKit.framework\*" target="tvOS-simulator\TVVLCKit.framework"/>
     <file src="tvOS-device\TVVLCKit.framework\*" target="tvOS-device\TVVLCKit.framework"/>
-    <file src="icon.png" target="" />
+    <file src="..\icon.png" target="" />
+    <file src="README.md" target="" />
   </files>
 </package>

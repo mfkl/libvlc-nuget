@@ -20,6 +20,7 @@ As it is native code, you will need to use a wrapper library such as LibVLCSharp
     <file src="VideoLAN.LibVLC.Windows.targets" target="VideoLAN.LibVLC.Windows.targets"/>
     <file src="win7-x64\native\**" target="x64"/>
     <file src="win7-x86\native\**" target="x86"/>
-    <file src="icon.png" target="" />
+    <file src="..\icon.png" target="" />
+    <file src="README.md" target="" />
   </files>
 </package>

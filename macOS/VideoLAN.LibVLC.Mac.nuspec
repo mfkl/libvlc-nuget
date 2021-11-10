@@ -17,8 +17,9 @@ As it is native code, you will need to use a wrapper library such as LibVLCSharp
     <releaseNotes>https://code.videolan.org/videolan/vlc/blob/master/NEWS</releaseNotes>
   </metadata>
   <files>
-    <file src="build\VideoLAN.LibVLC.Mac.targets" target="build\VideoLAN.LibVLC.Mac.targets"/>
-    <file src="build\osx-x64\libvlc.dylib" target="build\osx-x64\libvlc.dylib"/>
-    <file src="icon.png" target="" />
+    <file src="VideoLAN.LibVLC.Mac.targets" target="VideoLAN.LibVLC.Mac.targets"/>
+    <file src="osx-x64\libvlc.dylib" target="osx-x64\libvlc.dylib"/>
+    <file src="..\icon.png" target="" />
+    <file src="README.md" target="" />
   </files>
 </package>
