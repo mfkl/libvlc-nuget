@@ -147,7 +147,7 @@ jobs:
       - name: Package NuGet
         shell: bash
         run: |
-          mono nuget.exe pack VideoLAN.LibVLC.UWP.nuspec
+          mono nuget.exe pack UWP/VideoLAN.LibVLC.UWP.nuspec
       - name: Upload NuGet package
         uses: actions/upload-artifact@v2
         with:
