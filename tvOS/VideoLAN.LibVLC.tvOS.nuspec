@@ -17,9 +17,9 @@ As it is native code, you will need to use a wrapper library such as LibVLCSharp
     <releaseNotes>https://code.videolan.org/videolan/vlc/blob/master/NEWS</releaseNotes>
   </metadata>
   <files>
-    <file src="build\VideoLAN.LibVLC.tvOS.targets" target="build\VideoLAN.LibVLC.tvOS.targets"/>
-    <file src="build\tvOS-simulator\TVVLCKit.framework\*" target="build\tvOS-simulator\TVVLCKit.framework"/>
-    <file src="build\tvOS-device\TVVLCKit.framework\*" target="build\tvOS-device\TVVLCKit.framework"/>
+    <file src="VideoLAN.LibVLC.tvOS.targets" target="VideoLAN.LibVLC.tvOS.targets"/>
+    <file src="tvOS-simulator\TVVLCKit.framework\*" target="tvOS-simulator\TVVLCKit.framework"/>
+    <file src="tvOS-device\TVVLCKit.framework\*" target="tvOS-device\TVVLCKit.framework"/>
     <file src="icon.png" target="" />
   </files>
 </package>

@@ -13,6 +13,7 @@ it contains all modules, data structures and functions documentation to understa
 The **source** is in the main VLC repository: https://github.com/videolan/vlc
 
 `libvlc` is *modularized* into hundreds of plugins, which may be loaded at runtime. This architecture provides great flexibility to developers (both VLC devs and devs consuming the library). The unified, complete and (somewhat) high level `libvlc` C API allows a wide range of operations, such as:
+
 - Play every media file formats, every codec and every streaming protocols
 - Run on every platform, from desktop (Windows, Linux, Mac) to mobile (Android, iOS) and TVs
 - Hardware and efficient decoding on every platform, up to 8K
@@ -25,6 +26,7 @@ The **source** is in the main VLC repository: https://github.com/videolan/vlc
 - Able to cast and stream to distant renderers, like Chromecast and UPnP renderers.
 
 Full list of the new 3.0 features can be found here: https://www.videolan.org/vlc/releases/3.0.0.html
+
 ```cmd
 dotnet add package VideoLAN.LibVLC.Android
 ```
@@ -32,7 +34,7 @@ dotnet add package VideoLAN.LibVLC.Android
 [![NuGet Stats](https://img.shields.io/nuget/v/VideoLAN.LibVLC.Android.svg)](https://www.nuget.org/packages/VideoLAN.LibVLC.Android)
 [![NuGet Stats](https://img.shields.io/nuget/dt/VideoLAN.LibVLC.Android.svg)](https://www.nuget.org/packages/VideoLAN.LibVLC.Android)
 
-## Supported CPU architectures:
+## Supported CPU architectures
 
 - armeabi-v7a
 - arm64-v8a
