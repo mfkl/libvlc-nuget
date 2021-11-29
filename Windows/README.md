@@ -2,6 +2,8 @@
 
 As it is native code, you will need to use a wrapper library such as [LibVLCSharp](https://code.videolan.org/videolan/LibVLCSharp) to use it from .NET.
 
+_note: If you are looking to target modern Windows (UWP, Xbox, etc.), the NuGet you want is [VideoLAN.LibVLC.UWP](https://www.nuget.org/packages/VideoLAN.LibVLC.UWP) instead._
+
 ## What is libvlc?
 
 `libvlc` is the multimedia framework powering the VLC applications. It is fully opensource, so other apps use it too.
@@ -38,3 +40,4 @@ dotnet add package VideoLAN.LibVLC.Windows
 
 - x64
 - x86
+- ARM32
