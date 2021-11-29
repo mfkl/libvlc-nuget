@@ -21,14 +21,8 @@ variables:
         TRIPLET: $HOST_ARCH-w64-mingw32
         BUILD_PATH: vlc/$SHORTARCH-uwp/vlc-$VLC_VERSION-win32.7z
 
-# Common rules
-.base-template:
-    except:
-        - schedules
-
 # Common rules for jobs using docker
 .docker-template:
-    extends: .base-template
     tags:
         - docker
         - amd64
