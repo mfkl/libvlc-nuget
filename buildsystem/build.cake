@@ -88,7 +88,7 @@ Task("Publish")
 
 bool IsPrBuild()
 {
-    if(!BuildSystem.IsRunningOnAzurePipelines && !BuildSystem.IsRunningOnAzurePipelinesHosted) return false;
+    if(!BuildSystem.AzurePipelines.IsRunningOnAzurePipelines) return false;
 
     return BuildSystem.AzurePipelines.Environment.PullRequest.Number > 0;
 }
