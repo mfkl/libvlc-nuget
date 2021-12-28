@@ -149,13 +149,18 @@ async Task DownloadArtifact(string arch)
 
     Console.WriteLine("Found the nightly artifact URL");
 
-    using (var webClient = new WebClient())
+    using (var httpClient = new HttpClient())
     {
         url = $"{baseUrl}{arch}/{todayPartialLink}{todayLinkEnding}";
         Console.WriteLine($"requesting {url}");
 
-        webClient.DownloadProgressChanged += (s, e) => Console.Write($"\r{e.ProgressPercentage}%");
-        await webClient.DownloadFileTaskAsync(url, $"../artifacts/{artifact}{ext}");
+        using (var stream = await httpClient.GetStreamAsync(url))
+        {
+            using (var fs = new FileStream($"../artifacts/{artifact}{ext}", FileMode.CreateNew))
+            {
+                await stream.CopyToAsync(fs);
+            }
+        }
         Console.WriteLine(Environment.NewLine);
         Console.WriteLine("Done...");
     }
