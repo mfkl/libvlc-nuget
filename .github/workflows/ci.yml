@@ -33,17 +33,17 @@ jobs:
           patchBinary
           cd ios-arm64_i386_x86_64-simulator/MobileVLCKit.framework
           patchBinary
-          mkdir -p $GITHUB_WORKSPACE/build/ios-device
-          mkdir -p $GITHUB_WORKSPACE/build/ios-simulator
-          mv ios-arm64_armv7_armv7s/DynamicMobileVLCKit.framework $GITHUB_WORKSPACE/build/ios-device
-          mv ios-arm64_i386_x86_64-simulator/DynamicMobileVLCKit.framework $GITHUB_WORKSPACE/build/ios-simulator
+          mkdir -p $GITHUB_WORKSPACE/iOS/ios-device
+          mkdir -p $GITHUB_WORKSPACE/iOS/ios-simulator
+          mv ios-arm64_armv7_armv7s/DynamicMobileVLCKit.framework $GITHUB_WORKSPACE/iOS/ios-device
+          mv ios-arm64_i386_x86_64-simulator/DynamicMobileVLCKit.framework $GITHUB_WORKSPACE/iOS/ios-simulator
       - name: Setup NuGet
         uses: nuget/setup-nuget@v1
         with:
           nuget-version: '5.x'
       - name: Create LibVLC iOS NuGet package
         run: |
-          nuget pack VideoLAN.LibVLC.iOS.nuspec
+          nuget pack iOS/VideoLAN.LibVLC.iOS.nuspec
       - name: Upload build
         uses: actions/upload-artifact@v2
         with:
@@ -103,9 +103,9 @@ jobs:
       - name: Create NuGet folders
         shell: bash
         run: |
-          mkdir -p build/win10-arm/native
-          mkdir -p build/win10-x64/native
-          mkdir -p build/win10-x86/native
+          mkdir -p UWP/win10-arm/native
+          mkdir -p UWP/win10-x64/native
+          mkdir -p UWP/win10-x86/native
       - name: Download and extract UWP builds
         env:
             VLC_VERSION: 3.0.16
@@ -124,30 +124,30 @@ jobs:
           7z x x64.zip -ox64 -y
           7z x x64/vlc/win64-uwp/vlc-$VLC_VERSION-win64.7z -ox64/vlc/win64-uwp -y
 
-          mv arm/vlc/winarm-uwp/vlc-$VLC_VERSION/lua build/win10-arm/native
-          mv arm/vlc/winarm-uwp/vlc-$VLC_VERSION/plugins build/win10-arm/native
-          mv libvlc-uwp-access-build-arm/libaccess_winrt_plugin.dll build/win10-arm/native/plugins/access
-          mv arm/vlc/winarm-uwp/vlc-$VLC_VERSION/sdk build/win10-arm/native
-          mv arm/vlc/winarm-uwp/vlc-$VLC_VERSION/libvlc.dll build/win10-arm/native
-          mv arm/vlc/winarm-uwp/vlc-$VLC_VERSION/libvlccore.dll build/win10-arm/native
+          mv arm/vlc/winarm-uwp/vlc-$VLC_VERSION/lua UWP/win10-arm/native
+          mv arm/vlc/winarm-uwp/vlc-$VLC_VERSION/plugins UWP/win10-arm/native
+          mv libvlc-uwp-access-build-arm/libaccess_winrt_plugin.dll UWP/win10-arm/native/plugins/access
+          mv arm/vlc/winarm-uwp/vlc-$VLC_VERSION/sdk UWP/win10-arm/native
+          mv arm/vlc/winarm-uwp/vlc-$VLC_VERSION/libvlc.dll UWP/win10-arm/native
+          mv arm/vlc/winarm-uwp/vlc-$VLC_VERSION/libvlccore.dll UWP/win10-arm/native
 
-          mv x86/vlc/win32-uwp/vlc-$VLC_VERSION/lua build/win10-x86/native
-          mv x86/vlc/win32-uwp/vlc-$VLC_VERSION/plugins build/win10-x86/native
-          mv libvlc-uwp-access-build-x86/libaccess_winrt_plugin.dll build/win10-x86/native/plugins/access
-          mv x86/vlc/win32-uwp/vlc-$VLC_VERSION/sdk build/win10-x86/native
-          mv x86/vlc/win32-uwp/vlc-$VLC_VERSION/libvlc.dll build/win10-x86/native
-          mv x86/vlc/win32-uwp/vlc-$VLC_VERSION/libvlccore.dll build/win10-x86/native
+          mv x86/vlc/win32-uwp/vlc-$VLC_VERSION/lua UWP/win10-x86/native
+          mv x86/vlc/win32-uwp/vlc-$VLC_VERSION/plugins UWP/win10-x86/native
+          mv libvlc-uwp-access-build-x86/libaccess_winrt_plugin.dll UWP/win10-x86/native/plugins/access
+          mv x86/vlc/win32-uwp/vlc-$VLC_VERSION/sdk UWP/win10-x86/native
+          mv x86/vlc/win32-uwp/vlc-$VLC_VERSION/libvlc.dll UWP/win10-x86/native
+          mv x86/vlc/win32-uwp/vlc-$VLC_VERSION/libvlccore.dll UWP/win10-x86/native
 
-          mv x64/vlc/win64-uwp/vlc-$VLC_VERSION/lua build/win10-x64/native
-          mv x64/vlc/win64-uwp/vlc-$VLC_VERSION/plugins build/win10-x64/native
-          mv libvlc-uwp-access-build-x64/libaccess_winrt_plugin.dll build/win10-x64/native/plugins/access
-          mv x64/vlc/win64-uwp/vlc-$VLC_VERSION/sdk build/win10-x64/native
-          mv x64/vlc/win64-uwp/vlc-$VLC_VERSION/libvlc.dll build/win10-x64/native
-          mv x64/vlc/win64-uwp/vlc-$VLC_VERSION/libvlccore.dll build/win10-x64/native
+          mv x64/vlc/win64-uwp/vlc-$VLC_VERSION/lua UWP/win10-x64/native
+          mv x64/vlc/win64-uwp/vlc-$VLC_VERSION/plugins UWP/win10-x64/native
+          mv libvlc-uwp-access-build-x64/libaccess_winrt_plugin.dll UWP/win10-x64/native/plugins/access
+          mv x64/vlc/win64-uwp/vlc-$VLC_VERSION/sdk UWP/win10-x64/native
+          mv x64/vlc/win64-uwp/vlc-$VLC_VERSION/libvlc.dll UWP/win10-x64/native
+          mv x64/vlc/win64-uwp/vlc-$VLC_VERSION/libvlccore.dll UWP/win10-x64/native
       - name: Package NuGet
         shell: bash
         run: |
-          mono nuget.exe pack VideoLAN.LibVLC.UWP.nuspec
+          mono nuget.exe pack UWP/VideoLAN.LibVLC.UWP.nuspec
       - name: Upload NuGet package
         uses: actions/upload-artifact@v2
         with:

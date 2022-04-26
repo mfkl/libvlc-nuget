@@ -14,18 +14,20 @@ As it is native code, you will need to use a wrapper library such as LibVLCSharp
     <projectUrl>https://code.videolan.org/videolan/libvlc-nuget</projectUrl>
     <license type="expression">LGPL-2.1-or-later</license>
     <icon>icon.png</icon>
+    <readme>README.md</readme>
     <releaseNotes>https://code.videolan.org/videolan/vlc/blob/master/NEWS</releaseNotes>
   </metadata>
   <files>
-    <file src="build\VideoLAN.LibVLC.Android.targets" target="build\VideoLAN.LibVLC.Android.targets"/>
-    <file src="build\android-armv7\libvlc.so" target="build\android-armv7\libvlc.so"/>
-    <file src="build\android-armv7\libc++_shared.so" target="build\android-armv7\libc++_shared.so"/>
-    <file src="build\android-armv8\libvlc.so" target="build\android-armv8\libvlc.so"/>
-    <file src="build\android-armv8\libc++_shared.so" target="build\android-armv8\libc++_shared.so"/>
-    <file src="build\android-x86\libvlc.so" target="build\android-x86\libvlc.so"/>
-    <file src="build\android-x86\libc++_shared.so" target="build\android-x86\libc++_shared.so"/>
-    <file src="build\android-x86_64\libvlc.so" target="build\android-x86_64\libvlc.so"/>
-    <file src="build\android-x86_64\libc++_shared.so" target="build\android-x86_64\libc++_shared.so"/>
-    <file src="icon.png" target="" />
+    <file src="VideoLAN.LibVLC.Android.targets" target="VideoLAN.LibVLC.Android.targets"/>
+    <file src="android-armv7\libvlc.so" target="android-armv7\libvlc.so"/>
+    <file src="android-armv7\libc++_shared.so" target="android-armv7\libc++_shared.so"/>
+    <file src="android-armv8\libvlc.so" target="android-armv8\libvlc.so"/>
+    <file src="android-armv8\libc++_shared.so" target="android-armv8\libc++_shared.so"/>
+    <file src="android-x86\libvlc.so" target="android-x86\libvlc.so"/>
+    <file src="android-x86\libc++_shared.so" target="android-x86\libc++_shared.so"/>
+    <file src="android-x86_64\libvlc.so" target="android-x86_64\libvlc.so"/>
+    <file src="android-x86_64\libc++_shared.so" target="android-x86_64\libc++_shared.so"/>
+    <file src="..\icon.png" target="" />
+    <file src="README.md" target="" />
   </files>
 </package>

@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>VideoLAN.LibVLC.Windows</id>
-    <title>VideoLAN.LibVLC.Windows</title>
-    <version>3.0.11</version>
+    <id>VideoLAN.LibVLC.iOS</id>
+    <title>VideoLAN.LibVLC.iOS</title>
+    <version>3.3.17</version>
     <authors>VideoLAN</authors>
     <owners>VideoLAN</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -17,9 +17,10 @@ As it is native code, you will need to use a wrapper library such as LibVLCSharp
     <releaseNotes>https://code.videolan.org/videolan/vlc/blob/master/NEWS</releaseNotes>
   </metadata>
   <files>
-    <file src="build\VideoLAN.LibVLC.Windows.targets" target="build\VideoLAN.LibVLC.Windows.targets"/>
-    <file src="build\win7-x64\native\**" target="build\x64"/>
-    <file src="build\win7-x86\native\**" target="build\x86"/>
-    <file src="icon.png" target="" />
+    <file src="VideoLAN.LibVLC.iOS.targets" target="VideoLAN.LibVLC.iOS.targets"/>
+    <file src="ios-simulator\DynamicMobileVLCKit.framework\*" target="ios-simulator\DynamicMobileVLCKit.framework"/>
+    <file src="ios-device\DynamicMobileVLCKit.framework\*" target="ios-device\DynamicMobileVLCKit.framework"/>
+    <file src="..\icon.png" target="" />
+    <file src="README.md" target="" />
   </files>
 </package>

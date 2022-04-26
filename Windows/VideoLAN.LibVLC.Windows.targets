@@ -25,12 +25,12 @@
     <!-- x64 -->
     <ItemGroup Condition="'$(VlcWindowsX64Enabled)' == 'true'">
       <!-- Expand selectors and compute absolute paths for include, exclude and MainLibraries -->
-      <VlcWindowsX64IncludeFilesFullPath Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\build\x64\%(VlcWindowsX64IncludeFiles.Identity)))" />
-      <VlcWindowsX64ExcludeFilesFullPath Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\build\x64\%(VlcWindowsX64ExcludeFiles.Identity)))" Condition="'%(VlcWindowsX64ExcludeFiles.Identity)'!=''" />
+      <VlcWindowsX64IncludeFilesFullPath Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\x64\%(VlcWindowsX64IncludeFiles.Identity)))" />
+      <VlcWindowsX64ExcludeFilesFullPath Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\x64\%(VlcWindowsX64ExcludeFiles.Identity)))" Condition="'%(VlcWindowsX64ExcludeFiles.Identity)'!=''" />
 
       <!-- We have gathered all the full path of what should be copied and what should be skipped, let's include that as Content that gets copied -->
       <Content Include="@(VlcWindowsX64IncludeFilesFullPath)" Exclude="@(VlcWindowsX64ExcludeFilesFullPath)">
-        <Link>$(VlcWindowsX64TargetDir)\$([MSBuild]::MakeRelative($(MSBuildThisFileDirectory)..\build\x64\, %(FullPath)))</Link>
+        <Link>$(VlcWindowsX64TargetDir)\$([MSBuild]::MakeRelative($(MSBuildThisFileDirectory)..\x64\, %(FullPath)))</Link>
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
     </ItemGroup>
@@ -38,12 +38,12 @@
     <!-- x86 -->
     <ItemGroup Condition="'$(VlcWindowsX86Enabled)' == 'true'">
       <!-- Expand selectors and compute absolute paths for include, exclude and MainLibraries -->
-      <VlcWindowsX86IncludeFilesFullPath Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\build\x86\%(VlcWindowsX86IncludeFiles.Identity)))" />
-      <VlcWindowsX86ExcludeFilesFullPath Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\build\x86\%(VlcWindowsX86ExcludeFiles.Identity)))" Condition="'%(VlcWindowsX86ExcludeFiles.Identity)'!=''" />
+      <VlcWindowsX86IncludeFilesFullPath Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\x86\%(VlcWindowsX86IncludeFiles.Identity)))" />
+      <VlcWindowsX86ExcludeFilesFullPath Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\x86\%(VlcWindowsX86ExcludeFiles.Identity)))" Condition="'%(VlcWindowsX86ExcludeFiles.Identity)'!=''" />
 
       <!-- We have gathered all the full path of what should be copied and what should be skipped, let's include that as Content that gets copied -->
       <Content Include="@(VlcWindowsX86IncludeFilesFullPath)" Exclude="@(VlcWindowsX86ExcludeFilesFullPath)">
-        <Link>$(VlcWindowsX86TargetDir)\$([MSBuild]::MakeRelative($(MSBuildThisFileDirectory)..\build\x86\, %(FullPath)))</Link>
+        <Link>$(VlcWindowsX86TargetDir)\$([MSBuild]::MakeRelative($(MSBuildThisFileDirectory)..\x86\, %(FullPath)))</Link>
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
     </ItemGroup>

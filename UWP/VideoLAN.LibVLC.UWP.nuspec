@@ -20,10 +20,11 @@ Use this LibVLC build for Windows Universal projects (UAP) on Windows 10 Desktop
   </metadata>
   <files>
     <!-- https://code.videolan.org/videolan/vlc/-/commit/c900a2183f8988f32e60afdcae3aa398387295f1 -->
-    <file src="build\VideoLAN.LibVLC.UWP.targets" target="build\VideoLAN.LibVLC.UWP.targets"/>
-    <file src="build\win10-x86\native\**" target="build\win10-x86"/>
-    <file src="build\win10-x64\native\**" target="build\win10-x64"/>
-    <file src="build\win10-arm\native\**" target="build\win10-arm"/>
-    <file src="icon.png" target="" />
+    <file src="VideoLAN.LibVLC.UWP.targets" target="VideoLAN.LibVLC.UWP.targets"/>
+    <file src="win10-x86\native\**" target="runtimes\win10-x86\native"/>
+    <file src="win10-x64\native\**" target="runtimes\win10-x64\native"/>
+    <file src="win10-arm\native\**" target="runtimes\win10-arm\native"/>
+    <file src="..\icon.png" target="" />
+    <file src="README.md" target="" />
   </files>
 </package>

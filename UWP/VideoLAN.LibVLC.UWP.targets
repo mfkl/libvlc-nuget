@@ -31,13 +31,13 @@
     <!-- x64 -->
     <ItemGroup Condition="'$(VlcUWPX64Enabled)' == 'true'">
       <!-- Expand selectors and compute absolute paths for include, exclude and MainLibraries -->
-      <VlcUWPX64IncludeFilesFullPath Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\build\win10-x64\%(VlcUWPX64IncludeFiles.Identity)))" />
-      <VlcUWPX64ExcludeFilesFullPath Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\build\win10-x64\%(VlcUWPX64ExcludeFiles.Identity)))" 
+      <VlcUWPX64IncludeFilesFullPath Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\runtimes\win10-x64\native\%(VlcUWPX64IncludeFiles.Identity)))" />
+      <VlcUWPX64ExcludeFilesFullPath Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\runtimes\win10-x64\native\%(VlcUWPX64ExcludeFiles.Identity)))" 
         Condition="'%(VlcUWPX64ExcludeFiles.Identity)'!=''" />
 
       <!-- We have gathered all the full path of what should be copied and what should be skipped, let's include that as Content that gets copied -->
       <Content Include="@(VlcUWPX64IncludeFilesFullPath)" Exclude="@(VlcUWPX64ExcludeFilesFullPath)">
-        <Link>$([MSBuild]::MakeRelative($(MSBuildThisFileDirectory)..\build\win10-x64\, %(FullPath)))</Link>
+        <Link>$([MSBuild]::MakeRelative($(MSBuildThisFileDirectory)..\runtimes\win10-x64\native\, %(FullPath)))</Link>
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
     </ItemGroup>
@@ -45,12 +45,12 @@
     <!-- x86 -->
     <ItemGroup Condition="'$(VlcUWPX86Enabled)' == 'true'">
       <!-- Expand selectors and compute absolute paths for include, exclude and MainLibraries -->
-      <VlcUWPX86IncludeFilesFullPath Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\build\win10-x86\%(VlcUWPX86IncludeFiles.Identity)))" />
-      <VlcUWPX86ExcludeFilesFullPath Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\build\win10-x86\%(VlcUWPX86ExcludeFiles.Identity)))" Condition="'%(VlcWindowsX86ExcludeFiles.Identity)'!=''" />
+      <VlcUWPX86IncludeFilesFullPath Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\runtimes\win10-x86\native\%(VlcUWPX86IncludeFiles.Identity)))" />
+      <VlcUWPX86ExcludeFilesFullPath Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\runtimes\win10-x86\native\%(VlcUWPX86ExcludeFiles.Identity)))" Condition="'%(VlcWindowsX86ExcludeFiles.Identity)'!=''" />
 
       <!-- We have gathered all the full path of what should be copied and what should be skipped, let's include that as Content that gets copied -->
       <Content Include="@(VlcUWPX86IncludeFilesFullPath)" Exclude="@(VlcUWPX86ExcludeFilesFullPath)">
-        <Link>$([MSBuild]::MakeRelative($(MSBuildThisFileDirectory)..\build\win10-x86\, %(FullPath)))</Link>
+        <Link>$([MSBuild]::MakeRelative($(MSBuildThisFileDirectory)..\runtimes\win10-x86\native\, %(FullPath)))</Link>
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
     </ItemGroup>
@@ -58,12 +58,12 @@
      <!-- ARM -->
     <ItemGroup Condition="'$(VlcUWPARMEnabled)' == 'true'">
       <!-- Expand selectors and compute absolute paths for include, exclude and MainLibraries -->
-      <VlcUWPARMIncludeFilesFullPath Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\build\win10-arm\%(VlcUWPARMIncludeFiles.Identity)))" />
-      <VlcUWPARMExcludeFilesFullPath Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\build\win10-arm\%(VlcUWPARMExcludeFiles.Identity)))" Condition="'%(VlcWindowsARMExcludeFiles.Identity)'!=''" />
+      <VlcUWPARMIncludeFilesFullPath Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\runtimes\win10-arm\native\%(VlcUWPARMIncludeFiles.Identity)))" />
+      <VlcUWPARMExcludeFilesFullPath Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\runtimes\win10-arm\native\%(VlcUWPARMExcludeFiles.Identity)))" Condition="'%(VlcWindowsARMExcludeFiles.Identity)'!=''" />
 
       <!-- We have gathered all the full path of what should be copied and what should be skipped, let's include that as Content that gets copied -->
       <Content Include="@(VlcUWPARMIncludeFilesFullPath)" Exclude="@(VlcUWPARMExcludeFilesFullPath)">
-        <Link>$([MSBuild]::MakeRelative($(MSBuildThisFileDirectory)..\build\win10-arm\, %(FullPath)))</Link>
+        <Link>$([MSBuild]::MakeRelative($(MSBuildThisFileDirectory)..\runtimes\win10-arm\native\, %(FullPath)))</Link>
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
     </ItemGroup>
