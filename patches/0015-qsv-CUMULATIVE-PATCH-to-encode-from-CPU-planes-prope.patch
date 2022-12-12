@@ -1,19 +1,18 @@
-From e0da2caa5b125012e2d6bb120bcc879288de9a10 Mon Sep 17 00:00:00 2001
+From 5c47e153f40d5d4b65a7a4c21d3c1d02e3155b5d Mon Sep 17 00:00:00 2001
 From: Steve Lhomme <robux4@videolabs.io>
 Date: Thu, 31 Aug 2017 18:02:31 +0200
-Subject: [PATCH 15/26] qsv: CUMULATIVE PATCH to encode from CPU planes
- properly
+Subject: [PATCH] qsv: CUMULATIVE PATCH to encode from CPU planes properly
 
 ---
  modules/codec/Makefile.am |   2 +-
- modules/codec/qsv.c       | 455 ++++++++++++++++++++++++--------------
- 2 files changed, 294 insertions(+), 163 deletions(-)
+ modules/codec/qsv.c       | 452 ++++++++++++++++++++++++--------------
+ 2 files changed, 293 insertions(+), 161 deletions(-)
 
 diff --git a/modules/codec/Makefile.am b/modules/codec/Makefile.am
-index 3dadf11191..2915784e0b 100644
+index 1c0227635a..06cfdf68fa 100644
 --- a/modules/codec/Makefile.am
 +++ b/modules/codec/Makefile.am
-@@ -606,7 +606,7 @@ libcrystalhd_plugin_la_LIBADD = $(LIBS_crystalhd)
+@@ -603,7 +603,7 @@ libcrystalhd_plugin_la_LIBADD = $(LIBS_crystalhd)
  EXTRA_LTLIBRARIES += libcrystalhd_plugin.la
  codec_LTLIBRARIES += $(LTLIBcrystalhd)
  
@@ -23,7 +22,7 @@ index 3dadf11191..2915784e0b 100644
  libqsv_plugin_la_LDFLAGS = $(AM_LDFLAGS) -rpath '$(codecdir)'
  libqsv_plugin_la_LIBADD = $(MFX_LIBS)
 diff --git a/modules/codec/qsv.c b/modules/codec/qsv.c
-index 93752e792e..0f865dd4ab 100644
+index 9c0841c87d..598e1ebf35 100644
 --- a/modules/codec/qsv.c
 +++ b/modules/codec/qsv.c
 @@ -32,15 +32,20 @@
@@ -103,7 +102,7 @@ index 93752e792e..0f865dd4ab 100644
      { MFX_RATECONTROL_CBR, MFX_RATECONTROL_VBR,
        MFX_RATECONTROL_CQP, MFX_RATECONTROL_AVBR};
  static const char *const rc_method_text[] =
-@@ -255,33 +264,39 @@ static const char *const sout_options[] = {
+@@ -255,33 +264,40 @@ static const char *const sout_options[] = {
  };
  
  // Frame pool for QuickSync video encoder with Intel Media SDK's format frames.
@@ -143,18 +142,17 @@ index 93752e792e..0f865dd4ab 100644
 -    uint64_t         busy_warn_counter;   // Device Bussy warning counter for rate-limiting of msg;
 +    uint64_t         busy_warn_counter;   // Device Busy warning counter for rate-limiting of msg;
      uint64_t         async_depth;         // Number of parallel encoding operations.
--    uint64_t         first_task;          // The next sync point to be synchronized.
--    async_task_t     *tasks;              // The async encoding tasks.
+     uint64_t         first_task;          // The next sync point to be synchronized.
+     async_task_t     *tasks;              // The async encoding tasks.
 +    fifo_t           packets;             // FIFO of queued packets
-     mtime_t          offset_pts;          // The pts of the first frame, to avoid conversion overflow.
-     mtime_t          last_dts;            // The dts of the last frame, to interpolate over buggy dts
-+
+     vlc_tick_t       offset_pts;          // The pts of the first frame, to avoid conversion overflow.
+     vlc_tick_t       last_dts;            // The dts of the last frame, to interpolate over buggy dts
 +    picture_pool_t   *input_pool;         // pool of pictures to feed the decoder
 +                                          //  as it doesn't like constantly changing buffers
  };
  
  static block_t *Encode(encoder_t *, picture_t *);
-@@ -297,43 +312,16 @@ static inline uint64_t qsv_mtime_to_timestamp(mtime_t vlc_ts)
+@@ -297,43 +313,16 @@ static inline uint64_t qsv_mtime_to_timestamp(vlc_tick_t vlc_ts)
      return vlc_ts / UINT64_C(100) * UINT64_C(9);
  }
  
@@ -206,7 +204,7 @@ index 93752e792e..0f865dd4ab 100644
  }
  
  /*
-@@ -341,40 +329,38 @@ static void qsv_frame_pool_Destroy(qsv_frame_pool_t *pool)
+@@ -341,40 +330,38 @@ static void qsv_frame_pool_Destroy(qsv_frame_pool_t *pool)
   * necessary associates the new picture with it and return the frame.
   * Returns 0 if there's an error.
   */
@@ -271,7 +269,7 @@ index 93752e792e..0f865dd4ab 100644
                                       size_t size, char *sel)
  {
      size_t result = 0;
-@@ -401,13 +387,41 @@ static int Open(vlc_object_t *this)
+@@ -401,13 +388,41 @@ static int Open(vlc_object_t *this)
      encoder_sys_t *sys = NULL;
  
      mfxStatus sts = MFX_ERR_NONE;
@@ -316,7 +314,7 @@ index 93752e792e..0f865dd4ab 100644
  
      if (enc->fmt_out.i_codec != VLC_CODEC_H264 &&
          enc->fmt_out.i_codec != VLC_CODEC_MPGV && !enc->obj.force)
-@@ -425,7 +439,7 @@ static int Open(vlc_object_t *this)
+@@ -425,7 +440,7 @@ static int Open(vlc_object_t *this)
          return VLC_ENOMEM;
  
      /* Initialize dispatcher, it will loads the actual SW/HW Implementation */
@@ -325,7 +323,7 @@ index 93752e792e..0f865dd4ab 100644
  
      if (sts != MFX_ERR_NONE) {
          msg_Err(enc, "Unable to find an Intel Media SDK implementation.");
-@@ -433,24 +447,19 @@ static int Open(vlc_object_t *this)
+@@ -433,24 +448,19 @@ static int Open(vlc_object_t *this)
          return VLC_EGENERIC;
      }
  
@@ -356,7 +354,7 @@ index 93752e792e..0f865dd4ab 100644
  
      /* Input picture format description */
      sys->params.mfx.FrameInfo.FrameRateExtN = enc->fmt_in.video.i_frame_rate;
-@@ -461,11 +470,16 @@ static int Open(vlc_object_t *this)
+@@ -461,11 +471,16 @@ static int Open(vlc_object_t *this)
      sys->params.mfx.FrameInfo.Height        = QSV_ALIGN(32, enc->fmt_in.video.i_height);
      sys->params.mfx.FrameInfo.CropW         = enc->fmt_in.video.i_visible_width;
      sys->params.mfx.FrameInfo.CropH         = enc->fmt_in.video.i_visible_height;
@@ -374,7 +372,7 @@ index 93752e792e..0f865dd4ab 100644
      sys->params.mfx.GopPicSize  = var_InheritInteger(enc, SOUT_CFG_PREFIX "gop-size");
      sys->params.mfx.GopRefDist  = var_InheritInteger(enc, SOUT_CFG_PREFIX "gop-refdist");
      sys->params.mfx.IdrInterval = var_InheritInteger(enc, SOUT_CFG_PREFIX "idr-interval");
-@@ -497,6 +511,7 @@ static int Open(vlc_object_t *this)
+@@ -497,6 +512,7 @@ static int Open(vlc_object_t *this)
          msg_Dbg(enc, "Encoder in MPEG2 mode, with profile %d and level %d",
              sys->params.mfx.CodecProfile, sys->params.mfx.CodecLevel);
      }
@@ -382,7 +380,7 @@ index 93752e792e..0f865dd4ab 100644
  
      char *psz_rc = var_InheritString(enc, SOUT_CFG_PREFIX "rc-method");
      msg_Dbg(enc, "Encoder using '%s' Rate Control method", psz_rc );
-@@ -524,6 +539,51 @@ static int Open(vlc_object_t *this)
+@@ -524,6 +540,51 @@ static int Open(vlc_object_t *this)
              sys->params.mfx.MaxKbps = var_InheritInteger(enc, SOUT_CFG_PREFIX "bitrate-max");
      }
  
@@ -434,7 +432,7 @@ index 93752e792e..0f865dd4ab 100644
      /* Initializing MFX_Encoder */
      sts = MFXVideoENCODE_Init(sys->session, &sys->params);
      if (sts == MFX_ERR_NONE)
-@@ -537,18 +597,21 @@ static int Open(vlc_object_t *this)
+@@ -537,18 +598,21 @@ static int Open(vlc_object_t *this)
  
      /* Querying PPS/SPS Headers, BufferSizeInKB, ... */
      memset(&headers, 0, sizeof(headers));
@@ -463,7 +461,7 @@ index 93752e792e..0f865dd4ab 100644
  
      i_extra = headers.SPSBufSize + headers.PPSBufSize;
      p_extra = malloc(i_extra);
-@@ -562,16 +625,13 @@ static int Open(vlc_object_t *this)
+@@ -562,16 +626,13 @@ static int Open(vlc_object_t *this)
      enc->fmt_out.i_extra = i_extra;
  
      sys->async_depth = sys->params.AsyncDepth;
@@ -486,7 +484,7 @@ index 93752e792e..0f865dd4ab 100644
  
      enc->pf_encode_video = Encode;
  
-@@ -579,9 +639,11 @@ static int Open(vlc_object_t *this)
+@@ -579,9 +640,11 @@ static int Open(vlc_object_t *this)
  
   error:
      Close(this);
@@ -498,7 +496,7 @@ index 93752e792e..0f865dd4ab 100644
      return VLC_ENOMEM;
  }
  
-@@ -594,10 +656,9 @@ static void Close(vlc_object_t *this)
+@@ -594,10 +657,9 @@ static void Close(vlc_object_t *this)
      MFXClose(sys->session);
      /* if (enc->fmt_out.p_extra) */
      /*     free(enc->fmt_out.p_extra); */
@@ -512,7 +510,7 @@ index 93752e792e..0f865dd4ab 100644
      free(sys);
  }
  
-@@ -606,7 +667,7 @@ static void Close(vlc_object_t *this)
+@@ -606,7 +668,7 @@ static void Close(vlc_object_t *this)
   */
  static void qsv_set_block_flags(block_t *block, uint16_t frame_type)
  {
@@ -521,7 +519,7 @@ index 93752e792e..0f865dd4ab 100644
          block->i_flags = BLOCK_FLAG_TYPE_I;
      else if ((frame_type & MFX_FRAMETYPE_P) || (frame_type & MFX_FRAMETYPE_I))
          block->i_flags = BLOCK_FLAG_TYPE_P;
-@@ -637,11 +698,20 @@ static void qsv_set_block_ts(encoder_t *enc, encoder_sys_t *sys, block_t *block,
+@@ -637,11 +699,20 @@ static void qsv_set_block_ts(encoder_t *enc, encoder_sys_t *sys, block_t *block,
  static block_t *qsv_synchronize_block(encoder_t *enc, async_task_t *task)
  {
      encoder_sys_t *sys = enc->p_sys;
@@ -545,7 +543,7 @@ index 93752e792e..0f865dd4ab 100644
          return NULL;
      }
      block_t *block = task->block;
-@@ -652,8 +722,8 @@ static block_t *qsv_synchronize_block(encoder_t *enc, async_task_t *task)
+@@ -652,8 +723,8 @@ static block_t *qsv_synchronize_block(encoder_t *enc, async_task_t *task)
      qsv_set_block_flags(block, task->bs.FrameType);
  
      /* msg_Dbg(enc, "block->i_pts = %lld, block->i_dts = %lld", block->i_pts, block->i_dts); */
@@ -556,7 +554,7 @@ index 93752e792e..0f865dd4ab 100644
  
      /* Copied from x264.c: This isn't really valid for streams with B-frames */
      block->i_length = CLOCK_FREQ *
-@@ -664,15 +734,64 @@ static block_t *qsv_synchronize_block(encoder_t *enc, async_task_t *task)
+@@ -664,15 +735,64 @@ static block_t *qsv_synchronize_block(encoder_t *enc, async_task_t *task)
      if (task->bs.DecodeTimeStamp < -10000)
          block->i_dts = sys->last_dts + block->i_length;
      sys->last_dts = block->i_dts;
@@ -625,7 +623,7 @@ index 93752e792e..0f865dd4ab 100644
  
      if (pic) {
          /* To avoid qsv -> vlc timestamp conversion overflow, we use timestamp relative
-@@ -681,29 +800,39 @@ static void qsv_queue_encode_picture(encoder_t *enc, async_task_t *task,
+@@ -681,29 +801,39 @@ static void qsv_queue_encode_picture(encoder_t *enc, async_task_t *task,
          if (!sys->offset_pts) // First frame
              sys->offset_pts = pic->date;
  
@@ -674,7 +672,7 @@ index 93752e792e..0f865dd4ab 100644
      }
  
      // msg_Dbg(enc, "Encode async status: %d, Syncpoint = %tx", sts, (ptrdiff_t)task->syncp);
-@@ -717,6 +846,15 @@ static void qsv_queue_encode_picture(encoder_t *enc, async_task_t *task,
+@@ -717,6 +847,15 @@ static void qsv_queue_encode_picture(encoder_t *enc, async_task_t *task,
          msg_Err(enc, "Encoder not ready or error (%d), trying a reset...", sts);
          MFXVideoENCODE_Reset(sys->session, &sys->params);
      }
@@ -690,7 +688,7 @@ index 93752e792e..0f865dd4ab 100644
  }
  
  /*
-@@ -730,32 +868,25 @@ static block_t *Encode(encoder_t *this, picture_t *pic)
+@@ -730,32 +869,25 @@ static block_t *Encode(encoder_t *this, picture_t *pic)
  {
      encoder_t     *enc = (encoder_t *)this;
      encoder_sys_t *sys = enc->p_sys;
@@ -738,5 +736,5 @@ index 93752e792e..0f865dd4ab 100644
      return block;
  }
 -- 
-2.26.0.windows.1
+2.20.1
 
