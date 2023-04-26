@@ -9,8 +9,8 @@
 
   <ItemGroup>
     <!-- If no VlcWindows[...]IncludeFiles was declared previously, include all plugins by default by specifying ** (escaped, so %2A%2A) -->
-    <VlcWindowsX64IncludeFiles Condition="'@(VlcWindowsX64IncludeFiles)'==''" Include="libvlc.%2A;libvlccore.%2A;hrtfs\%2A%2A;locale\%2A%2A;lua\%2A%2A;plugins\%2A%2A" />
-    <VlcWindowsX86IncludeFiles Condition="'@(VlcWindowsX86IncludeFiles)'==''" Include="libvlc.%2A;libvlccore.%2A;hrtfs\%2A%2A;locale\%2A%2A;lua\%2A%2A;plugins\%2A%2A" />
+    <VlcWindowsX64IncludeFiles Condition="'@(VlcWindowsX64IncludeFiles)'==''" Include="libvlc.%2A;libvlccore.%2A;hrtfs\%2A%2A;lua\%2A%2A;plugins\%2A%2A" />
+    <VlcWindowsX86IncludeFiles Condition="'@(VlcWindowsX86IncludeFiles)'==''" Include="libvlc.%2A;libvlccore.%2A;hrtfs\%2A%2A;lua\%2A%2A;plugins\%2A%2A" />
   </ItemGroup>
 
   <Target Name="CollectVlcFilesToCopyWindows" BeforeTargets="BeforeBuild">

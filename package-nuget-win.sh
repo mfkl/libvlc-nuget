@@ -20,13 +20,13 @@ echo "unzipping vlc..."
 
 echo "copying x86 dlls, libs and headers files..."
 mkdir -p build/win7-x86/native/
-cp -R ./x86/vlc-$version/{libvlc.dll,libvlccore.dll,hrtfs,locale,lua,plugins} build/win7-x86/native/
+cp -R ./x86/vlc-$version/{libvlc.dll,libvlccore.dll,hrtfs,lua,plugins} build/win7-x86/native/
 cp ./x86/vlc-$version/sdk/lib/{libvlc.lib,libvlccore.lib,vlc.lib,vlccore.lib} build/win7-x86/native/
 cp -R ./x86/vlc-$version/sdk/include build/win7-x86/native/
 
 echo "copying x64 dlls, libs and headers files..."
 mkdir -p build/win7-x64/native/
-cp -R ./x64/vlc-$version/{libvlc.dll,libvlccore.dll,hrtfs,locale,lua,plugins} build/win7-x64/native/
+cp -R ./x64/vlc-$version/{libvlc.dll,libvlccore.dll,hrtfs,lua,plugins} build/win7-x64/native/
 cp ./x64/vlc-$version/sdk/lib/{libvlc.lib,libvlccore.lib,vlc.lib,vlccore.lib} build/win7-x64/native/
 cp -R ./x64/vlc-$version/sdk/include build/win7-x64/native/
 

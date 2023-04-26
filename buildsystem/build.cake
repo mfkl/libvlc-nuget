@@ -196,14 +196,12 @@ void PrepareForPackaging()
     var directories = new [] 
     {
         Directory($"./{artifactwin32}/{nightlyVersion}/hrtfs"),
-        Directory($"./{artifactwin32}/{nightlyVersion}/locale"),
         Directory($"./{artifactwin32}/{nightlyVersion}/lua"),
         Directory($"./{artifactwin32}/{nightlyVersion}/plugins"),
         Directory($"./{artifactwin32}/{nightlyVersion}/sdk/lib"),
         Directory($"./{artifactwin32}/{nightlyVersion}/sdk/include"),
 
         Directory($"./{artifactwin64}/{nightlyVersion}/hrtfs"),
-        Directory($"./{artifactwin64}/{nightlyVersion}/locale"),
         Directory($"./{artifactwin64}/{nightlyVersion}/lua"),
         Directory($"./{artifactwin64}/{nightlyVersion}/plugins"),
         Directory($"./{artifactwin64}/{nightlyVersion}/sdk/lib"),
@@ -215,14 +213,12 @@ void PrepareForPackaging()
     CopyFiles(libsWin32, packageLocationX86);
 
     CopyDirectory(Directory($"./{artifactwin32}/{nightlyVersion}/hrtfs"), Directory($"{packageLocationX86}/hrtfs"));
-    CopyDirectory(Directory($"./{artifactwin32}/{nightlyVersion}/locale"), Directory($"{packageLocationX86}/locale"));
     CopyDirectory(Directory($"./{artifactwin32}/{nightlyVersion}/lua"), Directory($"{packageLocationX86}/lua"));
     CopyDirectory(Directory($"./{artifactwin32}/{nightlyVersion}/plugins"), Directory($"{packageLocationX86}/plugins"));
     CopyDirectory(Directory($"./{artifactwin32}/{nightlyVersion}/sdk/lib"), Directory($"{packageLocationX86}/sdk/lib"));
     CopyDirectory(Directory($"./{artifactwin32}/{nightlyVersion}/sdk/include"), Directory($"{packageLocationX86}/sdk/include"));
 
     CopyDirectory(Directory($"./{artifactwin64}/{nightlyVersion}/hrtfs"), Directory($"{packageLocationX64}/hrtfs"));
-    CopyDirectory(Directory($"./{artifactwin64}/{nightlyVersion}/locale"), Directory($"{packageLocationX64}/locale"));
     CopyDirectory(Directory($"./{artifactwin64}/{nightlyVersion}/lua"), Directory($"{packageLocationX64}/lua"));
     CopyDirectory(Directory($"./{artifactwin64}/{nightlyVersion}/plugins"), Directory($"{packageLocationX64}/plugins"));
     CopyDirectory(Directory($"./{artifactwin64}/{nightlyVersion}/sdk/lib"), Directory($"{packageLocationX64}/sdk/lib"));

@@ -77,5 +77,5 @@ Of course, you can group items with `;` as with the exclusive strategy.
 The default value of `VlcWindowsX64IncludeFiles` and `VlcWindowsX86IncludeFiles` is:
 
 ```
-libvlc.dll;libvlccore.dll;hrtfs\%2A%2A;locale\%2A%2A;lua\%2A%2A;plugins\%2A%2A
+libvlc.dll;libvlccore.dll;hrtfs\%2A%2A;lua\%2A%2A;plugins\%2A%2A
 ```
