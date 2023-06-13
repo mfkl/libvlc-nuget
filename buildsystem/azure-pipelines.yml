@@ -7,6 +7,6 @@ pr:
 jobs:
 - job: Linux
   pool:
-    vmImage: 'ubuntu-18.04'
+    vmImage: 'ubuntu-latest'
   steps:
   - template: linux-build.yml
