@@ -1,4 +1,5 @@
 #! /bin/bash
+set -e
 
 version=${1:?"Usage: $0 <libvlc version>"}
 downloadUrlx86="https://get.videolan.org/vlc/$version/win32/vlc-$version-win32.7z"
