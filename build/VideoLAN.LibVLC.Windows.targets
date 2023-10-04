@@ -48,4 +48,51 @@
       </Content>
     </ItemGroup>
   </Target>
+
+  <ItemDefinitionGroup>
+    <ClCompile Condition="'$(Language)' == 'C++' and ('$(Platform)' == 'x64' or '$(Platform)' == 'x86') and '$(OS)'=='Windows_NT'">
+      <AdditionalIncludeDirectories>
+        $(MSBuildThisFileDirectory)\$(Platform)\include\;%(AdditionalIncludeDirectories)
+      </AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+
+  <ItemDefinitionGroup>
+    <Link Condition="'$(Language)' == 'C++' and ('$(Platform)' == 'x64' or '$(Platform)' == 'x86') and '$(OS)'=='Windows_NT'">
+      <AdditionalDependencies>libvlc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(MSBuildThisFileDirectory)\$(Platform)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+
+  <ItemGroup>
+    <Content Include="$(MSBuildThisFileDirectory)\$(Platform)\*.dll"
+    Condition="'$(Language)' == 'C++' and ('$(Platform)' == 'x64' or '$(Platform)' == 'x86') and '$(OS)'=='Windows_NT'">
+      <Link>%(RecursiveDir)%(FileName)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+     <Content Include="$(MSBuildThisFileDirectory)\$(Platform)\plugins\**"
+     Condition="'$(Language)' == 'C++' and '$(OS)'=='Windows_NT' and ('$(Platform)' == 'x86' or '$(Platform)' == 'x64')">
+       <Link>plugins\%(RecursiveDir)%(FileName)%(Extension)</Link>
+       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+     </Content>
+  </ItemGroup>
+
+   <ItemGroup>
+     <Content Include="$(MSBuildThisFileDirectory)\$(Platform)\hrtfs\**"
+     Condition="'$(Language)' == 'C++' and '$(OS)'=='Windows_NT' and ('$(Platform)' == 'x86' or '$(Platform)' == 'x64')">
+       <Link>hrtfs\%(RecursiveDir)%(FileName)%(Extension)</Link>
+       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+     </Content>
+  </ItemGroup>
+
+   <ItemGroup>
+     <Content Include="$(MSBuildThisFileDirectory)\$(Platform)\lua\**"
+     Condition="'$(Language)' == 'C++' and '$(OS)'=='Windows_NT' and ('$(Platform)' == 'x86' or '$(Platform)' == 'x64')">
+       <Link>lua\%(RecursiveDir)%(FileName)%(Extension)</Link>
+       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+     </Content>
+  </ItemGroup>
 </Project>
