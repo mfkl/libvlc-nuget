@@ -5,51 +5,6 @@ on:
   pull_request:
 
 jobs:
-  LibVLC_iOS_NuGet:
-    if: github.event_name == 'push' || github.event.pull_request.head.repo.id != github.event.pull_request.base.repo.id
-    runs-on: macos-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2 
-      - name: LibVLC iOS build
-        shell: bash
-        run: |
-          git clone https://github.com/videolan/vlckit
-          cd vlckit && git checkout 3.0
-          ./buildMobileVLCKit.sh -f
-          
-          patchBinary () {
-            install_name_tool -id @rpath/DynamicMobileVLCKit.framework/DynamicMobileVLCKit MobileVLCKit
-            defaults write $(pwd)/Info.plist CFBundleExecutable -string DynamicMobileVLCKit
-            defaults write $(pwd)/Info.plist CFBundleName -string DynamicMobileVLCKit
-            defaults write $(pwd)/Info.plist CFBundleIdentifier -string org.videolan.DynamicMobileVLCKit
-            mv MobileVLCKit DynamicMobileVLCKit
-            cd ..
-            mv MobileVLCKit.framework DynamicMobileVLCKit.framework
-            cd ..
-          }
-
-          cd build/MobileVLCKit.xcframework/ios-arm64_armv7_armv7s/MobileVLCKit.framework
-          patchBinary
-          cd ios-arm64_i386_x86_64-simulator/MobileVLCKit.framework
-          patchBinary
-          mkdir -p $GITHUB_WORKSPACE/build/ios-device
-          mkdir -p $GITHUB_WORKSPACE/build/ios-simulator
-          mv ios-arm64_armv7_armv7s/DynamicMobileVLCKit.framework $GITHUB_WORKSPACE/build/ios-device
-          mv ios-arm64_i386_x86_64-simulator/DynamicMobileVLCKit.framework $GITHUB_WORKSPACE/build/ios-simulator
-      - name: Setup NuGet
-        uses: nuget/setup-nuget@v1
-        with:
-          nuget-version: '5.x'
-      - name: Create LibVLC iOS NuGet package
-        run: |
-          nuget pack VideoLAN.LibVLC.iOS.nuspec
-      - name: Upload build
-        uses: actions/upload-artifact@v2
-        with:
-          name: libvlc-ios-build
-          path: ./*.nupkg
-
   UWP_access_v3:
     if: github.event_name == 'push' || github.event.pull_request.head.repo.id != github.event.pull_request.base.repo.id
     strategy:
@@ -110,9 +65,9 @@ jobs:
           VLC_VERSION: 3.0.20
         shell: bash
         run: |
-          wget -O arm.zip https://code.videolan.org/videolan/libvlc-nuget/-/jobs/artifacts/master/download?job=uwp-arm
-          wget -O x86.zip https://code.videolan.org/videolan/libvlc-nuget/-/jobs/artifacts/master/download?job=uwp-x86
-          wget -O x64.zip https://code.videolan.org/videolan/libvlc-nuget/-/jobs/artifacts/master/download?job=uwp-x64
+          wget -O arm.zip https://code.videolan.org/huynhsontung/libvlc-nuget/-/jobs/artifacts/master/download?job=uwp-arm
+          wget -O x86.zip https://code.videolan.org/huynhsontung/libvlc-nuget/-/jobs/artifacts/master/download?job=uwp-x86
+          wget -O x64.zip https://code.videolan.org/huynhsontung/libvlc-nuget/-/jobs/artifacts/master/download?job=uwp-x64
 
           7z x arm.zip -oarm -y
           7z x arm/vlc/winarm-uwp/vlc-$VLC_VERSION-win32.7z -oarm/vlc/winarm-uwp -y

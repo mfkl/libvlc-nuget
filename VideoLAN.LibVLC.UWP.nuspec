@@ -3,7 +3,7 @@
   <metadata>
     <id>VideoLAN.LibVLC.UWP</id>
     <title>VideoLAN.LibVLC.UWP</title>
-    <version>3.3.2</version>
+    <version>3.3.2-open</version>
     <authors>VideoLAN</authors>
     <owners>VideoLAN</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
