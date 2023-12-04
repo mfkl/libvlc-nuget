@@ -1,0 +1,4 @@
+[submodule "vlc"]
+	path = vlc
+	url = https://code.videolan.org/videolan/vlc.git
+	branch = 3.0.x
