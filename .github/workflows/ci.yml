@@ -7,7 +7,7 @@ on:
 jobs:
   LibVLC_iOS_NuGet:
     if: github.event_name == 'push' || github.event.pull_request.head.repo.id != github.event.pull_request.base.repo.id
-    runs-on: macos-10.15
+    runs-on: macos-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2 
