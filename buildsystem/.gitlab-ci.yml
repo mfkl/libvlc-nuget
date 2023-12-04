@@ -1,25 +1,22 @@
 variables:
     VLC_UWP_LLVM_IMAGE: registry.videolan.org/vlc-debian-llvm-uwp:20211020111246
-    VLC_VERSION: 3.0.16
+    VLC_VERSION: 3.0.20
     UWP_LIBVLC_BUILD_FLAGS: -z -r -u -w
 
 .variables-win32: &variables-win32
         SHORTARCH: win32
         HOST_ARCH: i686
         TRIPLET: $HOST_ARCH-w64-mingw32
-        BUILD_PATH: vlc/$SHORTARCH-uwp/vlc-$VLC_VERSION-$SHORTARCH.7z
 
 .variables-win64: &variables-win64
         SHORTARCH: win64
         HOST_ARCH: x86_64
         TRIPLET: $HOST_ARCH-w64-mingw32
-        BUILD_PATH: vlc/$SHORTARCH-uwp/vlc-$VLC_VERSION-$SHORTARCH.7z
 
 .variables-win-arm: &variables-win-arm
         SHORTARCH: winarm
         HOST_ARCH: armv7
         TRIPLET: $HOST_ARCH-w64-mingw32
-        BUILD_PATH: vlc/$SHORTARCH-uwp/vlc-$VLC_VERSION-win32.7z
 
 # Common rules for jobs using docker
 .docker-template:
@@ -48,7 +45,7 @@ variables:
     extends: .winrt-common
     artifacts:
         paths:
-            - $BUILD_PATH
+            - vlc/$SHORTARCH-uwp/*.7z
 uwp-x64:
     extends: .nightly-winrt-common
     image:
