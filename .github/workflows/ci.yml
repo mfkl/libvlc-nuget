@@ -147,7 +147,11 @@ jobs:
       - name: Package NuGet
         shell: bash
         run: |
-          nuget pack VideoLAN.LibVLC.UWP.nuspec
+          if "${{ github.ref_type }}" == "tag"; then
+            nuget pack VideoLAN.LibVLC.UWP.nuspec
+          else
+            nuget pack VideoLAN.LibVLC.UWP.nuspec -Version 1.0.0-${{ github.sha }}
+          fi
       - name: Upload NuGet package
         uses: actions/upload-artifact@v3
         with:
