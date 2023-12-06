@@ -150,7 +150,7 @@ jobs:
           if "${{ github.ref_type }}" == "tag"; then
             nuget pack VideoLAN.LibVLC.UWP.nuspec
           else
-            nuget pack VideoLAN.LibVLC.UWP.nuspec -Version 1.0.0-${{ github.sha }}
+            nuget pack VideoLAN.LibVLC.UWP.nuspec -Version $VLC_VERSION-${{ github.sha }}
           fi
       - name: Upload NuGet package
         uses: actions/upload-artifact@v3
