@@ -15,7 +15,7 @@ jobs:
   libvlc:
     runs-on: ubuntu-latest
     container:
-      image: registry.videolan.org/vlc-debian-llvm-uwp:20211020111246
+      image: registry.videolan.org/vlc-debian-llvm-ucrt:20231017194229
       options: -u root
     strategy:
       matrix:
