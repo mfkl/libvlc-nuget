@@ -1,0 +1,38 @@
+From 44c65d47b37fff384591979847cf3b2bf6284b4b Mon Sep 17 00:00:00 2001
+From: Tung Huynh <tung75605@gmail.com>
+Date: Fri, 8 Dec 2023 02:02:58 -0800
+Subject: [PATCH] remove unsupported mstackrealign flag
+
+---
+ contrib/src/flac/rules.mak | 1 -
+ contrib/src/vpx/rules.mak  | 2 --
+ 2 files changed, 3 deletions(-)
+
+diff --git a/contrib/src/flac/rules.mak b/contrib/src/flac/rules.mak
+index 1933b0d242..82371a64e8 100644
+--- a/contrib/src/flac/rules.mak
++++ b/contrib/src/flac/rules.mak
+@@ -50,7 +50,6 @@ endif
+ 
+ FLAC_CFLAGS := $(CFLAGS)
+ ifdef HAVE_WIN32
+-FLAC_CFLAGS += -mstackrealign
+ FLAC_CFLAGS +="-DFLAC__NO_DLL"
+ endif
+ 
+diff --git a/contrib/src/vpx/rules.mak b/contrib/src/vpx/rules.mak
+index 37f23ca17e..e6ca08aa81 100644
+--- a/contrib/src/vpx/rules.mak
++++ b/contrib/src/vpx/rules.mak
+@@ -123,8 +123,6 @@ endif
+ 
+ ifndef HAVE_WIN32
+ VPX_CONF += --enable-pic
+-else
+-VPX_CONF += --extra-cflags="-mstackrealign"
+ endif
+ ifdef HAVE_DARWIN_OS
+ VPX_CONF += --enable-vp8-decoder --disable-tools
+-- 
+2.42.0.windows.2
+
