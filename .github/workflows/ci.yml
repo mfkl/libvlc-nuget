@@ -10,7 +10,7 @@ on:
   pull_request:
 
 env:
-  VLC_VERSION: 3.0.20
+  VLC_VERSION: 3.0.17
   UWP_LIBVLC_BUILD_FLAGS: -z -r -u -w
 
 jobs:
