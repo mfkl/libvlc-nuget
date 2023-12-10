@@ -1,0 +1,35 @@
+From 929c03a59d512b6868bb311fd755c8296669d6ea Mon Sep 17 00:00:00 2001
+From: Tung Huynh <tung75605@gmail.com>
+Date: Sat, 9 Dec 2023 16:55:31 -0800
+Subject: [PATCH] direct3d11: fix subpicture mapping to use correct display
+ size
+
+---
+ modules/video_output/win32/direct3d11.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
+
+diff --git a/modules/video_output/win32/direct3d11.c b/modules/video_output/win32/direct3d11.c
+index 9fe576ebad..8591a8ddcd 100644
+--- a/modules/video_output/win32/direct3d11.c
++++ b/modules/video_output/win32/direct3d11.c
+@@ -2179,8 +2179,15 @@ static int Direct3D11MapSubpicture(vout_display_t *vd, int *subpicture_region_co
+         d3d_quad_t *quad = (d3d_quad_t *) quad_picture->p_sys;
+ 
+         vout_display_cfg_t place_cfg = *vd->cfg;
+-        place_cfg.display.width  = RECTWidth(sys->sys.rect_dest_clipped);
+-        place_cfg.display.height = RECTHeight(sys->sys.rect_dest_clipped);
++        if (sys->sys.rect_display.right && sys->sys.rect_display.bottom)
++        {
++            place_cfg.display.width  = sys->sys.rect_display.right;
++            place_cfg.display.height = sys->sys.rect_display.bottom;
++        } else {
++            place_cfg.display.width  = RECTWidth(sys->sys.rect_dest_clipped);
++            place_cfg.display.height = RECTHeight(sys->sys.rect_dest_clipped);
++        }
++        
+         vout_display_place_t place;
+         vout_display_PlacePicture(&place, &vd->source, &place_cfg, false);
+ 
+-- 
+2.42.0.windows.2
+
