@@ -1,0 +1,785 @@
+From ad402a065a884b198a7d74f6248b6a5733e0bf47 Mon Sep 17 00:00:00 2001
+From: Tung Huynh <tung75605@gmail.com>
+Date: Sun, 10 Dec 2023 12:57:32 -0800
+Subject: [PATCH] update ffmpeg contrib to 5.1.2
+
+---
+ ...ot-destroy-uninitialized-mutexes-con.patch | 74 ---------------
+ .../ffmpeg/0001-bring-back-XP-support.patch   | 78 ----------------
+ ...-use-frames-as-reference-if-they-are.patch | 34 -------
+ ...add-target_os-support-for-emscripten.patch | 25 +++++
+ ...ion-compilation-if-WINVER-was-forced.patch | 45 ---------
+ ...ix-mf_utils-compilation-with-mingw64.patch | 29 ++++++
+ ...lkan-Fix-win-i386-calling-convention.patch | 43 +++++++++
+ ...ignature-of-WinRT-version-of-thread-.patch | 34 +++++++
+ ...n-fix-handle-type-for-32-bit-targets.patch | 50 ++++++++++
+ contrib/src/ffmpeg/SHA512SUMS                 |  2 +-
+ contrib/src/ffmpeg/libav_gsm.patch            | 72 --------------
+ contrib/src/ffmpeg/rules.mak                  | 93 +++++++------------
+ 12 files changed, 215 insertions(+), 364 deletions(-)
+ delete mode 100644 contrib/src/ffmpeg/0001-avcodec-vp9-Do-not-destroy-uninitialized-mutexes-con.patch
+ delete mode 100644 contrib/src/ffmpeg/0001-bring-back-XP-support.patch
+ delete mode 100644 contrib/src/ffmpeg/0001-dxva2_hevc-don-t-use-frames-as-reference-if-they-are.patch
+ create mode 100644 contrib/src/ffmpeg/0001-ffmpeg-add-target_os-support-for-emscripten.patch
+ delete mode 100644 contrib/src/ffmpeg/0001-fix-MediaFoundation-compilation-if-WINVER-was-forced.patch
+ create mode 100644 contrib/src/ffmpeg/0001-fix-mf_utils-compilation-with-mingw64.patch
+ create mode 100644 contrib/src/ffmpeg/0001-vulkan-Fix-win-i386-calling-convention.patch
+ create mode 100644 contrib/src/ffmpeg/0001-w32pthread-fix-signature-of-WinRT-version-of-thread-.patch
+ create mode 100644 contrib/src/ffmpeg/0002-lavu-vulkan-fix-handle-type-for-32-bit-targets.patch
+ delete mode 100644 contrib/src/ffmpeg/libav_gsm.patch
+
+diff --git a/contrib/src/ffmpeg/0001-avcodec-vp9-Do-not-destroy-uninitialized-mutexes-con.patch b/contrib/src/ffmpeg/0001-avcodec-vp9-Do-not-destroy-uninitialized-mutexes-con.patch
+deleted file mode 100644
+index 6e52b8cf8c..0000000000
+--- a/contrib/src/ffmpeg/0001-avcodec-vp9-Do-not-destroy-uninitialized-mutexes-con.patch
++++ /dev/null
+@@ -1,74 +0,0 @@
+-From e337ba0bce7595366e417b4eed8c2c321726bd87 Mon Sep 17 00:00:00 2001
+-From: Andreas Rheinhardt <andreas.rheinhardt@outlook.com>
+-Date: Thu, 2 Sep 2021 17:34:35 +0200
+-Subject: [PATCH] avcodec/vp9: Do not destroy uninitialized mutexes/conditions
+-
+-Also do not destroy and reinitialize mutexes and conditions when
+-certain input parameters change. Given that the decoder did not
+-create these variables at all during init, uninitialized mutexes
+-and conditions are destroyed before the very first initialization.
+-This is undefined behaviour and certain threading implementations
+-like pthreadGC2 crash when it is attempted.
+-
+-Fix this by initializing these objects once during init and freeing
+-them in close.
+-
+-Reported-by: Steve Lhomme <robux4@ycbcr.xyz>
+-Signed-off-by: Andreas Rheinhardt <andreas.rheinhardt@outlook.com>
+----
+- libavcodec/vp9.c | 18 +++++++++++++-----
+- 1 file changed, 13 insertions(+), 5 deletions(-)
+-
+-diff --git a/libavcodec/vp9.c b/libavcodec/vp9.c
+-index 4659f94ee8..1bdaba0aef 100644
+---- a/libavcodec/vp9.c
+-+++ b/libavcodec/vp9.c
+-@@ -43,8 +43,6 @@ static void vp9_free_entries(AVCodecContext *avctx) {
+-     VP9Context *s = avctx->priv_data;
+- 
+-     if (avctx->active_thread_type & FF_THREAD_SLICE)  {
+--        pthread_mutex_destroy(&s->progress_mutex);
+--        pthread_cond_destroy(&s->progress_cond);
+-         av_freep(&s->entries);
+-     }
+- }
+-@@ -66,9 +64,6 @@ static int vp9_alloc_entries(AVCodecContext *avctx, int n) {
+- 
+-         for (i  = 0; i < n; i++)
+-             atomic_init(&s->entries[i], 0);
+--
+--        pthread_mutex_init(&s->progress_mutex, NULL);
+--        pthread_cond_init(&s->progress_cond, NULL);
+-     }
+-     return 0;
+- }
+-@@ -1252,6 +1247,12 @@ static av_cold int vp9_decode_free(AVCodecContext *avctx)
+- 
+-     free_buffers(s);
+-     vp9_free_entries(avctx);
+-+#if HAVE_THREADS
+-+    if (avctx->active_thread_type & FF_THREAD_SLICE) {
+-+        pthread_mutex_destroy(&s->progress_mutex);
+-+        pthread_cond_destroy(&s->progress_cond);
+-+    }
+-+#endif
+-     av_freep(&s->td);
+-     return 0;
+- }
+-@@ -1800,6 +1801,13 @@ static int init_frames(AVCodecContext *avctx)
+-     VP9Context *s = avctx->priv_data;
+-     int i;
+- 
+-+#if HAVE_THREADS
+-+    if (avctx->active_thread_type & FF_THREAD_SLICE) {
+-+        pthread_mutex_init(&s->progress_mutex, NULL);
+-+        pthread_cond_init(&s->progress_cond, NULL);
+-+    }
+-+#endif
+-+
+-     for (i = 0; i < 3; i++) {
+-         s->s.frames[i].tf.f = av_frame_alloc();
+-         if (!s->s.frames[i].tf.f) {
+--- 
+-2.27.0.windows.1
+-
+diff --git a/contrib/src/ffmpeg/0001-bring-back-XP-support.patch b/contrib/src/ffmpeg/0001-bring-back-XP-support.patch
+deleted file mode 100644
+index 45c2531c80..0000000000
+--- a/contrib/src/ffmpeg/0001-bring-back-XP-support.patch
++++ /dev/null
+@@ -1,78 +0,0 @@
+-From 7a0e937637fe0544cfef85d5535230ffa6c718d8 Mon Sep 17 00:00:00 2001
+-From: Steve Lhomme <robux4@ycbcr.xyz>
+-Date: Tue, 8 Jun 2021 09:14:07 +0200
+-Subject: [PATCH] bring back XP support
+-
+-Force bcrypt not to be used as it's not available on XP.
+-
+-It works via a win32 pthread instead of w32thread. This works by using
+---disable-w32threads --enable-pthreads --extra-libs="-lpthread"
+-
+-Other misdetected features mean you need this flags for proper XP support
+---disable-mediafoundation --disable-amf --disable-schannel
+----
+- configure         | 12 ++++++------
+- libavformat/udp.c |  2 +-
+- 2 files changed, 7 insertions(+), 7 deletions(-)
+-
+-diff --git a/configure b/configure
+-index d7a3f507e8..589338f59b 100755
+---- a/configure
+-+++ b/configure
+-@@ -5632,8 +5632,8 @@ probe_libc(){
+-         add_${pfx}cppflags -U__STRICT_ANSI__ -D__USE_MINGW_ANSI_STDIO=1
+-         eval test \$${pfx_no_}cc_type = "gcc" &&
+-             add_${pfx}cppflags -D__printf__=__gnu_printf__
+--        test_${pfx}cpp_condition windows.h "!defined(_WIN32_WINNT) || _WIN32_WINNT < 0x0600" &&
+--            add_${pfx}cppflags -D_WIN32_WINNT=0x0600
+-+        test_${pfx}cpp_condition windows.h "!defined(_WIN32_WINNT) || _WIN32_WINNT < 0x0501" &&
+-+            add_${pfx}cppflags -D_WIN32_WINNT=0x0501
+-         add_${pfx}cppflags -D_POSIX_C_SOURCE=200112 -D_XOPEN_SOURCE=600
+-     elif test_${pfx}cpp_condition _mingw.h "defined __MINGW_VERSION"  ||
+-          test_${pfx}cpp_condition _mingw.h "defined __MINGW32_VERSION"; then
+-@@ -5644,8 +5644,8 @@ probe_libc(){
+-         add_${pfx}cppflags -U__STRICT_ANSI__ -D__USE_MINGW_ANSI_STDIO=1
+-         test_${pfx}cpp_condition _mingw.h "__MSVCRT_VERSION__ < 0x0700" &&
+-             add_${pfx}cppflags -D__MSVCRT_VERSION__=0x0700
+--        test_${pfx}cpp_condition windows.h "!defined(_WIN32_WINNT) || _WIN32_WINNT < 0x0600" &&
+--            add_${pfx}cppflags -D_WIN32_WINNT=0x0600
+-+        test_${pfx}cpp_condition windows.h "!defined(_WIN32_WINNT) || _WIN32_WINNT < 0x0501" &&
+-+            add_${pfx}cppflags -D_WIN32_WINNT=0x0501
+-         eval test \$${pfx_no_}cc_type = "gcc" &&
+-             add_${pfx}cppflags -D__printf__=__gnu_printf__
+-         add_${pfx}cppflags -D_POSIX_C_SOURCE=200112 -D_XOPEN_SOURCE=600
+-@@ -5673,7 +5673,7 @@ probe_libc(){
+-         # found in the SDK headers by default. (Alternatively, we could force
+-         # _WIN32_WINNT to 0x0602 in that case.)
+-         test_${pfx}cpp_condition stdlib.h "defined(_WIN32_WINNT)" ||
+--            { test_${pfx}cpp <<EOF && add_${pfx}cppflags -D_WIN32_WINNT=0x0600; }
+-+            { test_${pfx}cpp <<EOF && add_${pfx}cppflags -D_WIN32_WINNT=0x0501; }
+- #ifdef WINAPI_FAMILY
+- #include <winapifamily.h>
+- #if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
+-@@ -6188,7 +6188,7 @@ check_headers asm/types.h
+- check_builtin stdatomic stdatomic.h "atomic_int foo, bar = ATOMIC_VAR_INIT(-1); atomic_store(&foo, 0); foo += bar"
+- 
+- check_lib advapi32 "windows.h"            RegCloseKey          -ladvapi32
+--check_lib bcrypt   "windows.h bcrypt.h"   BCryptGenRandom      -lbcrypt &&
+-+check_lib bcrypt   "windows.h bcrypt.h DISABLE_BCRYPT"   BCryptGenRandom      -lbcrypt &&
+-     check_cpp_condition bcrypt bcrypt.h "defined BCRYPT_RNG_ALGORITHM"
+- check_lib ole32    "windows.h"            CoTaskMemFree        -lole32
+- check_lib shell32  "windows.h shellapi.h" CommandLineToArgvW   -lshell32
+-diff --git a/libavformat/udp.c b/libavformat/udp.c
+-index 9b9d3de197..2c881a30ca 100644
+---- a/libavformat/udp.c
+-+++ b/libavformat/udp.c
+-@@ -64,6 +64,9 @@
+- #if HAVE_W32THREADS
+- #undef HAVE_PTHREAD_CANCEL
+- #define HAVE_PTHREAD_CANCEL 1
+-+#elif defined(_WIN32_WINNT) && _WIN32_WINNT < 0x600
+-+#undef HAVE_PTHREAD_CANCEL // disable UDP threading as CancelIOEx is not on XP
+-+#define HAVE_PTHREAD_CANCEL 0
+- #endif
+-
+- #if HAVE_PTHREAD_CANCEL
+--- 
+-2.27.0.windows.1
+-
+diff --git a/contrib/src/ffmpeg/0001-dxva2_hevc-don-t-use-frames-as-reference-if-they-are.patch b/contrib/src/ffmpeg/0001-dxva2_hevc-don-t-use-frames-as-reference-if-they-are.patch
+deleted file mode 100644
+index e53043a847..0000000000
+--- a/contrib/src/ffmpeg/0001-dxva2_hevc-don-t-use-frames-as-reference-if-they-are.patch
++++ /dev/null
+@@ -1,34 +0,0 @@
+-From b2e89bd9c548d899ec2fecfc1aa550e9ddfe9777 Mon Sep 17 00:00:00 2001
+-From: Steve Lhomme <robux4@ycbcr.xyz>
+-Date: Wed, 23 Mar 2022 14:52:31 +0100
+-Subject: [PATCH] dxva2_hevc: don't use frames as reference if they are not
+- marked as such
+-
+-Similar to how a frame is considered for referencing for the RefPicList array.
+-This will do the same for RefPicSetStCurrBefore, RefPicSetStCurrAfter and
+-RefPicSetLtCurr.
+-
+-Fixes playback of http://www.gbbsoft.pl/!download/!/Film1.mp4
+-Ref. VLC issue https://code.videolan.org/videolan/vlc/-/issues/26738
+-
+-Signed-off-by: Steve Lhomme <robux4@ycbcr.xyz>
+----
+- libavcodec/dxva2_hevc.c | 2 +-
+- 1 file changed, 1 insertion(+), 1 deletion(-)
+-
+-diff --git a/libavcodec/dxva2_hevc.c b/libavcodec/dxva2_hevc.c
+-index 98b3e74bd7..28c0b26733 100644
+---- a/libavcodec/dxva2_hevc.c
+-+++ b/libavcodec/dxva2_hevc.c
+-@@ -249,7 +249,7 @@ static void fill_picture_parameters(const AVCodecContext *avctx, AVDXVAContext *
+-             const HEVCFrame *frame = NULL; \
+-             while (!frame && j < rpl->nb_refs) \
+-                 frame = rpl->ref[j++]; \
+--            if (frame) \
+-+            if (frame && frame->flags & (HEVC_FRAME_FLAG_LONG_REF | HEVC_FRAME_FLAG_SHORT_REF)) \
+-                 pp->ref_list[i] = get_refpic_index(pp, ff_dxva2_get_surface_index(avctx, ctx, frame->frame)); \
+-             else \
+-                 pp->ref_list[i] = 0xff; \
+--- 
+-2.27.0.windows.1
+-
+diff --git a/contrib/src/ffmpeg/0001-ffmpeg-add-target_os-support-for-emscripten.patch b/contrib/src/ffmpeg/0001-ffmpeg-add-target_os-support-for-emscripten.patch
+new file mode 100644
+index 0000000000..deec79aed5
+--- /dev/null
++++ b/contrib/src/ffmpeg/0001-ffmpeg-add-target_os-support-for-emscripten.patch
+@@ -0,0 +1,25 @@
++From 4bb53ad8e35f899f14e6d6144e60d8caa5c0651c Mon Sep 17 00:00:00 2001
++From: Mehdi Sabwat <mehdi@videolabs.io>
++Date: Mon, 6 Sep 2021 11:49:03 +0200
++Subject: [PATCH 1/1] ffmpeg: add target_os support for emscripten
++
++---
++ configure | 2 ++
++ 1 file changed, 2 insertions(+)
++
++diff --git a/configure b/configure
++index d7a3f50..57ca005 100755
++--- a/configure
+++++ b/configure
++@@ -5579,6 +5579,8 @@ case $target_os in
++         ;;
++     minix)
++         ;;
+++    emscripten)
+++	;;
++     none)
++         ;;
++     *)
++-- 
++2.33.0
++
+diff --git a/contrib/src/ffmpeg/0001-fix-MediaFoundation-compilation-if-WINVER-was-forced.patch b/contrib/src/ffmpeg/0001-fix-MediaFoundation-compilation-if-WINVER-was-forced.patch
+deleted file mode 100644
+index 0eda4c8cee..0000000000
+--- a/contrib/src/ffmpeg/0001-fix-MediaFoundation-compilation-if-WINVER-was-forced.patch
++++ /dev/null
+@@ -1,45 +0,0 @@
+-From 2fdbc24978f21f24c1312bcd7709b1121ee36940 Mon Sep 17 00:00:00 2001
+-From: Steve Lhomme <robux4@ycbcr.xyz>
+-Date: Mon, 31 May 2021 13:36:39 +0200
+-Subject: [PATCH] fix MediaFoundation compilation if WINVER was forced by the
+- user
+-
+-In mingw64 and Windows Kits the MF_MT_VIDEO_ROTATION is defined if WINVER is at
+-least 0x0602. Normally WINVER would default to _WIN32_WINNT but it may not
+-always be the case if WINVER is also set by the user, so we force it manually.
+----
+- libavcodec/mf_utils.c | 2 ++
+- libavcodec/mfenc.c    | 2 ++
+- 2 files changed, 4 insertions(+)
+-
+-diff --git a/libavcodec/mf_utils.c b/libavcodec/mf_utils.c
+-index eeabd0ce0b..9b82dacf41 100644
+---- a/libavcodec/mf_utils.c
+-+++ b/libavcodec/mf_utils.c
+-@@ -19,7 +19,9 @@
+- #define COBJMACROS
+- #if !defined(_WIN32_WINNT) || _WIN32_WINNT < 0x0602
+- #undef _WIN32_WINNT
+-+#undef WINVER
+- #define _WIN32_WINNT 0x0602
+-+#define WINVER 0x0602
+- #endif
+- 
+- #include "mf_utils.h"
+-diff --git a/libavcodec/mfenc.c b/libavcodec/mfenc.c
+-index d70e49351a..335034b5d2 100644
+---- a/libavcodec/mfenc.c
+-+++ b/libavcodec/mfenc.c
+-@@ -19,7 +19,9 @@
+- #define COBJMACROS
+- #if !defined(_WIN32_WINNT) || _WIN32_WINNT < 0x0602
+- #undef _WIN32_WINNT
+-+#undef WINVER
+- #define _WIN32_WINNT 0x0602
+-+#define WINVER 0x0602
+- #endif
+- 
+- #include "encode.h"
+--- 
+-2.27.0.windows.1
+-
+diff --git a/contrib/src/ffmpeg/0001-fix-mf_utils-compilation-with-mingw64.patch b/contrib/src/ffmpeg/0001-fix-mf_utils-compilation-with-mingw64.patch
+new file mode 100644
+index 0000000000..0ac75e6c19
+--- /dev/null
++++ b/contrib/src/ffmpeg/0001-fix-mf_utils-compilation-with-mingw64.patch
+@@ -0,0 +1,29 @@
++From b503a9056d2daf3763b49aab9ba5bebe80b70e16 Mon Sep 17 00:00:00 2001
++From: Steve Lhomme <robux4@ycbcr.xyz>
++Date: Mon, 31 May 2021 13:36:39 +0200
++Subject: [PATCH] fix mf_utils compilation with mingw64
++
++In mingw64 and Windows Kits the MF_MT_VIDEO_ROTATION is defined if WINVER is at
++least 0x0602. Normally WINVER would default to _WIN32_WINNT but here it's not
++the case, so just force it manually.
++---
++ libavcodec/mf_utils.c | 2 ++
++ 1 file changed, 2 insertions(+)
++
++diff --git a/libavcodec/mf_utils.c b/libavcodec/mf_utils.c
++index eeabd0ce0b..9b82dacf41 100644
++--- a/libavcodec/mf_utils.c
+++++ b/libavcodec/mf_utils.c
++@@ -19,7 +19,9 @@
++ #define COBJMACROS
++ #if !defined(_WIN32_WINNT) || _WIN32_WINNT < 0x0602
++ #undef _WIN32_WINNT
+++#undef WINVER
++ #define _WIN32_WINNT 0x0602
+++#define WINVER 0x0602
++ #endif
++ 
++ #include "mf_utils.h"
++-- 
++2.27.0.windows.1
++
+diff --git a/contrib/src/ffmpeg/0001-vulkan-Fix-win-i386-calling-convention.patch b/contrib/src/ffmpeg/0001-vulkan-Fix-win-i386-calling-convention.patch
+new file mode 100644
+index 0000000000..e91c1b10f7
+--- /dev/null
++++ b/contrib/src/ffmpeg/0001-vulkan-Fix-win-i386-calling-convention.patch
+@@ -0,0 +1,43 @@
++From 2d5f9c9a5472ec826ab9e3f2d3e1ded11aeecd4b Mon Sep 17 00:00:00 2001
++From: =?UTF-8?q?Martin=20Storsj=C3=B6?= <martin@martin.st>
++Date: Sun, 5 Mar 2023 23:36:53 +0200
++Subject: [PATCH 1/2] vulkan: Fix win/i386 calling convention
++MIME-Version: 1.0
++Content-Type: text/plain; charset=UTF-8
++Content-Transfer-Encoding: 8bit
++
++This fixes the following error when compiling with a modern
++version of Clang for Windows/i386:
++
++src/libavutil/hwcontext_vulkan.c:738:32: error: incompatible function pointer types initializing 'PFN_vkDebugUtilsMessengerCallbackEXT' (aka 'unsigned int (*)(enum VkDebugUtilsMessageSeverityFlagBitsEXT, unsigned int, const struct VkDebugUtilsMessengerCallbackDataEXT *, void *) __attribute__((stdcall))') with an expression of type 'VkBool32 (VkDebugUtilsMessageSeverityFlagBitsEXT, VkDebugUtilsMessageTypeFlagsEXT, const VkDebugUtilsMessengerCallbackDataEXT *, void *)' (aka 'unsigned int (enum VkDebugUtilsMessageSeverityFlagBitsEXT, unsigned int, const struct VkDebugUtilsMessengerCallbackDataEXT *, void *)') [-Wincompatible-function-pointer-types]
++            .pfnUserCallback = vk_dbg_callback,
++                               ^~~~~~~~~~~~~~~
++
++Signed-off-by: Martin Storsjö <martin@martin.st>
++(cherry picked from commit f9620d74cd49c35223304ba41e28be6144e45783)
++---
++ libavutil/hwcontext_vulkan.c | 8 ++++----
++ 1 file changed, 4 insertions(+), 4 deletions(-)
++
++diff --git a/libavutil/hwcontext_vulkan.c b/libavutil/hwcontext_vulkan.c
++index 2a9b5f4aac..5b86aa65e9 100644
++--- a/libavutil/hwcontext_vulkan.c
+++++ b/libavutil/hwcontext_vulkan.c
++@@ -401,10 +401,10 @@ static const char *vk_ret2str(VkResult res)
++ #undef CASE
++ }
++ 
++-static VkBool32 vk_dbg_callback(VkDebugUtilsMessageSeverityFlagBitsEXT severity,
++-                                VkDebugUtilsMessageTypeFlagsEXT messageType,
++-                                const VkDebugUtilsMessengerCallbackDataEXT *data,
++-                                void *priv)
+++static VkBool32 VKAPI_CALL vk_dbg_callback(VkDebugUtilsMessageSeverityFlagBitsEXT severity,
+++                                           VkDebugUtilsMessageTypeFlagsEXT messageType,
+++                                           const VkDebugUtilsMessengerCallbackDataEXT *data,
+++                                           void *priv)
++ {
++     int l;
++     AVHWDeviceContext *ctx = priv;
++-- 
++2.34.1
++
+diff --git a/contrib/src/ffmpeg/0001-w32pthread-fix-signature-of-WinRT-version-of-thread-.patch b/contrib/src/ffmpeg/0001-w32pthread-fix-signature-of-WinRT-version-of-thread-.patch
+new file mode 100644
+index 0000000000..396b779c5c
+--- /dev/null
++++ b/contrib/src/ffmpeg/0001-w32pthread-fix-signature-of-WinRT-version-of-thread-.patch
+@@ -0,0 +1,34 @@
++From 090616d80ee58c334647877ab8e9f4d04f4fde1a Mon Sep 17 00:00:00 2001
++From: Steve Lhomme <robux4@ycbcr.xyz>
++Date: Tue, 23 May 2023 12:24:46 +0200
++Subject: [PATCH] w32pthread: fix signature of WinRT version of thread worker
++
++The callback passed to CreateThread is not the same as with _beginthreadex().
++
++This WinRT check could be removed if Win8 WinRT is not maintained
++as _beginthreadex() is now available [1]
++
++[1] https://learn.microsoft.com/en-us/cpp/cppcx/crt-functions-not-supported-in-universal-windows-platform-apps?view=msvc-160#windows-8x-store-apps-and-windows-phone-8x-apps
++---
++ compat/w32pthreads.h | 4 ++++
++ 1 file changed, 4 insertions(+)
++
++diff --git a/compat/w32pthreads.h b/compat/w32pthreads.h
++index 6405e72b64..364eebfe4e 100644
++--- a/compat/w32pthreads.h
+++++ b/compat/w32pthreads.h
++@@ -66,7 +66,11 @@ typedef CONDITION_VARIABLE pthread_cond_t;
++ #define PTHREAD_CANCEL_ENABLE 1
++ #define PTHREAD_CANCEL_DISABLE 0
++ 
+++#if HAVE_WINRT
+++static av_unused DWORD WINAPI attribute_align_arg win32thread_worker(void *arg)
+++#else
++ static av_unused unsigned __stdcall attribute_align_arg win32thread_worker(void *arg)
+++#endif
++ {
++     pthread_t *h = (pthread_t*)arg;
++     h->ret = h->func(h->arg);
++-- 
++2.37.3.windows.1
++
+diff --git a/contrib/src/ffmpeg/0002-lavu-vulkan-fix-handle-type-for-32-bit-targets.patch b/contrib/src/ffmpeg/0002-lavu-vulkan-fix-handle-type-for-32-bit-targets.patch
+new file mode 100644
+index 0000000000..580f38743a
+--- /dev/null
++++ b/contrib/src/ffmpeg/0002-lavu-vulkan-fix-handle-type-for-32-bit-targets.patch
+@@ -0,0 +1,50 @@
++From 0ce6b348746c3c0fc5cb4f1494c50bcca9a28172 Mon Sep 17 00:00:00 2001
++From: =?UTF-8?q?Kacper=20Michaj=C5=82ow?= <kasper93@gmail.com>
++Date: Thu, 2 Mar 2023 17:27:30 +0100
++Subject: [PATCH 2/2] lavu/vulkan: fix handle type for 32-bit targets
++MIME-Version: 1.0
++Content-Type: text/plain; charset=UTF-8
++Content-Transfer-Encoding: 8bit
++
++Fixes compilation with clang which errors out on Wint-conversion.
++
++Signed-off-by: Kacper Michajłow <kasper93@gmail.com>
++Signed-off-by: Martin Storsjö <martin@martin.st>
++(cherry picked from commit cc76e8340d28438c1ac56ee7dfd774d25e944264)
++---
++ libavutil/hwcontext_vulkan.c | 2 +-
++ libavutil/vulkan.h           | 4 ++++
++ 2 files changed, 5 insertions(+), 1 deletion(-)
++
++diff --git a/libavutil/hwcontext_vulkan.c b/libavutil/hwcontext_vulkan.c
++index 5b86aa65e9..ffd4f5dec4 100644
++--- a/libavutil/hwcontext_vulkan.c
+++++ b/libavutil/hwcontext_vulkan.c
++@@ -1149,7 +1149,7 @@ static void free_exec_ctx(AVHWFramesContext *hwfc, VulkanExecCtx *cmd)
++ 
++     av_freep(&cmd->queues);
++     av_freep(&cmd->bufs);
++-    cmd->pool = NULL;
+++    cmd->pool = VK_NULL_HANDLE;
++ }
++ 
++ static VkCommandBuffer get_buf_exec_ctx(AVHWFramesContext *hwfc, VulkanExecCtx *cmd)
++diff --git a/libavutil/vulkan.h b/libavutil/vulkan.h
++index d1ea1e24fb..90922c6cf3 100644
++--- a/libavutil/vulkan.h
+++++ b/libavutil/vulkan.h
++@@ -122,7 +122,11 @@ typedef struct FFVulkanPipeline {
++     VkDescriptorSetLayout         *desc_layout;
++     VkDescriptorPool               desc_pool;
++     VkDescriptorSet               *desc_set;
+++#if VK_USE_64_BIT_PTR_DEFINES == 1
++     void                         **desc_staging;
+++#else
+++    uint64_t                      *desc_staging;
+++#endif
++     VkDescriptorSetLayoutBinding **desc_binding;
++     VkDescriptorUpdateTemplate    *desc_template;
++     int                           *desc_set_initialized;
++-- 
++2.34.1
++
+diff --git a/contrib/src/ffmpeg/SHA512SUMS b/contrib/src/ffmpeg/SHA512SUMS
+index 3c656d3344..ac5b643697 100644
+--- a/contrib/src/ffmpeg/SHA512SUMS
++++ b/contrib/src/ffmpeg/SHA512SUMS
+@@ -1 +1 @@
+-0b232b66555237ed1a061807f88dbc5e6cd156e604c5d611bb6ac0c32b9006414cc4f30d632b482d9cb95f526df98b36efa3af9c863c52e7b7aa1a183545d915  ffmpeg-4.4.3.tar.xz
++04d9ae2a0e9238c469941d2bb9929d59b58f4be3830846cf91b02a440da17803a04b147a4e0168c9ffd6f62ca82187508bc7b53255de9787a97168278e903b9b  ffmpeg-5.1.2.tar.xz
+diff --git a/contrib/src/ffmpeg/libav_gsm.patch b/contrib/src/ffmpeg/libav_gsm.patch
+deleted file mode 100644
+index 6ac945a9dd..0000000000
+--- a/contrib/src/ffmpeg/libav_gsm.patch
++++ /dev/null
+@@ -1,72 +0,0 @@
+-From d66948bc3960b993da55a7899ced91c38fadeed1 Mon Sep 17 00:00:00 2001
+-From: Konstantin Pavlov <thresh@videolan.org>
+-Date: Thu, 7 Dec 2017 11:29:55 +0300
+-Subject: [PATCH] Revert "build: Remove check for gsm/gsm.h for libgsm"
+-
+-This reverts commit 8e97a8c69162afce47abea96c8c0914f3550e212.
+----
+- configure              | 5 ++++-
+- libavcodec/libgsmdec.c | 5 +++++
+- libavcodec/libgsmenc.c | 5 +++++
+- 3 files changed, 14 insertions(+), 1 deletion(-)
+-
+-diff --git a/configure b/configure
+-index 7f320fee1..c2bb05c26 100755
+---- a/configure
+-+++ b/configure
+-@@ -1545,6 +1545,7 @@ HEADERS_LIST="
+-     direct_h
+-     dxgidebug_h
+-     dxva_h
+-+    gsm_h
+-     io_h
+-     machine_ioctl_bt848_h
+-     machine_ioctl_meteor_h
+-@@ -4595,7 +4596,9 @@ enabled libfaac           && require libfaac "stdint.h faac.h" faacEncGetVersion
+- enabled libfdk_aac        && require_pkg_config libfdk_aac fdk-aac "fdk-aac/aacenc_lib.h" aacEncOpen
+- enabled libfontconfig     && require_pkg_config libfontconfig fontconfig "fontconfig/fontconfig.h" FcInit
+- enabled libfreetype       && require_pkg_config libfreetype freetype2 "ft2build.h FT_FREETYPE_H" FT_Init_FreeType
+--enabled libgsm            && require libgsm gsm.h gsm_create -lgsm
+-+enabled libgsm            && { for gsm_hdr in "gsm.h" "gsm/gsm.h"; do
+-+                                   check_lib libgsm "${gsm_hdr}" gsm_create -lgsm && break;
+-+                               done || die "ERROR: libgsm not found"; }
+- enabled libhdcd           && require_pkg_config libhdcd libhdcd "hdcd/hdcd_simple.h" hdcd_new
+- enabled libilbc           && require libilbc ilbc.h WebRtcIlbcfix_InitDecode -lilbc
+- enabled libkvazaar        && require_pkg_config libkvazaar "kvazaar >= 0.8.1" kvazaar.h kvz_api_get
+-diff --git a/libavcodec/libgsmdec.c b/libavcodec/libgsmdec.c
+-index e06fe5276..4c21ff672 100644
+---- a/libavcodec/libgsmdec.c
+-+++ b/libavcodec/libgsmdec.c
+-@@ -27,7 +27,12 @@
+-
+- // The idiosyncrasies of GSM-in-WAV are explained at http://kbs.cs.tu-berlin.de/~jutta/toast.html
+-
+-+#include "config.h"
+-+#if HAVE_GSM_H
+- #include <gsm.h>
+-+#else
+-+#include <gsm/gsm.h>
+-+#endif
+-
+- #include "libavutil/channel_layout.h"
+- #include "libavutil/common.h"
+-diff --git a/libavcodec/libgsmenc.c b/libavcodec/libgsmenc.c
+-index 4bb4075b2..8f51321d4 100644
+---- a/libavcodec/libgsmenc.c
+-+++ b/libavcodec/libgsmenc.c
+-@@ -27,7 +27,12 @@
+-
+- // The idiosyncrasies of GSM-in-WAV are explained at http://kbs.cs.tu-berlin.de/~jutta/toast.html
+-
+-+#include "config.h"
+-+#if HAVE_GSM_H
+- #include <gsm.h>
+-+#else
+-+#include <gsm/gsm.h>
+-+#endif
+-
+- #include "libavutil/common.h"
+-
+---
+-2.11.0 (Apple Git-81)
+-
+diff --git a/contrib/src/ffmpeg/rules.mak b/contrib/src/ffmpeg/rules.mak
+index 9baf9b140d..127e483fb0 100644
+--- a/contrib/src/ffmpeg/rules.mak
++++ b/contrib/src/ffmpeg/rules.mak
+@@ -1,27 +1,13 @@
+ # FFmpeg
+ 
+-#Uncomment the one you want
+-#USE_LIBAV ?= 1
+-#USE_FFMPEG ?= 1
+-
+-ifndef USE_LIBAV
+ FFMPEG_HASH=ec47a3b95f88fc3f820b900038ac439e4eb3fede
+-FFMPEG_MAJVERSION := 4.4
+-FFMPEG_REVISION := 3
++FFMPEG_MAJVERSION := 5.1
++FFMPEG_REVISION := 2
+ FFMPEG_VERSION := $(FFMPEG_MAJVERSION).$(FFMPEG_REVISION)
+ FFMPEG_BRANCH=release/$(FFMPEG_MAJVERSION)
+ FFMPEG_URL := https://ffmpeg.org/releases/ffmpeg-$(FFMPEG_VERSION).tar.xz
+-FFMPEG_SNAPURL := http://git.videolan.org/?p=ffmpeg.git;a=snapshot;h=$(FFMPEG_HASH);sf=tgz
+-FFMPEG_GITURL := http://git.videolan.org/git/ffmpeg.git
++FFMPEG_GITURL := $(VIDEOLAN_GIT)/ffmpeg.git
+ FFMPEG_LAVC_MIN := 57.37.100
+-USE_FFMPEG := 1
+-else
+-FFMPEG_HASH=e5afa1b556542fd7a52a0a9b409c80f2e6e1e9bb
+-FFMPEG_BRANCH=
+-FFMPEG_SNAPURL := http://git.libav.org/?p=libav.git;a=snapshot;h=$(FFMPEG_HASH);sf=tgz
+-FFMPEG_GITURL := git://git.libav.org/libav.git
+-FFMPEG_LAVC_MIN := 57.16.0
+-endif
+ 
+ FFMPEG_BASENAME := $(subst .,_,$(subst \,_,$(subst /,_,$(FFMPEG_HASH))))
+ 
+@@ -33,6 +19,7 @@ FFMPEGCONF = \
+ 	--disable-encoder=vorbis \
+ 	--disable-decoder=opus \
+ 	--enable-libgsm \
++	--enable-libopenjpeg \
+ 	--disable-debug \
+ 	--disable-avdevice \
+ 	--disable-devices \
+@@ -42,11 +29,7 @@ FFMPEGCONF = \
+ 	--disable-bsfs \
+ 	--disable-bzlib \
+ 	--disable-libvpx \
+-	--disable-avresample \
+-	--enable-bsf=vp9_superframe
+-
+-ifdef USE_FFMPEG
+-FFMPEGCONF += \
++	--enable-bsf=vp9_superframe \
+ 	--disable-swresample \
+ 	--disable-iconv \
+ 	--disable-avisynth \
+@@ -54,18 +37,10 @@ FFMPEGCONF += \
+ 	--disable-linux-perf
+ ifdef HAVE_DARWIN_OS
+ FFMPEGCONF += \
+-	--disable-videotoolbox \
+ 	--disable-securetransport
+ endif
+-endif
+ 
+-DEPS_ffmpeg = zlib gsm
+-
+-ifndef USE_LIBAV
+-FFMPEGCONF += \
+-	--enable-libopenjpeg
+-DEPS_ffmpeg += openjpeg
+-endif
++DEPS_ffmpeg = zlib $(DEPS_zlib) gsm $(DEPS_gsm) openjpeg $(DEPS_openjpeg)
+ 
+ # Optional dependencies
+ ifndef BUILD_NETWORK
+@@ -78,6 +53,17 @@ else
+ FFMPEGCONF += --disable-encoders --disable-muxers
+ endif
+ 
++ifneq ($(findstring amf,$(PKGS)),)
++DEPS_ffmpeg += amf $(DEPS_amf)
++endif
++
++# Postproc
++MAYBE_POSTPROC =
++ifdef GPL
++FFMPEGCONF += --enable-gpl --enable-postproc
++MAYBE_POSTPROC = libpostproc
++endif
++
+ # Small size
+ ifdef WITH_OPTIMIZATION
+ ifdef ENABLE_SMALL
+@@ -102,9 +88,6 @@ endif
+ # ARM stuff
+ ifeq ($(ARCH),arm)
+ FFMPEGCONF += --arch=arm
+-ifdef HAVE_NEON
+-FFMPEGCONF += --enable-neon
+-endif
+ ifdef HAVE_ARMV7A
+ FFMPEGCONF += --cpu=cortex-a8
+ endif
+@@ -148,17 +131,12 @@ endif
+ # Darwin
+ ifdef HAVE_DARWIN_OS
+ FFMPEGCONF += --arch=$(ARCH) --target-os=darwin --extra-cflags="$(CFLAGS)"
+-ifdef USE_FFMPEG
+ FFMPEGCONF += --disable-lzma
+-endif
+ ifeq ($(ARCH),x86_64)
+ FFMPEGCONF += --cpu=core2
+ endif
+ ifdef HAVE_IOS
+ FFMPEGCONF += --enable-pic --extra-ldflags="$(EXTRA_CFLAGS) -isysroot $(IOS_SDK)"
+-ifdef HAVE_NEON
+-FFMPEGCONF += --as="$(AS)"
+-endif
+ endif
+ endif
+ 
+@@ -173,21 +151,16 @@ ifdef HAVE_ANDROID
+ ifeq ($(ANDROID_ABI), x86)
+ FFMPEGCONF +=  --disable-mmx --disable-mmxext --disable-inline-asm
+ endif
+-ifeq ($(ANDROID_ABI), x86_64)
+-FFMPEGCONF +=  --disable-mmx --disable-mmxext --disable-inline-asm
+-endif
+ endif
+ 
+ # Windows
+ ifdef HAVE_WIN32
+ ifndef HAVE_VISUALSTUDIO
+-DEPS_ffmpeg += d3d11
++DEPS_ffmpeg += wine-headers
+ endif
+ FFMPEGCONF += --target-os=mingw32
+ FFMPEGCONF += --disable-w32threads --enable-pthreads --extra-libs="-lpthread"
+ DEPS_ffmpeg += pthreads $(DEPS_pthreads)
+-# disable modules not compatible with XP
+-FFMPEGCONF += --disable-mediafoundation --disable-amf --disable-schannel
+ ifndef HAVE_WINSTORE
+ FFMPEGCONF += --enable-dxva2
+ else
+@@ -218,9 +191,13 @@ endif
+ FFMPEGCONF += --target-os=sunos --enable-pic
+ endif
+ 
++ifdef HAVE_EMSCRIPTEN
++FFMPEGCONF+= --arch=wasm32 --target-os=emscripten --enable-pic
++endif
++
+ # Build
+ PKGS += ffmpeg
+-ifeq ($(call need_pkg,"libavcodec >= $(FFMPEG_LAVC_MIN) libavformat >= 53.21.0 libswscale"),)
++ifeq ($(call need_pkg,"libavcodec >= $(FFMPEG_LAVC_MIN) libavformat >= 53.21.0 libswscale $(MAYBE_POSTPROC)"),)
+ PKGS_FOUND += ffmpeg
+ endif
+ 
+@@ -239,10 +216,7 @@ $(TARBALLS)/ffmpeg-$(FFMPEG_VERSION).tar.xz:
+ .sum-ffmpeg: ffmpeg-$(FFMPEG_VERSION).tar.xz
+ 
+ ffmpeg: ffmpeg-$(FFMPEG_VERSION).tar.xz .sum-ffmpeg
+-	rm -Rf $@ $@-$(FFMPEG_VERSION)
+-	mkdir -p $@-$(FFMPEG_VERSION)
+-	tar xvJfo "$<" --strip-components=1 -C $@-$(FFMPEG_VERSION)
+-ifdef USE_FFMPEG
++	$(UNPACK)
+ 	$(APPLY) $(SRC)/ffmpeg/armv7_fixup.patch
+ 	$(APPLY) $(SRC)/ffmpeg/dxva_vc1_crash.patch
+ 	$(APPLY) $(SRC)/ffmpeg/h264_early_SAR.patch
+@@ -251,19 +225,18 @@ ifdef USE_FFMPEG
+ 	$(APPLY) $(SRC)/ffmpeg/0003-avcodec-hevcdec-allow-HEVC-422-10-12-bits-decoding-w.patch
+ 	$(APPLY) $(SRC)/ffmpeg/0001-avcodec-mpeg12dec-don-t-call-hw-end_frame-when-start.patch
+ 	$(APPLY) $(SRC)/ffmpeg/0002-avcodec-mpeg12dec-don-t-end-a-slice-without-first_sl.patch
+-	$(APPLY) $(SRC)/ffmpeg/0001-fix-MediaFoundation-compilation-if-WINVER-was-forced.patch
+-	$(APPLY) $(SRC)/ffmpeg/0001-bring-back-XP-support.patch
+-	$(APPLY) $(SRC)/ffmpeg/0001-avcodec-vp9-Do-not-destroy-uninitialized-mutexes-con.patch
+-	$(APPLY) $(SRC)/ffmpeg/0001-dxva2_hevc-don-t-use-frames-as-reference-if-they-are.patch
+-endif
+-ifdef USE_LIBAV
+-	$(APPLY) $(SRC)/ffmpeg/libav_gsm.patch
+-endif
++	$(APPLY) $(SRC)/ffmpeg/0001-fix-mf_utils-compilation-with-mingw64.patch
++	$(APPLY) $(SRC)/ffmpeg/0001-ffmpeg-add-target_os-support-for-emscripten.patch
++	$(APPLY) $(SRC)/ffmpeg/0001-vulkan-Fix-win-i386-calling-convention.patch
++	$(APPLY) $(SRC)/ffmpeg/0002-lavu-vulkan-fix-handle-type-for-32-bit-targets.patch
++	$(APPLY) $(SRC)/ffmpeg/0001-w32pthread-fix-signature-of-WinRT-version-of-thread-.patch
+ 	$(MOVE)
+ 
+ .ffmpeg: ffmpeg
+-	cd $< && $(HOSTVARS) ./configure \
++	$(MAKEBUILDDIR)
++	$(MAKECONFDIR)/configure \
+ 		--extra-ldflags="$(LDFLAGS)" $(FFMPEGCONF) \
+ 		--prefix="$(PREFIX)" --enable-static --disable-shared
+-	cd $< && $(MAKE) install-libs install-headers
++	+$(MAKEBUILD)
++	+$(MAKEBUILD) install-libs install-headers
+ 	touch $@
+-- 
+2.42.0.windows.2
+
