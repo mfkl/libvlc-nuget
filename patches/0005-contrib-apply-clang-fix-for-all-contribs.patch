@@ -1,0 +1,25 @@
+From fe9f692135843af3a0ee1f9daef64fd747a24fe9 Mon Sep 17 00:00:00 2001
+From: Tung Huynh <tung75605@gmail.com>
+Date: Mon, 11 Dec 2023 14:06:58 -0800
+Subject: [PATCH 5/5] contrib: apply clang fix for all contribs
+
+---
+ contrib/src/main.mak | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/contrib/src/main.mak b/contrib/src/main.mak
+index 2a7776caa1..c3fb46de77 100644
+--- a/contrib/src/main.mak
++++ b/contrib/src/main.mak
+@@ -169,7 +169,7 @@ endif
+ 
+ cppcheck = $(shell $(CC) $(CFLAGS) -E -dM - < /dev/null | grep -E $(1))
+ 
+-EXTRA_CFLAGS += -I$(PREFIX)/include
++EXTRA_CFLAGS += -I$(PREFIX)/include -Wno-error=implicit-function-declaration -Wno-error=incompatible-function-pointer-types -Wno-error=int-conversion
+ CPPFLAGS := $(CPPFLAGS) $(EXTRA_CFLAGS)
+ CFLAGS := $(CFLAGS) $(EXTRA_CFLAGS)
+ CXXFLAGS := $(CXXFLAGS) $(EXTRA_CFLAGS) $(EXTRA_CXXFLAGS)
+-- 
+2.42.0.windows.2
+
