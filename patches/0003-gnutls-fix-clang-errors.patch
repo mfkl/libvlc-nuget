@@ -1,21 +1,21 @@
-From 0befac1dccaad171608ac3c5f23b71386f5b1450 Mon Sep 17 00:00:00 2001
+From e2d4a2504d850d54b3db9a6ab753f3cdaaf4055f Mon Sep 17 00:00:00 2001
 From: Tung Huynh <tung75605@gmail.com>
-Date: Mon, 11 Dec 2023 00:16:09 -0800
-Subject: [PATCH 3/3] gnutls: dont error on implicit-function-declaration
+Date: Mon, 11 Dec 2023 03:04:04 -0800
+Subject: [PATCH 3/3] gnutls: fix clang errors
 
 ---
  contrib/src/gnutls/rules.mak | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/contrib/src/gnutls/rules.mak b/contrib/src/gnutls/rules.mak
-index c6eeeccbd4..2b63197b0f 100644
+index c6eeeccbd4..2ac81dc5e1 100644
 --- a/contrib/src/gnutls/rules.mak
 +++ b/contrib/src/gnutls/rules.mak
 @@ -70,6 +70,7 @@ GNUTLS_CONF := \
  	$(HOSTCONF)
  
  GNUTLS_ENV := $(HOSTVARS)
-+GNUTLS_EXTRA_CFLAGS = -Wno-error=implicit-function-declaration
++GNUTLS_EXTRA_CFLAGS = -Wno-error=implicit-function-declaration -Wno-error=int-conversion
  
  DEPS_gnutls = nettle $(DEPS_nettle)
  
