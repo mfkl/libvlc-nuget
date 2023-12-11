@@ -1,0 +1,33 @@
+From 0befac1dccaad171608ac3c5f23b71386f5b1450 Mon Sep 17 00:00:00 2001
+From: Tung Huynh <tung75605@gmail.com>
+Date: Mon, 11 Dec 2023 00:16:09 -0800
+Subject: [PATCH 3/3] gnutls: dont error on implicit-function-declaration
+
+---
+ contrib/src/gnutls/rules.mak | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/contrib/src/gnutls/rules.mak b/contrib/src/gnutls/rules.mak
+index c6eeeccbd4..2b63197b0f 100644
+--- a/contrib/src/gnutls/rules.mak
++++ b/contrib/src/gnutls/rules.mak
+@@ -70,6 +70,7 @@ GNUTLS_CONF := \
+ 	$(HOSTCONF)
+ 
+ GNUTLS_ENV := $(HOSTVARS)
++GNUTLS_EXTRA_CFLAGS = -Wno-error=implicit-function-declaration
+ 
+ DEPS_gnutls = nettle $(DEPS_nettle)
+ 
+@@ -90,7 +91,7 @@ endif
+ endif
+ 
+ .gnutls: gnutls
+-	cd $< && $(GNUTLS_ENV) ./configure $(GNUTLS_CONF)
++	cd $< && $(GNUTLS_ENV) CFLAGS="$(CFLAGS) $(GNUTLS_EXTRA_CFLAGS)" ./configure $(GNUTLS_CONF)
+ 	cd $< && $(MAKE) -C gl install
+ 	cd $< && $(MAKE) -C lib install
+ 	touch $@
+-- 
+2.42.0.windows.2
+
