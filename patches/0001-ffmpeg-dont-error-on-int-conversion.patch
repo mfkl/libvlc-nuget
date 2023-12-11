@@ -1,7 +1,7 @@
 From f6cecd95af59748a4a05968d2f0dad7d1e5efb7b Mon Sep 17 00:00:00 2001
 From: Tung Huynh <tung75605@gmail.com>
 Date: Sun, 10 Dec 2023 22:29:16 -0800
-Subject: [PATCH] ffmpeg: dont error on int conversion
+Subject: [PATCH 1/2] ffmpeg: dont error on int conversion
 
 ---
  contrib/src/ffmpeg/rules.mak | 2 +-
