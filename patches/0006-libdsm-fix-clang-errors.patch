@@ -1,34 +1,57 @@
-From 54814abfc1586aefce519685c23fbf7d5a67b86f Mon Sep 17 00:00:00 2001
+From 71388dcb28289f8a69a18740b2d62a7f9e3aa007 Mon Sep 17 00:00:00 2001
 From: Tung Huynh <tung75605@gmail.com>
-Date: Mon, 11 Dec 2023 17:27:06 -0800
+Date: Mon, 11 Dec 2023 19:19:13 -0800
 Subject: [PATCH 6/6] libdsm: fix clang errors
 
 ---
- contrib/src/libdsm/rules.mak | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ ...nal-flags-to-avoid-clang-build-error.patch | 25 +++++++++++++++++++
+ contrib/src/libdsm/rules.mak                  |  1 +
+ 2 files changed, 26 insertions(+)
+ create mode 100644 contrib/src/libdsm/0001-add-optional-flags-to-avoid-clang-build-error.patch
 
+diff --git a/contrib/src/libdsm/0001-add-optional-flags-to-avoid-clang-build-error.patch b/contrib/src/libdsm/0001-add-optional-flags-to-avoid-clang-build-error.patch
+new file mode 100644
+index 0000000000..ca99400961
+--- /dev/null
++++ b/contrib/src/libdsm/0001-add-optional-flags-to-avoid-clang-build-error.patch
+@@ -0,0 +1,25 @@
++From 775ab81dc48050323d7822d91bc3dc66804142f8 Mon Sep 17 00:00:00 2001
++From: Tung Huynh <tung75605@gmail.com>
++Date: Mon, 11 Dec 2023 19:15:47 -0800
++Subject: [PATCH] add optional flags to avoid clang build error
++
++---
++ meson.build | 2 ++
++ 1 file changed, 2 insertions(+)
++
++diff --git a/meson.build b/meson.build
++index 4a32ddd..a8681db 100644
++--- a/meson.build
+++++ b/meson.build
++@@ -39,6 +39,8 @@ optional_arguments = [
++   '-Wall',
++   '-Wsign-compare',
++   '-Wextra',
+++  '-Wno-error=implicit-function-declaration',
+++  '-Wno-error=incompatible-function-pointer-types',
++   '-Wstrict-aliasing',
++   '-Wstrict-overflow' ]
++ 
++-- 
++2.42.0.windows.2
++
 diff --git a/contrib/src/libdsm/rules.mak b/contrib/src/libdsm/rules.mak
-index d37251b730..665a3b92c7 100644
+index d37251b730..f9589cea01 100644
 --- a/contrib/src/libdsm/rules.mak
 +++ b/contrib/src/libdsm/rules.mak
-@@ -3,6 +3,8 @@
- LIBDSM_VERSION := 0.4.3
- LIBDSM_URL := $(GITHUB)/videolabs/libdsm/releases/download/v$(LIBDSM_VERSION)/libdsm-$(LIBDSM_VERSION).tar.xz
+@@ -19,6 +19,7 @@ endif
  
-+LIBDSM_EXTRA_CFLAGS := -Wno-error=implicit-function-declaration -Wno-error=incompatible-function-pointer-types
-+
- ifeq ($(call need_pkg,"libdsm >= 0.2.0"),)
- PKGS_FOUND += libdsm
- endif
-@@ -28,6 +30,6 @@ endif
+ libdsm: libdsm-$(LIBDSM_VERSION).tar.xz .sum-libdsm
+ 	$(UNPACK)
++	$(APPLY) $(SRC)/libdsm/0001-add-optional-flags-to-avoid-clang-build-error.patch
+ 	$(MOVE)
  
- .libdsm: libdsm crossfile.meson
- 	cd $< && rm -rf ./build
--	cd $< && $(HOSTVARS_MESON) $(MESON) -Dauto_features=disabled -Dbinaries=false build
--	cd $< && cd build && ninja install
-+	cd $< && $(HOSTVARS_MESON) CFLAGS="$(CFLAGS) $(LIBDSM_EXTRA_CFLAGS)" $(MESON) -Dauto_features=disabled -Dbinaries=false build
-+	cd $< && $(HOSTVARS_MESON) CFLAGS="$(CFLAGS) $(LIBDSM_EXTRA_CFLAGS)" meson install -C build
- 	touch $@
+ DEPS_libdsm = libtasn1 iconv
 -- 
 2.42.0.windows.2
 
