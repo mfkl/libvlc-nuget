@@ -1,7 +1,7 @@
-From 46fe9240f5d82ea89921bdb919ac3115d8f5602a Mon Sep 17 00:00:00 2001
+From f8c4062124d2290646483024a5d9268e7c9a2f73 Mon Sep 17 00:00:00 2001
 From: Tung Huynh <tung75605@gmail.com>
-Date: Mon, 11 Dec 2023 16:36:23 -0800
-Subject: [PATCH 6/6] musepack: fix clang errors
+Date: Mon, 11 Dec 2023 17:26:56 -0800
+Subject: [PATCH 5/6] musepack: fix clang errors
 
 ---
  contrib/src/mpcdec/rules.mak | 4 +++-

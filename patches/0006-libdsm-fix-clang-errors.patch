@@ -1,21 +1,21 @@
-From f7dc4576c668b947df86810c60a07319e5df3953 Mon Sep 17 00:00:00 2001
+From 54814abfc1586aefce519685c23fbf7d5a67b86f Mon Sep 17 00:00:00 2001
 From: Tung Huynh <tung75605@gmail.com>
-Date: Mon, 11 Dec 2023 16:35:53 -0800
-Subject: [PATCH 5/6] libdsm: fix clang errors
+Date: Mon, 11 Dec 2023 17:27:06 -0800
+Subject: [PATCH 6/6] libdsm: fix clang errors
 
 ---
- contrib/src/libdsm/rules.mak | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ contrib/src/libdsm/rules.mak | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
 diff --git a/contrib/src/libdsm/rules.mak b/contrib/src/libdsm/rules.mak
-index d37251b730..58ce9c0a82 100644
+index d37251b730..665a3b92c7 100644
 --- a/contrib/src/libdsm/rules.mak
 +++ b/contrib/src/libdsm/rules.mak
 @@ -3,6 +3,8 @@
  LIBDSM_VERSION := 0.4.3
  LIBDSM_URL := $(GITHUB)/videolabs/libdsm/releases/download/v$(LIBDSM_VERSION)/libdsm-$(LIBDSM_VERSION).tar.xz
  
-+LIBDSM_EXTRA_CFLAGS = -Wno-error=implicit-function-declaration -Wno-error=incompatible-function-pointer-types
++LIBDSM_EXTRA_CFLAGS := -Wno-error=implicit-function-declaration -Wno-error=incompatible-function-pointer-types
 +
  ifeq ($(call need_pkg,"libdsm >= 0.2.0"),)
  PKGS_FOUND += libdsm
@@ -25,8 +25,9 @@ index d37251b730..58ce9c0a82 100644
  .libdsm: libdsm crossfile.meson
  	cd $< && rm -rf ./build
 -	cd $< && $(HOSTVARS_MESON) $(MESON) -Dauto_features=disabled -Dbinaries=false build
+-	cd $< && cd build && ninja install
 +	cd $< && $(HOSTVARS_MESON) CFLAGS="$(CFLAGS) $(LIBDSM_EXTRA_CFLAGS)" $(MESON) -Dauto_features=disabled -Dbinaries=false build
- 	cd $< && cd build && ninja install
++	cd $< && $(HOSTVARS_MESON) CFLAGS="$(CFLAGS) $(LIBDSM_EXTRA_CFLAGS)" meson install -C build
  	touch $@
 -- 
 2.42.0.windows.2
