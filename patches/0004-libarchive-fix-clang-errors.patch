@@ -1,7 +1,7 @@
 From 6d2a14fdb545adf54ae7f0516415b56a7567a9a1 Mon Sep 17 00:00:00 2001
 From: Tung Huynh <tung75605@gmail.com>
 Date: Mon, 11 Dec 2023 10:32:32 -0800
-Subject: [PATCH 4/5] libarchive: fix clang errors
+Subject: [PATCH 4/6] libarchive: fix clang errors
 
 ---
  contrib/src/libarchive/rules.mak | 3 ++-

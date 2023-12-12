@@ -1,0 +1,34 @@
+From 46fe9240f5d82ea89921bdb919ac3115d8f5602a Mon Sep 17 00:00:00 2001
+From: Tung Huynh <tung75605@gmail.com>
+Date: Mon, 11 Dec 2023 16:36:23 -0800
+Subject: [PATCH 6/6] musepack: fix clang errors
+
+---
+ contrib/src/mpcdec/rules.mak | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/contrib/src/mpcdec/rules.mak b/contrib/src/mpcdec/rules.mak
+index cf513dc47e..d8d323953d 100644
+--- a/contrib/src/mpcdec/rules.mak
++++ b/contrib/src/mpcdec/rules.mak
+@@ -20,6 +20,8 @@ $(TARBALLS)/musepack_src_r$(MUSE_REV).tar.gz:
+ #	$(SVN) export $(MUSE_SVN) -r $(MUSE_REV) musepack_src_r$(MUSE_REV)
+ #	tar czv musepack_src_r$(MUSE_REV) > $@
+ 
++MUSE_EXTRA_CFLAGS = -Wno-error=incompatible-function-pointer-types
++
+ .sum-mpcdec: musepack_src_r$(MUSE_REV).tar.gz
+ #	$(warning $@ not implemented)
+ #	touch $@
+@@ -43,7 +45,7 @@ endif
+ 	touch $@
+ 
+ .mpcdec: musepack toolchain.cmake
+-	cd $< && $(HOSTVARS_PIC) $(CMAKE) -DSHARED=OFF .
++	cd $< && $(HOSTVARS_PIC) CFLAGS="$(CFLAGS) $(MUSE_EXTRA_CFLAGS)" $(CMAKE) -DSHARED=OFF .
+ 	cd $< && $(CMAKEBUILD) . --target install
+ 	mkdir -p -- "$(PREFIX)/lib"
+ 	# Use globbing to work around cmake's change of destination file
+-- 
+2.42.0.windows.2
+

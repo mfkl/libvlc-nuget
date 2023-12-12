@@ -1,7 +1,7 @@
 From e2d4a2504d850d54b3db9a6ab753f3cdaaf4055f Mon Sep 17 00:00:00 2001
 From: Tung Huynh <tung75605@gmail.com>
 Date: Mon, 11 Dec 2023 03:04:04 -0800
-Subject: [PATCH 3/5] gnutls: fix clang errors
+Subject: [PATCH 3/6] gnutls: fix clang errors
 
 ---
  contrib/src/gnutls/rules.mak | 3 ++-
