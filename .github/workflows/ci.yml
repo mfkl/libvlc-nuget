@@ -147,7 +147,7 @@ jobs:
       - name: Package NuGet
         shell: bash
         run: |
-          if "${{ github.ref_type }}" == "tag"; then
+          if [[ "${{ github.ref_type }}" == "tag" ]]; then
             nuget pack VideoLAN.LibVLC.UWP.nuspec
           else
             nuget pack VideoLAN.LibVLC.UWP.nuspec -Version $VLC_VERSION-${{ github.sha }}
