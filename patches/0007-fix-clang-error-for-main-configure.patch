@@ -1,7 +1,7 @@
 From 0c788c765b4016e2b4fdfa197130dbbd61f90202 Mon Sep 17 00:00:00 2001
 From: Tung Huynh <tung75605@gmail.com>
 Date: Mon, 11 Dec 2023 20:37:12 -0800
-Subject: [PATCH 7/8] fix clang error for main configure
+Subject: [PATCH 7/9] fix clang error for main configure
 
 ---
  configure.ac | 3 +--

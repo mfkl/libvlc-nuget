@@ -1,7 +1,7 @@
 From 71388dcb28289f8a69a18740b2d62a7f9e3aa007 Mon Sep 17 00:00:00 2001
 From: Tung Huynh <tung75605@gmail.com>
 Date: Mon, 11 Dec 2023 19:19:13 -0800
-Subject: [PATCH 6/8] libdsm: fix clang errors
+Subject: [PATCH 6/9] libdsm: fix clang errors
 
 ---
  ...nal-flags-to-avoid-clang-build-error.patch | 25 +++++++++++++++++++
