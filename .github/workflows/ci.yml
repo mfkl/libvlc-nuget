@@ -71,7 +71,7 @@ jobs:
       - name: Checkout libvlc uwp access module code
         shell: bash
         run: |
-          git clone https://code.videolan.org/mfkl/vlc-winrt && cd vlc-winrt && git checkout uwp-access-v3
+          git clone --depth 1 https://github.com/huynhsontung/vlc-winrt.git && cd vlc-winrt
           mkdir -p libvlc/Universal/vlc-${{ matrix.arch }}/Release
       - name: Download VLC headers
         run: Invoke-WebRequest -Uri "https://code.videolan.org/videolan/vlc/-/archive/3.0.x/vlc-3.0.x.zip" -OutFile "vlc-3.0.x.zip"
