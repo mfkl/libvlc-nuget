@@ -1,0 +1,24 @@
+From 5637464d8f851a965dce82b55b549b74c127d910 Mon Sep 17 00:00:00 2001
+From: Tung Huynh <tung75605@gmail.com>
+Date: Tue, 19 Dec 2023 17:33:57 -0800
+Subject: [PATCH] winrt mrl is file type
+
+---
+ src/input/item.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/input/item.c b/src/input/item.c
+index 9257e8df42..a6053c1924 100644
+--- a/src/input/item.c
++++ b/src/input/item.c
+@@ -1216,6 +1216,7 @@ static int GuessType( const input_item_t *p_item, bool *p_net )
+         { "vdr",    ITEM_TYPE_STREAM, true },
+         { "wasapi", ITEM_TYPE_CARD, false },
+         { "window", ITEM_TYPE_CARD, false },
++        { "winrt",  ITEM_TYPE_FILE, false },
+     };
+ 
+ #ifndef NDEBUG
+-- 
+2.42.0.windows.2
+
