@@ -3,7 +3,7 @@
   <metadata>
     <id>VideoLAN.LibVLC.UWP</id>
     <title>VideoLAN.LibVLC.UWP</title>
-    <version>3.3.3-alpha</version>
+    <version>3.3.3-20231219</version>
     <authors>VideoLAN,huynhsontung</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <summary>LibVLC is a modular multimedia framework</summary>
