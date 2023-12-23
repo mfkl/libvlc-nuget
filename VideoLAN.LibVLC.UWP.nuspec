@@ -1,15 +1,13 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>VideoLAN.LibVLC.UWP</id>
-    <title>VideoLAN.LibVLC.UWP</title>
-    <version>3.3.3-20231224</version>
+    <id>LibVLC.UWP</id>
+    <title>LibVLC.UWP</title>
+    <version>1.0.0</version>
     <authors>VideoLAN,huynhsontung</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <summary>LibVLC is a modular multimedia framework</summary>
-    <description>LibVLC is a modular multimedia framework that can render video and output audio as well as encode and stream. As it is native code, you will need to use a wrapper library such as LibVLCSharp to use it from .NET.
-    
-Use this LibVLC build for Windows Universal projects (UAP) on Windows 10 Desktop, Mobile and Xbox.
+    <description>A GPL fork of VideoLAN.LibVLC.UWP
     </description>
     <tags>libvlc;vlc;videolan;native;c/c++;video;audio;player;media;mediaplayer;codec;ffmpeg;xamarin;graphics;ios;android;linux;windows;macos;cross-platform</tags>
     <projectUrl>https://github.com/huynhsontung/libvlc-nuget</projectUrl>

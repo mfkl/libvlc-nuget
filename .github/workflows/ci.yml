@@ -144,14 +144,12 @@ jobs:
           mv x64/vlc/win64-uwp/vlc-$VLC_VERSION/sdk build/win10-x64/native
           mv x64/vlc/win64-uwp/vlc-$VLC_VERSION/libvlc.dll build/win10-x64/native
           mv x64/vlc/win64-uwp/vlc-$VLC_VERSION/libvlccore.dll build/win10-x64/native
+      - name: Get tag
+        id: get-tag
+        run: echo "tag=$(date +'%Y%m%d%H%M%S')" >> "$GITHUB_OUTPUT"
       - name: Package NuGet
         shell: bash
-        run: |
-          if [[ "${{ github.ref_type }}" == "tag" ]]; then
-            nuget pack VideoLAN.LibVLC.UWP.nuspec
-          else
-            nuget pack VideoLAN.LibVLC.UWP.nuspec -Version $VLC_VERSION-${{ github.sha }}
-          fi
+        run: nuget pack VideoLAN.LibVLC.UWP.nuspec -Version $VLC_VERSION-${{ steps.get-tag.outputs.tag }}
       - name: Upload NuGet package
         uses: actions/upload-artifact@v3
         with:
