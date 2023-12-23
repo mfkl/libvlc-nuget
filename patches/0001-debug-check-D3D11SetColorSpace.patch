@@ -1,4 +1,4 @@
-From 448ef0d7fe31515e206a72c775357330a76d84ed Mon Sep 17 00:00:00 2001
+From f952c9db6e3919a7d46c52f63c747e3048c471cd Mon Sep 17 00:00:00 2001
 From: Tung Huynh <tung75605@gmail.com>
 Date: Fri, 22 Dec 2023 18:14:03 -0800
 Subject: [PATCH] debug check D3D11SetColorSpace
@@ -8,14 +8,14 @@ Subject: [PATCH] debug check D3D11SetColorSpace
  1 file changed, 4 insertions(+)
 
 diff --git a/modules/video_output/win32/direct3d11.c b/modules/video_output/win32/direct3d11.c
-index 9fe576ebad..e908cf405a 100644
+index 9fe576ebad..303f78d43a 100644
 --- a/modules/video_output/win32/direct3d11.c
 +++ b/modules/video_output/win32/direct3d11.c
 @@ -1307,14 +1307,18 @@ static void D3D11SetColorSpace(vout_display_t *vd)
      }
  
  #ifdef HAVE_DXGI1_6_H
-+    msg_Dbg(vd, "HAVE_DXGI1_6_H is set")
++    msg_Dbg(vd, "HAVE_DXGI1_6_H is set");
      if (SUCCEEDED(IDXGISwapChain_GetContainingOutput( sys->dxgiswapChain, &dxgiOutput )))
      {
 +        msg_Dbg(vd, "IDXGISwapChain_GetContainingOutput succeeded");
