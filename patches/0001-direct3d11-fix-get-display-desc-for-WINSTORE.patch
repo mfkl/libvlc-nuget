@@ -1,0 +1,93 @@
+From 54f58b59035e883626ff3792ce7365e5824c8d0a Mon Sep 17 00:00:00 2001
+From: Tung Huynh <tung75605@gmail.com>
+Date: Sat, 23 Dec 2023 00:33:39 -0800
+Subject: [PATCH] direct3d11: fix get display desc for WINSTORE
+
+---
+ modules/video_output/win32/direct3d11.c | 54 +++++++++++++++++++++++++
+ 1 file changed, 54 insertions(+)
+
+diff --git a/modules/video_output/win32/direct3d11.c b/modules/video_output/win32/direct3d11.c
+index 9fe576ebad..4a4103f08c 100644
+--- a/modules/video_output/win32/direct3d11.c
++++ b/modules/video_output/win32/direct3d11.c
+@@ -1251,8 +1251,36 @@ static bool canHandleConversion(const dxgi_color_space *src, const dxgi_color_sp
+         return true; /* we can handle anything to 709 */
+     return false; /* let Windows do the rest */
+ }
++
++static bool TryGetFirstOutputDesc(vout_display_t *vd, DXGI_OUTPUT_DESC1 *desc) {
++    vout_display_sys_t *sys = vd->sys;
++    IDXGIAdapter *dxgiadapter = D3D11DeviceAdapter(sys->d3d_dev.d3ddevice);
++    if (unlikely(dxgiadapter==NULL)) {
++        msg_Err(vd, "Could not get the DXGI Adapter");
++        return false;
++    }
++
++    // Get the first output (monitor)
++    IDXGIOutput *output = NULL;
++    if (SUCCEEDED(IDXGIAdapter1_EnumOutputs(dxgiadapter, 0, &output))) {
++        IDXGIOutput6 *output6 = NULL;
++        if (SUCCEEDED(IDXGIOutput_QueryInterface(output, &IID_IDXGIOutput6, (void **)&output6))) {
++            if (SUCCEEDED(IDXGIOutput6_GetDesc1(output6, desc))) {
++                IDXGIOutput6_Release(output6);
++                IDXGIOutput_Release(output);
++                IDXGIAdapter_Release(dxgiadapter);
++                return true;
++            }
++            IDXGIOutput6_Release(output6);
++        }
++        IDXGIOutput_Release(output);
++    }
++    IDXGIAdapter_Release(dxgiadapter);
++    return false;
++}
+ #endif
+ 
++
+ static void D3D11SetColorSpace(vout_display_t *vd)
+ {
+     vout_display_sys_t *sys = vd->sys;
+@@ -1307,6 +1335,8 @@ static void D3D11SetColorSpace(vout_display_t *vd)
+     }
+ 
+ #ifdef HAVE_DXGI1_6_H
++    // GetContainingOutput is not available for swap chain created with IDXGIFactory2::CreateSwapChainForComposition
++#ifdef !VLC_WINSTORE_APP
+     if (SUCCEEDED(IDXGISwapChain_GetContainingOutput( sys->dxgiswapChain, &dxgiOutput )))
+     {
+         IDXGIOutput6 *dxgiOutput6 = NULL;
+@@ -1338,6 +1368,30 @@ static void D3D11SetColorSpace(vout_display_t *vd)
+         }
+         IDXGIOutput_Release( dxgiOutput );
+     }
++#else
++    DXGI_OUTPUT_DESC1 desc;
++    if (TryGetFirstOutputDesc(vd, &desc))
++    {
++        const dxgi_color_space *csp = NULL;
++        for (int i=0; color_spaces[i].name; ++i)
++        {
++            if (color_spaces[i].dxgi == desc.ColorSpace)
++            {
++                if (!canHandleConversion(&color_spaces[best], &color_spaces[i]))
++                    msg_Warn(vd, "Can't handle conversion to screen format %s", color_spaces[i].name);
++                else
++                {
++                    best = i;
++                    csp = &color_spaces[i];
++                }
++                break;
++            }
++        }
++
++        msg_Dbg(vd, "Output max luminance: %.1f, colorspace %s, bits per pixel %d", desc.MaxFullFrameLuminance, csp?csp->name:"unknown", desc.BitsPerColor);
++        //sys->display.luminance_peak = desc.MaxFullFrameLuminance;
++    }
++#endif
+ #endif
+ 
+     hr = IDXGISwapChain3_SetColorSpace1(dxgiswapChain3, color_spaces[best].dxgi);
+-- 
+2.42.0.windows.2
+
