@@ -149,12 +149,12 @@ jobs:
         run: echo "tag=$(date +'%y%m%d%H%M')" >> "$GITHUB_OUTPUT"
       - name: Package NuGet
         shell: bash
-        run: nuget pack VideoLAN.LibVLC.UWP.nuspec -Version $VLC_VERSION-${{ steps.get-tag.outputs.tag }}
+        run: nuget pack VideoLAN.LibVLC.UWP.nuspec -Version $VLC_VERSION-${{ steps.get-tag.outputs.tag }}+$(printf '%.10s' $GITHUB_SHA)
       - name: Upload NuGet package
         uses: actions/upload-artifact@v3
         with:
           name: libvlc-uwp
           path: '*.nupkg'
       - name: Push to GitHub Packages
-        if: github.ref_type == 'tag'
+        if: github.event_name == 'push'
         run: nuget push *.nupkg -Source github -ApiKey ${{ secrets.GITHUB_TOKEN }}
