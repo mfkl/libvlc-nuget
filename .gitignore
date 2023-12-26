@@ -27,9 +27,7 @@ Thumbs.db
 *.lib
 *.sbr
 *.dylib
-build/**
 obj/
-build/**
 mac/**
 [Rr]elease*/
 _ReSharper*/
