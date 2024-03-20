@@ -16,7 +16,7 @@
   </metadata>
   <files>
     <!-- https://code.videolan.org/videolan/vlc/-/commit/c900a2183f8988f32e60afdcae3aa398387295f1 -->
-    <file src="build\LibVLC.UWP.targets" target="build\LibVLC.UWP.targets"/>
+    <file src="build\LibVLC.UWP.targets" target="build"/>
     <file src="build\win10-x86\native\**" target="build\win10-x86"/>
     <file src="build\win10-x64\native\**" target="build\win10-x64"/>
     <file src="build\win10-arm\native\**" target="build\win10-arm"/>

@@ -164,6 +164,6 @@ jobs:
         with:
           name: libvlc-uwp
           path: '*.nupkg'
-      - name: Push to GitHub Packages
+      - name: Push to Nuget
         if: github.event_name == 'push'
         run: nuget push *.nupkg -Source "https://api.nuget.org/v3/index.json" -ApiKey ${{ secrets.NUGET_TOKEN }} -SkipDuplicate
