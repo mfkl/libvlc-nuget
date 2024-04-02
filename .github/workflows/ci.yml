@@ -36,7 +36,7 @@ jobs:
       TRIPLET: ${{ matrix.host-arch }}-w64-mingw32
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: true
       - name: Apply patches
@@ -53,7 +53,7 @@ jobs:
       - name: Build
         run: vlc/extras/package/win32/build.sh -c -a ${{ matrix.host-arch }} $UWP_LIBVLC_BUILD_FLAGS
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: libvlc-${{ matrix.arch }}
           path: ${{ matrix.short-arch }}-uwp/vlc-${{ env.VLC_VERSION }}-*.7z
@@ -78,7 +78,7 @@ jobs:
           7z x vlc-3.0.x.zip -ovlc
           mv vlc/vlc-3.0.x/include vlc-winrt/libvlc/Universal/vlc-${{ matrix.arch }}/Release
       - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v1.3
+        uses: microsoft/setup-msbuild@v2
       - name: MSBuild x64/ARM64
         if: matrix.arch != 'x86'
         working-directory: vlc-winrt/modules/libaccess_winrt_plugin.UWP
@@ -88,7 +88,7 @@ jobs:
         working-directory: vlc-winrt/modules/libaccess_winrt_plugin.UWP
         run: msbuild libaccess_winrt_plugin.UWP.vcxproj /p:Configuration=Release /p:Platform=Win32
       - name: Upload build
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: libvlc-uwp-access-build-${{ matrix.arch }}
           path: vlc-winrt/modules/libaccess_winrt_plugin.UWP/Release/libaccess_winrt_plugin.UWP
@@ -100,9 +100,9 @@ jobs:
       - UWP_access_v3
       - libvlc
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/download-artifact@v3
-      - uses: NuGet/setup-nuget@v1.2.0
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+      - uses: NuGet/setup-nuget@v2
         with:
           nuget-version: '5.x'
       - name: Create NuGet folders
@@ -147,7 +147,7 @@ jobs:
         shell: bash
         run: nuget pack VideoLAN.LibVLC.UWP.nuspec -Version $VLC_VERSION-${{ steps.get-tag.outputs.tag }}+$(printf '%.10s' $GITHUB_SHA)
       - name: Upload NuGet package
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: libvlc-uwp
           path: '*.nupkg'
