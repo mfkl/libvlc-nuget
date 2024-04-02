@@ -15,11 +15,11 @@ jobs:
   libvlc:
     runs-on: ubuntu-latest
     container:
-      image: huynhsontung/vlc-debian-llvm-ucrt:llvm17
+      image: registry.videolan.org/vlc-debian-llvm-uwp:20220713124227
       options: -u root
     strategy:
       matrix:
-        arch: [x86, x64, arm, arm64]
+        arch: [x86, x64, arm64]
         include:
           - arch: x86
             short-arch: win32
@@ -27,9 +27,6 @@ jobs:
           - arch: x64
             short-arch: win64
             host-arch: x86_64
-          - arch: arm
-            short-arch: winarm
-            host-arch: armv7
           - arch: arm64
             short-arch: winarm64
             host-arch: aarch64
@@ -65,7 +62,7 @@ jobs:
   UWP_access_v3:
     strategy:
       matrix:
-        arch: [x64, x86, arm, arm64]
+        arch: [x64, x86, arm64]
     runs-on: windows-2019
     steps:
       - name: Checkout libvlc uwp access module code
@@ -82,7 +79,7 @@ jobs:
           mv vlc/vlc-3.0.x/include vlc-winrt/libvlc/Universal/vlc-${{ matrix.arch }}/Release
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v1.3
-      - name: MSBuild x64/ARM/ARM64
+      - name: MSBuild x64/ARM64
         if: matrix.arch != 'x86'
         working-directory: vlc-winrt/modules/libaccess_winrt_plugin.UWP
         run: msbuild libaccess_winrt_plugin.UWP.vcxproj /p:Configuration=Release /p:Platform=${{ matrix.arch }}
@@ -111,7 +108,6 @@ jobs:
       - name: Create NuGet folders
         shell: bash
         run: |
-          mkdir -p build/win10-arm/native
           mkdir -p build/win10-arm64/native
           mkdir -p build/win10-x64/native
           mkdir -p build/win10-x86/native
@@ -120,18 +116,9 @@ jobs:
         run: |
           7z x libvlc-arm64/vlc-$VLC_VERSION-win32.7z -oarm64/vlc/winarm64-uwp -y  
 
-          7z x libvlc-arm/vlc-$VLC_VERSION-win32.7z -oarm/vlc/winarm-uwp -y
-
           7z x libvlc-x86/vlc-$VLC_VERSION-win32.7z -ox86/vlc/win32-uwp -y
 
           7z x libvlc-x64/vlc-$VLC_VERSION-win64.7z -ox64/vlc/win64-uwp -y
-
-          mv arm/vlc/winarm-uwp/vlc-$VLC_VERSION/lua build/win10-arm/native
-          mv arm/vlc/winarm-uwp/vlc-$VLC_VERSION/plugins build/win10-arm/native
-          mv libvlc-uwp-access-build-arm/libaccess_winrt_plugin.dll build/win10-arm/native/plugins/access
-          mv arm/vlc/winarm-uwp/vlc-$VLC_VERSION/sdk build/win10-arm/native
-          mv arm/vlc/winarm-uwp/vlc-$VLC_VERSION/libvlc.dll build/win10-arm/native
-          mv arm/vlc/winarm-uwp/vlc-$VLC_VERSION/libvlccore.dll build/win10-arm/native
 
           mv arm64/vlc/winarm64-uwp/vlc-$VLC_VERSION/lua build/win10-arm64/native
           mv arm64/vlc/winarm64-uwp/vlc-$VLC_VERSION/plugins build/win10-arm64/native

@@ -19,7 +19,6 @@
     <file src="build\LibVLC.UWP.targets" target="build"/>
     <file src="build\win10-x86\native\**" target="build\win10-x86"/>
     <file src="build\win10-x64\native\**" target="build\win10-x64"/>
-    <file src="build\win10-arm\native\**" target="build\win10-arm"/>
     <file src="build\win10-arm64\native\**" target="build\win10-arm64"/>
     <file src="icon.png" target="" />
   </files>
