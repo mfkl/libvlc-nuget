@@ -1,0 +1,27 @@
+From 9c6f90dae5ed797e3ad901a018da35f0aad0b283 Mon Sep 17 00:00:00 2001
+From: Tung Huynh <tung75605@gmail.com>
+Date: Mon, 1 Apr 2024 23:37:45 -0700
+Subject: [PATCH] replace vcruntime140_app with ucrtapp runtime for UWP
+
+Added in Mingw-w64 v8
+https://sourceforge.net/p/mingw-w64/mailman/message/37111166/
+---
+ extras/package/win32/build.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/extras/package/win32/build.sh b/extras/package/win32/build.sh
+index c0339d86a3..ea383aefdc 100755
+--- a/extras/package/win32/build.sh
++++ b/extras/package/win32/build.sh
+@@ -211,7 +211,7 @@ if [ ! -z "$BUILD_UCRT" ]; then
+         CFLAGS="$CFLAGS -Wl,-lwindowsapp,-lwindowsappcompat"
+         CXXFLAGS="$CXXFLAGS -Wl,-lwindowsapp,-lwindowsappcompat"
+         CPPFLAGS="$CPPFLAGS -DWINSTORECOMPAT"
+-        EXTRA_CRUNTIME="vcruntime140_app"
++        EXTRA_CRUNTIME="ucrtapp"
+     else
+         SHORTARCH="$SHORTARCH-ucrt"
+         # The current minimum for VLC is Windows 7
+-- 
+2.42.0.windows.2
+
