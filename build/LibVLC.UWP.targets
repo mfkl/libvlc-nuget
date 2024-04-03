@@ -3,15 +3,7 @@
   <ItemGroup>
     <VlcUWPX64IncludeFilesFullPath Include="$(MSBuildThisFileDirectory)win10-x64\**" />
     <VlcUWPX86IncludeFilesFullPath Include="$(MSBuildThisFileDirectory)win10-x86\**" />
-    <VlcUWPARMIncludeFilesFullPath Include="$(MSBuildThisFileDirectory)win10-arm\**" />
     <VlcUWPARM64IncludeFilesFullPath Include="$(MSBuildThisFileDirectory)win10-arm64\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <SDKReference Include="Microsoft.VCLibs, Version=14.0">
-      <Name>Microsoft.VCLibs</Name>
-      <Version>14.0.0.0</Version>
-    </SDKReference>
   </ItemGroup>
 
   <ItemGroup>
@@ -21,10 +13,6 @@
     </None>
     <None Condition="'$(Platform)' == 'x86'" Include="@(VlcUWPX86IncludeFilesFullPath)">
       <Link>$([MSBuild]::MakeRelative($(MSBuildThisFileDirectory)win10-x86\, %(FullPath)))</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Condition="'$(Platform)' == 'ARM'" Include="@(VlcUWPARMIncludeFilesFullPath)">
-      <Link>$([MSBuild]::MakeRelative($(MSBuildThisFileDirectory)win10-arm\, %(FullPath)))</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Condition="'$(Platform)' == 'ARM64'" Include="@(VlcUWPARM64IncludeFilesFullPath)">
