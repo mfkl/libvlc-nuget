@@ -177,14 +177,13 @@ For Ubuntu, follow this [guide](https://code.videolan.org/videolan/LibVLCSharp/b
 
 | Platform          |  Unity Store Asset                             |
 | ----------------- | ---------------------------------------------- |
-| Unity3D - Windows | [![VLCUnityBadge]][VLCUnityWindows]            |
-| Unity3D - UWP     | [![VLCUnityBadge]][VLCUnityUWP]                |
-| Unity3D - Android | [![VLCUnityBadge]][VLCUnityAndroid]            |
+| Unity3D - Windows | [![VLCUnityBadge]][VLCUnityStore]              |
+| Unity3D - UWP     | [![VLCUnityBadge]][VLCUnityStore]              |
+| Unity3D - Android | [![VLCUnityBadge]][VLCUnityStore]              |
+| Unity3D - iOS     | [![VLCUnityBadge]][VLCUnityStore]              |
+| Unity3D - macOS   | [![VLCUnityBadge]][VLCUnityStore]              |
 
-[VLCUnityWindows]: https://assetstore.unity.com/packages/tools/video/vlc-for-unity-windows-133979
-[VLCUnityUWP]: https://assetstore.unity.com/packages/tools/video/vlc-for-unity-uwp-246153
-[VLCUnityAndroid]: https://assetstore.unity.com/packages/tools/video/vlc-for-unity-android-213786
-
+[VLCUnityStore]: https://videolabs.io/store/unity
 [VLCUnityBadge]: https://img.shields.io/badge/Made%20with-Unity-57b9d3.svg?style=flat&logo=unity
 
 # Roadmap
