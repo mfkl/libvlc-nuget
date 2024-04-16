@@ -54,14 +54,14 @@ Task("Package-windows-classic-nightly")
 Task("Download-win32-nightly")
     .Does(async () =>
 {
-    await DownloadArtifact("win32");
+    await DownloadArtifact("win32-llvm");
 });
 
 Task("Download-win64-nightly")
     .IsDependentOn("Clean")
     .Does(async () =>
 {
-    await DownloadArtifact("win64");
+    await DownloadArtifact("win64-llvm");
 });
 
 Task("Publish")
@@ -136,12 +136,12 @@ async Task DownloadArtifact(string arch)
     client.Dispose();
     string artifact = string.Empty;
 
-    if(arch == "win32")
+    if(arch.StartsWith("win32"))
     {
         packageVersionWin32 = today;
         artifact = $"artifact-{packageVersionWin32}-{arch}";
     }
-    else if(arch == "win64")
+    else if(arch.StartsWith("win64"))
     {
         packageVersionWin64 = today;
         artifact = $"artifact-{packageVersionWin64}-{arch}";
@@ -178,8 +178,8 @@ void PrepareForPackaging()
 {
     Console.WriteLine("PrepareForPackaging...");
 
-    var artifactwin32 = $"../artifacts/artifact-{packageVersionWin32}-win32";
-    var artifactwin64 = $"../artifacts/artifact-{packageVersionWin64}-win64";
+    var artifactwin32 = $"../artifacts/artifact-{packageVersionWin32}-win32-llvm";
+    var artifactwin64 = $"../artifacts/artifact-{packageVersionWin64}-win64-llvm";
 
     var libsWin32 = new []
     { 
