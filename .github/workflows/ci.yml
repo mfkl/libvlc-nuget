@@ -95,7 +95,7 @@ jobs:
     needs: UWP_access_v3
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v4.1.7
       - uses: NuGet/setup-nuget@v1.2.0
         with:
           nuget-version: '5.x'
