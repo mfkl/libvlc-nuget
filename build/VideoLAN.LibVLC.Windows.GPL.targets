@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <VlcWindowsX64TargetDir Condition=" '$(VlcWindowsX64TargetDir)' == '' ">libvlc\win-x64</VlcWindowsX64TargetDir>
+    <VlcWindowsX86TargetDir Condition=" '$(VlcWindowsX86TargetDir)' == '' ">libvlc\win-x86</VlcWindowsX86TargetDir>
+    <VlcWindowsX64Enabled Condition="'$(VlcWindowsX64Enabled)' == '' AND ('$(Platform)' == 'x64' OR '$(Platform)' == 'AnyCPU')">true</VlcWindowsX64Enabled>
+    <VlcWindowsX86Enabled Condition="'$(VlcWindowsX86Enabled)' == '' AND ('$(Platform)' == 'x86' OR '$(Platform)' == 'AnyCPU')">true</VlcWindowsX86Enabled>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- If no VlcWindows[...]IncludeFiles was declared previously, include all plugins by default by specifying ** (escaped, so %2A%2A) -->
+    <VlcWindowsX64IncludeFiles Condition="'@(VlcWindowsX64IncludeFiles)'==''" Include="libvlc.%2A;libvlccore.%2A;hrtfs\%2A%2A;lua\%2A%2A;plugins\%2A%2A" />
+    <VlcWindowsX86IncludeFiles Condition="'@(VlcWindowsX86IncludeFiles)'==''" Include="libvlc.%2A;libvlccore.%2A;hrtfs\%2A%2A;lua\%2A%2A;plugins\%2A%2A" />
+  </ItemGroup>
+
+  <Target Name="CollectVlcFilesToCopyWindows" BeforeTargets="BeforeBuild">
+    <!-- We need a target in order to make batching work -->
+    <!-- Some useful links to understand how it works:
+      http://sedotech.com/Resources#Batching (4 parts of excellent explanation of Batching. Link 2 is dead, but can be found in parts 3 and above)
+      http://sedodream.com/2010/10/21/MSBuildFilterListTake2.aspx
+    -->
+
+    <!-- First, transform the escaped, relative, platform-independant file path into real path, relative to 32/64 folders -->
+
+    <!-- x64 -->
+    <ItemGroup Condition="'$(VlcWindowsX64Enabled)' == 'true'">
+      <!-- Expand selectors and compute absolute paths for include, exclude and MainLibraries -->
+      <VlcWindowsX64IncludeFilesFullPath Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\build\x64\%(VlcWindowsX64IncludeFiles.Identity)))" />
+      <VlcWindowsX64ExcludeFilesFullPath Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\build\x64\%(VlcWindowsX64ExcludeFiles.Identity)))" Condition="'%(VlcWindowsX64ExcludeFiles.Identity)'!=''" />
+
+      <!-- We have gathered all the full path of what should be copied and what should be skipped, let's include that as Content that gets copied -->
+      <Content Include="@(VlcWindowsX64IncludeFilesFullPath)" Exclude="@(VlcWindowsX64ExcludeFilesFullPath)">
+        <Link>$(VlcWindowsX64TargetDir)\$([MSBuild]::MakeRelative($(MSBuildThisFileDirectory)..\build\x64\, %(FullPath)))</Link>
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+
+    <!-- x86 -->
+    <ItemGroup Condition="'$(VlcWindowsX86Enabled)' == 'true'">
+      <!-- Expand selectors and compute absolute paths for include, exclude and MainLibraries -->
+      <VlcWindowsX86IncludeFilesFullPath Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\build\x86\%(VlcWindowsX86IncludeFiles.Identity)))" />
+      <VlcWindowsX86ExcludeFilesFullPath Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\build\x86\%(VlcWindowsX86ExcludeFiles.Identity)))" Condition="'%(VlcWindowsX86ExcludeFiles.Identity)'!=''" />
+
+      <!-- We have gathered all the full path of what should be copied and what should be skipped, let's include that as Content that gets copied -->
+      <Content Include="@(VlcWindowsX86IncludeFilesFullPath)" Exclude="@(VlcWindowsX86ExcludeFilesFullPath)">
+        <Link>$(VlcWindowsX86TargetDir)\$([MSBuild]::MakeRelative($(MSBuildThisFileDirectory)..\build\x86\, %(FullPath)))</Link>
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+  </Target>
+
+  <ItemDefinitionGroup>
+    <ClCompile Condition="'$(Language)' == 'C++' and ('$(Platform)' == 'x64' or '$(Platform)' == 'x86') and '$(OS)'=='Windows_NT'">
+      <AdditionalIncludeDirectories>
+        $(MSBuildThisFileDirectory)\$(Platform)\include\;%(AdditionalIncludeDirectories)
+      </AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+
+  <ItemDefinitionGroup>
+    <Link Condition="'$(Language)' == 'C++' and ('$(Platform)' == 'x64' or '$(Platform)' == 'x86') and '$(OS)'=='Windows_NT'">
+      <AdditionalDependencies>libvlc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(MSBuildThisFileDirectory)\$(Platform)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+
+  <ItemGroup>
+    <Content Include="$(MSBuildThisFileDirectory)\$(Platform)\*.dll"
+    Condition="'$(Language)' == 'C++' and ('$(Platform)' == 'x64' or '$(Platform)' == 'x86') and '$(OS)'=='Windows_NT'">
+      <Link>%(RecursiveDir)%(FileName)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+     <Content Include="$(MSBuildThisFileDirectory)\$(Platform)\plugins\**"
+     Condition="'$(Language)' == 'C++' and '$(OS)'=='Windows_NT' and ('$(Platform)' == 'x86' or '$(Platform)' == 'x64')">
+       <Link>plugins\%(RecursiveDir)%(FileName)%(Extension)</Link>
+       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+     </Content>
+  </ItemGroup>
+
+   <ItemGroup>
+     <Content Include="$(MSBuildThisFileDirectory)\$(Platform)\hrtfs\**"
+     Condition="'$(Language)' == 'C++' and '$(OS)'=='Windows_NT' and ('$(Platform)' == 'x86' or '$(Platform)' == 'x64')">
+       <Link>hrtfs\%(RecursiveDir)%(FileName)%(Extension)</Link>
+       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+     </Content>
+  </ItemGroup>
+
+   <ItemGroup>
+     <Content Include="$(MSBuildThisFileDirectory)\$(Platform)\lua\**"
+     Condition="'$(Language)' == 'C++' and '$(OS)'=='Windows_NT' and ('$(Platform)' == 'x86' or '$(Platform)' == 'x64')">
+       <Link>lua\%(RecursiveDir)%(FileName)%(Extension)</Link>
+       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+     </Content>
+  </ItemGroup>
+</Project>

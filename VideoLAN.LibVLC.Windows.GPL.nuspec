@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>VideoLAN.LibVLC.Windows.GPL</id>
+    <title>VideoLAN.LibVLC.Windows.GPL</title>
+    <version>3.0.11</version>
+    <authors>VideoLAN</authors>
+    <owners>VideoLAN</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <summary>LibVLC is a modular multimedia framework</summary>
+    <description>LibVLC is a modular multimedia framework that can render video and output audio as well as encode and stream. 
+As it is native code, you will need to use a wrapper library such as LibVLCSharp to use it from .NET. 
+This package contains GPL plugin DLLs from official releases. Make sure you comply with the GPL license.</description>
+    <tags>libvlc;vlc;videolan;native;c/c++;video;audio;player;media;mediaplayer;codec;ffmpeg;xamarin;graphics;ios;android;linux;windows;macos;cross-platform</tags>
+    <projectUrl>https://code.videolan.org/videolan/libvlc-nuget</projectUrl>
+    <license type="expression">GPL-2.0-or-later</license>
+    <icon>icon.png</icon>
+    <releaseNotes>https://code.videolan.org/videolan/vlc/blob/master/NEWS</releaseNotes>
+  </metadata>
+  <files>
+    <file src="build\VideoLAN.LibVLC.Windows.GPL.targets" target="build\VideoLAN.LibVLC.Windows.GPL.targets"/>
+    <file src="build\win7-x64\native\**" target="build\x64"/>
+    <file src="build\win7-x86\native\**" target="build\x86"/>
+    <file src="icon.png" target="" />
+  </files>
+</package>
