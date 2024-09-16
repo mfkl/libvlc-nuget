@@ -85,6 +85,11 @@ Minimum OS version supported by LibVLC 3.x:
  dotnet add package VideoLAN.LibVLC.Windows
 ```
 
+*For the GPL version, use the following command:*
+```cmd
+ dotnet add package VideoLAN.LibVLC.Windows.GPL
+```
+
 [![NuGet version](https://img.shields.io/nuget/v/VideoLAN.LibVLC.Windows.svg)](https://www.nuget.org/packages/VideoLAN.LibVLC.Windows)
 [![NuGet downloads](https://img.shields.io/nuget/dt/VideoLAN.LibVLC.Windows.svg)](https://www.nuget.org/packages/VideoLAN.LibVLC.Windows)
 
