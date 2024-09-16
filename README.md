@@ -70,7 +70,7 @@ Currently, you can customize three things during the build:
 
 #### LibVLC 3:
 
-Latest stable version is [3.0.14](https://code.videolan.org/videolan/vlc-3.0/-/tags/3.0.14). Feel free to check out the [release notes](https://code.videolan.org/videolan/vlc-3.0/-/blob/master/NEWS).
+Latest stable version is [3.0.21](https://code.videolan.org/videolan/vlc/-/tags). Feel free to check out the [release notes](https://code.videolan.org/videolan/vlc/-/blob/3.0.x/NEWS).
 
 Minimum OS version supported by LibVLC 3.x:
 
