@@ -45,7 +45,7 @@ jobs:
         run: |
           nuget pack VideoLAN.LibVLC.iOS.nuspec
       - name: Upload build
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: libvlc-ios-build
           path: ./*.nupkg
@@ -84,7 +84,7 @@ jobs:
         working-directory: vlc-winrt/modules/libaccess_winrt_plugin.UWP
         run: msbuild libaccess_winrt_plugin.UWP.vcxproj /p:Configuration=Release /p:Platform=Win32
       - name: Upload build
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: libvlc-uwp-access-build-${{ matrix.arch }}
           path: vlc-winrt/modules/libaccess_winrt_plugin.UWP/Release/libaccess_winrt_plugin.UWP
@@ -95,7 +95,7 @@ jobs:
     needs: UWP_access_v3
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v4
       - uses: NuGet/setup-nuget@v1.2.0
         with:
           nuget-version: '5.x'
@@ -148,7 +148,7 @@ jobs:
         run: |
           nuget pack VideoLAN.LibVLC.UWP.nuspec
       - name: Upload NuGet package
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: libvlc-uwp
           path: '*.nupkg'
