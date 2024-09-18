@@ -18,8 +18,6 @@ gpl_plugins=(
   "access/libdvdread_plugin.dll"
   "access/libvnc_plugin.dll"
   "access/libdshow_plugin.dll"
-  "audio_filter/libdolby_surround_decoder_plugin.dll"
-  "audio_filter/libheadphone_channel_mixer_plugin.dll"
   "audio_filter/libmad_plugin.dll"
   "audio_filter/libmono_plugin.dll"
   "audio_filter/libsamplerate_plugin.dll"
