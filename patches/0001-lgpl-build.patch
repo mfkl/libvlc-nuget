@@ -57,10 +57,10 @@ index 654ac99d59..ec657a1d6d 100755
  
  info "Compiling"
 diff --git a/extras/package/win32/configure.sh b/extras/package/win32/configure.sh
-index 455ff18dd3..59331cbe9d 100755
+index 62e91bf422..6787463d3e 100755
 --- a/extras/package/win32/configure.sh
 +++ b/extras/package/win32/configure.sh
-@@ -3,14 +3,13 @@
+@@ -3,13 +3,12 @@
  OPTIONS="
        --enable-update-check
        --enable-lua
@@ -69,8 +69,6 @@ index 455ff18dd3..59331cbe9d 100755
        --enable-flac
        --enable-theora
        --enable-avcodec --enable-merge-ffmpeg
--      --enable-dca
-+      --disable-dca
        --enable-mpc
        --enable-libass
 -      --enable-schroedinger
