@@ -230,12 +230,16 @@ void CreateNuGetPackage()
     PrepareForPackaging();
 
     Console.WriteLine("Version for package: " + packageVersionWin64);
-    NuGetPack("../VideoLAN.LibVLC.Windows.nuspec", new NuGetPackSettings
-    {
-        // package version URLs differ from the same nightly build depending on the arch.
-        // using the number from win64
-        Version = $"4.0.0-alpha-{packageVersionWin64}"
-    });
+
+    StartProcess("mono", new ProcessSettings()
+        .WithArguments(args => args
+            .Append("/usr/local/bin/nuget.exe")
+            .Append("pack")
+            .Append("../VideoLAN.LibVLC.Windows.nuspec")
+            .Append("-Version")
+            .Append($"4.0.0-alpha-{packageVersionWin64}")
+        )
+    );
 }
 
 static List<string> ExtractLinks(string html)
