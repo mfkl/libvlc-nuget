@@ -234,6 +234,11 @@ void CreateNuGetPackage()
     {
         // package version URLs differ from the same nightly build depending on the arch.
         // using the number from win64
+        ToolSettings = new ProcessSettings
+        {
+            ToolPath = "/usr/bin/mono",
+            Arguments = new ProcessArgumentBuilder().Append("/usr/local/bin/nuget.exe")
+        },
         Version = $"4.0.0-alpha-{packageVersionWin64}"
     });
 }
