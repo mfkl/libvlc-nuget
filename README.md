@@ -202,7 +202,7 @@ For Ubuntu, follow this [guide](https://code.videolan.org/videolan/LibVLCSharp/b
 If you would like VLC developers to provide you with:
 - custom development on LibVLC and/or LibVLCSharp, 
 - training and workshops,
-- [LibVLCSharp commercial licenses](https://videolabs.io/solutions/libvlcsharp),
+- [LibVLCSharp commercial licenses](https://videolabs.io/store/libvlcsharp),
 - support services,
 - consulting services,
 - other multimedia services.
