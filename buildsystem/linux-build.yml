@@ -17,6 +17,29 @@ steps:
     sudo chmod +x /usr/local/bin/nuget.exe
   displayName: 'Install NuGet globally'
 
+- task: Bash@3
+  displayName: 'Install Mono from Official Repository'
+  inputs:
+    targetType: 'inline'
+    script: |
+      echo "Installing Mono from official repository..."
+      
+      # Import GPG key
+      sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
+      
+      # Add Mono repository
+      echo "deb https://download.mono-project.com/repo/ubuntu stable-focal main" | sudo tee /etc/apt/sources.list.d/mono-official-stable.list
+      
+      # Update package list
+      sudo apt-get update
+      
+      # Install Mono
+      sudo apt-get install -y mono-devel mono-complete
+      
+      # Verify installation
+      mono --version
+      mcs --version
+
 - task: DotNetCoreCLI@2
   displayName: 'Package and deploy'
   env:
