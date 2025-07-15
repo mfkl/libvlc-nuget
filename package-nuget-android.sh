@@ -8,18 +8,16 @@ downloadUrlArm8="https://download.videolan.org/pub/videolan/vlc-android/$version
 downloadUrlx86="https://download.videolan.org/pub/videolan/vlc-android/$version/VLC-Android-$version-x86.apk"
 downloadUrlx86_64="https://download.videolan.org/pub/videolan/vlc-android/$version/VLC-Android-$version-x86_64.apk"
 
-sourceUrl="https://github.com/videolan/vlc-android/archive/refs/tags/$version.zip"
-
 packageName="VideoLAN.LibVLC.Android"
 echo "package name $packageName"
 
-# curl -Lsfo VLC-Android-$version-armeabi-v7a.apk $downloadUrlArm7 --progress-bar --verbose
-# curl -Lsfo VLC-Android-$version-arm64-v8a.apk $downloadUrlArm8 --progress-bar --verbose
-# curl -Lsfo VLC-Android-$version-x86.apk $downloadUrlx86 --progress-bar --verbose
-# curl -Lsfo VLC-Android-$version-x86_64.apk $downloadUrlx86_64 --progress-bar --verbose
+curl -Lsfo VLC-Android-$version-armeabi-v7a.apk $downloadUrlArm7 --progress-bar --verbose
+curl -Lsfo VLC-Android-$version-arm64-v8a.apk $downloadUrlArm8 --progress-bar --verbose
+curl -Lsfo VLC-Android-$version-x86.apk $downloadUrlx86 --progress-bar --verbose
+curl -Lsfo VLC-Android-$version-x86_64.apk $downloadUrlx86_64 --progress-bar --verbose
 
-echo "downloading NuGet..."
-# curl -Lsfo nuget.exe https://dist.nuget.org/win-x86-commandline/latest/nuget.exe
+# echo "downloading NuGet..."
+# # curl -Lsfo nuget.exe https://dist.nuget.org/win-x86-commandline/latest/nuget.exe
 
 echo "unzipping libvlc.so and libc++_shared.so..."
 7z e VLC-Android-$version-armeabi-v7a.apk lib/armeabi-v7a/libvlc.so lib/armeabi-v7a/libc++_shared.so -obuild/android-armv7 -y
@@ -37,10 +35,13 @@ touch build/android-x86/libc++_shared.so
 touch build/android-x86_64/libvlc.so
 touch build/android-x86_64/libc++_shared.so
 
-# curl -Lsfo sources.zip $sourceUrl --progress-bar --verbose
+sourceUrl="https://code.videolan.org/videolan/libvlcjni/-/archive/libvlcjni-3.x/libvlcjni-libvlcjni-3.x.zip"
 
-# 7z e sources.zip vlc-android-$version/libvlc/src/org/videolan/libvlc/AWindow.java -obuild/toBuild
-# 7z e sources.zip vlc-android-$version/libvlc/src/org/videolan/libvlc/IVLCVout.java -obuild/toBuild
-# 7z e sources.zip vlc-android-$version/libvlc/src/org/videolan/libvlc/util/AndroidUtil.java -obuild/toBuild
+curl -Lsfo sources.zip $sourceUrl --progress-bar --verbose
+
+# These files have changed since the last autogeneration (using https://github.com/mfkl/LibVLCSharp.Android.AWindow). It brings breaking changes (namespaces) and the few commits do not seem critically needed. So we update the *.so without updating these for now, since it works.
+7z e sources.zip vlc-android-$version/libvlc/src/org/videolan/libvlc/AWindow.java -obuild/toBuild
+7z e sources.zip vlc-android-$version/libvlc/src/org/videolan/libvlc/IVLCVout.java -obuild/toBuild
+7z e sources.zip vlc-android-$version/libvlc/src/org/videolan/libvlc/util/AndroidUtil.java -obuild/toBuild
 
 #mono nuget.exe pack "$packageName".nuspec -Version "$version"
