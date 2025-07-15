@@ -1,6 +1,6 @@
 #! /bin/bash
 
-version="3.1.2" # vlc-android tag
+version="3.6.5" # vlc-android tag
 echo "packaging version $version"
 
 downloadUrlArm7="https://download.videolan.org/pub/videolan/vlc-android/$version/VLC-Android-$version-armeabi-v7a.apk"
