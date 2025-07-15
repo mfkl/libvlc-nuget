@@ -8,7 +8,7 @@ downloadUrlArm8="https://download.videolan.org/pub/videolan/vlc-android/$version
 downloadUrlx86="https://download.videolan.org/pub/videolan/vlc-android/$version/VLC-Android-$version-x86.apk"
 downloadUrlx86_64="https://download.videolan.org/pub/videolan/vlc-android/$version/VLC-Android-$version-x86_64.apk"
 
-sourceUrl="https://github.com/videolan/vlc-android/archive/$version.zip"
+sourceUrl="https://github.com/videolan/vlc-android/archive/refs/tags/$version.zip"
 
 packageName="VideoLAN.LibVLC.Android"
 echo "package name $packageName"
