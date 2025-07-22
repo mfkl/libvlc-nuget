@@ -29,14 +29,19 @@ jobs:
             cd ..
           }
 
-          cd build/MobileVLCKit.xcframework/ios-arm64_armv7_armv7s/MobileVLCKit.framework
+          CPU_DEVICE_DIR="ios-arm64"
+          CPU_SIM_DIR="ios-arm64_x86_64-simulator"
+
+          cd build/MobileVLCKit.xcframework
+
+          cd "$CPU_DEVICE_DIR/MobileVLCKit.framework"
           patchBinary
-          cd ios-arm64_i386_x86_64-simulator/MobileVLCKit.framework
+          cd "$CPU_SIM_DIR/MobileVLCKit.framework"
           patchBinary
           mkdir -p $GITHUB_WORKSPACE/build/ios-device
           mkdir -p $GITHUB_WORKSPACE/build/ios-simulator
-          mv ios-arm64_armv7_armv7s/DynamicMobileVLCKit.framework $GITHUB_WORKSPACE/build/ios-device
-          mv ios-arm64_i386_x86_64-simulator/DynamicMobileVLCKit.framework $GITHUB_WORKSPACE/build/ios-simulator
+          mv "$CPU_DEVICE_DIR/DynamicMobileVLCKit.framework" "$GITHUB_WORKSPACE/build/ios-device"
+          mv "$CPU_SIM_DIR/DynamicMobileVLCKit.framework" "$GITHUB_WORKSPACE/build/ios-simulator"
       - name: Setup NuGet
         uses: nuget/setup-nuget@v1
         with:
