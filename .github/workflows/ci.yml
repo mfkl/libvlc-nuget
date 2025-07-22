@@ -14,8 +14,10 @@ jobs:
       - name: LibVLC iOS build
         shell: bash
         run: |
+          TAG="3.6.1b1"
           git clone https://github.com/videolan/vlckit
-          cd vlckit && git checkout 3.0
+          cd vlckit
+          git checkout "tags/$TAG"
           ./buildMobileVLCKit.sh -f
           
           patchBinary () {
