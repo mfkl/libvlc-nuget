@@ -8,6 +8,9 @@ jobs:
   LibVLC_iOS_NuGet:
     if: github.event_name == 'push' || github.event.pull_request.head.repo.id != github.event.pull_request.base.repo.id
     runs-on: macos-latest
+    env:
+      VLCKIT_TAG: 3.6.1b1
+      IOS_NUGET: 3.6.1
     steps:
       - name: Checkout
         uses: actions/checkout@v2 
@@ -17,7 +20,7 @@ jobs:
           TAG="3.6.1b1"
           git clone https://github.com/videolan/vlckit
           cd vlckit
-          git checkout "tags/$TAG"
+          git checkout "tags/$VLCKIT_TAG"
           ./buildMobileVLCKit.sh -f
           
           patchBinary () {
@@ -50,7 +53,7 @@ jobs:
           nuget-version: '5.x'
       - name: Create LibVLC iOS NuGet package
         run: |
-          nuget pack VideoLAN.LibVLC.iOS.nuspec
+          nuget pack VideoLAN.LibVLC.iOS.nuspec -Version "${IOS_NUGET}"
       - name: Upload build
         uses: actions/upload-artifact@v4
         with:
