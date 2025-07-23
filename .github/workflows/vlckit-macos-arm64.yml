@@ -1,0 +1,38 @@
+name: VLCKit macOS ARM64
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  VLCKit_macOS_ARM64:
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.id != github.event.pull_request.base.repo.id
+    runs-on: macos-14  # macOS ARM64 runner
+    env:
+      VLCKIT_TAG: 3.6.1b1
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: VLCKit macOS ARM64 build
+        shell: bash
+        run: |
+          # Clone VLCKit repository
+          git clone https://github.com/videolan/vlckit
+          cd vlckit
+          git checkout "tags/$VLCKIT_TAG"
+          
+          # Build VLCKit for macOS ARM64
+          ./buildMobileVLCKit.sh -x -a aarch64
+          
+          # Create output directory
+          mkdir -p $GITHUB_WORKSPACE/build/macos-arm64
+          
+          # Copy built framework
+          cp -R build/VLCKit.xcframework $GITHUB_WORKSPACE/build/macos-arm64/
+      
+      - name: Upload VLCKit macOS ARM64 build
+        uses: actions/upload-artifact@v4
+        with:
+          name: vlckit-macos-arm64-build
+          path: build/macos-arm64/

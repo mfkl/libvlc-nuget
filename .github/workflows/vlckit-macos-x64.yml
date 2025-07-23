@@ -1,0 +1,38 @@
+name: VLCKit macOS x64
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  VLCKit_macOS_x64:
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.id != github.event.pull_request.base.repo.id
+    runs-on: macos-13  # macOS x64 runner
+    env:
+      VLCKIT_TAG: 3.6.1b1
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: VLCKit macOS x64 build
+        shell: bash
+        run: |
+          # Clone VLCKit repository
+          git clone https://github.com/videolan/vlckit
+          cd vlckit
+          git checkout "tags/$VLCKIT_TAG"
+          
+          # Build VLCKit for macOS x64
+          ./buildMobileVLCKit.sh -x -a x86_64
+          
+          # Create output directory
+          mkdir -p $GITHUB_WORKSPACE/build/macos-x64
+          
+          # Copy built framework
+          cp -R build/VLCKit.xcframework $GITHUB_WORKSPACE/build/macos-x64/
+      
+      - name: Upload VLCKit macOS x64 build
+        uses: actions/upload-artifact@v4
+        with:
+          name: vlckit-macos-x64-build
+          path: build/macos-x64/
