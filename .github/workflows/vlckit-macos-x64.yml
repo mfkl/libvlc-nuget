@@ -23,7 +23,7 @@ jobs:
           git checkout "tags/$VLCKIT_TAG"
           
           # Build VLCKit for macOS x64
-          ./buildMobileVLCKit.sh -x -a x86_64
+          ./buildMobileVLCKit.sh -x -a x86_64 -v
           
           # Create output directory
           mkdir -p $GITHUB_WORKSPACE/build/macos-x64
