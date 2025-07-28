@@ -18,9 +18,9 @@ jobs:
         shell: bash
         run: |
           # Clone VLCKit repository
-          git clone https://github.com/videolan/vlckit
+          git clone https://code.videolan.org/mfkl/VLCKit/
           cd vlckit
-          git checkout "tags/$VLCKIT_TAG"
+          git checkout x64-build-fix
           
           # Build VLCKit for macOS x64
           ./buildMobileVLCKit.sh -x -a x86_64 -v
