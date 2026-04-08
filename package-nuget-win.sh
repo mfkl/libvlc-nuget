@@ -50,61 +50,100 @@ gpl_plugins=(
   "video_filter/librotate_plugin.dll"
 )
 
-# echo "downloading x86 binaries..." $downloadUrlx86
-curl -Lsfo x86.7z $downloadUrlx86
+echo "=========================================="
+echo "LibVLC Windows NuGet packaging v$version"
+echo "=========================================="
 
-# echo "downloading x64 binaries..." $downloadUrlx64
-curl -Lsfo x64.7z $downloadUrlx64
+# --- Download VLC binaries ---
+
+echo ""
+echo "[1/7] Downloading VLC binaries..."
+echo "  x86:  $downloadUrlx86"
+curl -Lsfo x86.7z "$downloadUrlx86"
+echo "  x86: downloaded ($(stat -c%s x86.7z 2>/dev/null || stat -f%z x86.7z) bytes)"
+
+echo "  x64:  $downloadUrlx64"
+curl -Lsfo x64.7z "$downloadUrlx64"
+echo "  x64: downloaded ($(stat -c%s x64.7z 2>/dev/null || stat -f%z x64.7z) bytes)"
 
 if [ ! -f "nuget.exe" ]; then
-  echo "downloading NuGet..."
+  echo "  nuget.exe not found, downloading..."
   curl -Lsfo nuget.exe https://dist.nuget.org/win-x86-commandline/latest/nuget.exe
 fi
 
-echo "unzipping vlc..."
-7z x x86.7z -o./x86
-7z x x64.7z -o./x64
+# --- Extract archives ---
 
-echo "copying x86 dlls, libs and headers files..."
+echo ""
+echo "[2/7] Extracting archives..."
+echo "  extracting x86..."
+7z x x86.7z -o./x86
+if [ ! -d "./x86/vlc-$version" ]; then
+  echo "ERROR: expected directory ./x86/vlc-$version not found after extraction"
+  exit 1
+fi
+
+echo "  extracting x64..."
+7z x x64.7z -o./x64
+if [ ! -d "./x64/vlc-$version" ]; then
+  echo "ERROR: expected directory ./x64/vlc-$version not found after extraction"
+  exit 1
+fi
+
+# --- Prepare architectures ---
+
+echo ""
+echo "[3/7] Preparing x86..."
 rm -rf build/win7-x86/native/
 mkdir -p build/win7-x86/native/
 cp -R ./x86/vlc-$version/{libvlc.dll,libvlccore.dll,hrtfs,lua,plugins} build/win7-x86/native/
 cp ./x86/vlc-$version/sdk/lib/{libvlc.lib,libvlccore.lib,vlc.lib,vlccore.lib} build/win7-x86/native/
 cp -R ./x86/vlc-$version/sdk/include build/win7-x86/native/
+echo "  x86 ready: $(find build/win7-x86/native -type f | wc -l) files"
 
-echo "copying x64 dlls, libs and headers files..."
+echo ""
+echo "[4/7] Preparing x64..."
 rm -rf build/win7-x64/native/
 mkdir -p build/win7-x64/native/
 cp -R ./x64/vlc-$version/{libvlc.dll,libvlccore.dll,hrtfs,lua,plugins} build/win7-x64/native/
 cp ./x64/vlc-$version/sdk/lib/{libvlc.lib,libvlccore.lib,vlc.lib,vlccore.lib} build/win7-x64/native/
 cp -R ./x64/vlc-$version/sdk/include build/win7-x64/native/
+echo "  x64 ready: $(find build/win7-x64/native -type f | wc -l) files"
 
-echo "packaging GPL version..."
+# --- Pack GPL NuGet ---
 
+echo ""
+echo "[5/7] Packaging GPL NuGet ($packageNameGPL v$version)..."
 mono nuget.exe pack "$packageNameGPL".nuspec -Version "$version"
+echo "  GPL package created"
 
-echo "removing GPL plugins from x86..."
+# --- Remove GPL plugins ---
 
-# remove x86 GPL plugins
+echo ""
+echo "[6/7] Removing GPL plugins..."
 for file in "${gpl_plugins[@]}"; do
-  rm -rf "$x86PluginsLocation/$file"
+  for loc in "$x86PluginsLocation" "$x64PluginsLocation"; do
+    if [ -e "$loc/$file" ]; then
+      echo "  removing $loc/$file"
+      rm -rf "$loc/$file"
+    fi
+  done
 done
+echo "  GPL plugins removed from all architectures"
 
-echo "removing GPL plugins from x64..."
+# --- Pack LGPL NuGet ---
 
-# remove x64 GPL plugins
-for file in "${gpl_plugins[@]}"; do
-  rm -rf "$x64PluginsLocation/$file"
-done
-
-echo "packaging LGPL version..."
-
+echo ""
+echo "[7/7] Packaging LGPL NuGet ($packageName v$version)..."
 mono nuget.exe pack "$packageName".nuspec -Version "$version"
+echo "  LGPL package created"
 
-echo "cleaning up..."
-rm ./x86.7z
-rm -rf ./x86
-rm ./x64.7z
-rm -rf ./x64
+# --- Cleanup ---
 
-echo "done"
+echo ""
+echo "Cleaning up..."
+rm -f ./x86.7z ./x64.7z
+rm -rf ./x86 ./x64
+
+echo ""
+echo "Done. Generated packages:"
+ls -la ./*.nupkg

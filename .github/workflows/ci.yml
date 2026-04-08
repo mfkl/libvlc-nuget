@@ -203,125 +203,30 @@ jobs:
           path: '*.nupkg'
 
   Windows_NuGet:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-  
+      - name: Install Mono
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y mono-complete
       - name: Detect latest VLC version
-        shell: pwsh
-        run: |
-          $url = "https://download.videolan.org/vlc/last/"
-          Write-Host "Fetching VLC latest version from $url"
-  
-          # Use curl to download the HTML
-          $content = curl -s $url | Out-String
-  
-          # Extract first vlc-x.y.z.tar.xz match
-          if ($content -match 'vlc-([0-9]+\.[0-9]+\.[0-9]+)\.tar\.xz') {
-              $version = $matches[1]
-              Write-Host "Detected version: $version"
-  
-              # Export to GitHub environment
-              "VLC_VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          } else {
-              throw "Failed to detect VLC version"
-          }
-  
-      - name: Ensure 7-Zip is available
-        shell: pwsh
-        run: |
-          if (-not (Get-Command 7z -ErrorAction SilentlyContinue)) {
-            choco install 7zip -y
-          }
-  
-      - name: Download VLC binaries
-        shell: pwsh
-        run: |
-          Write-Host "== Download VLC binaries =="
-          $v = $env:VLC_VERSION
-  
-          curl -L -o x86.7z  "https://get.videolan.org/vlc/$v/win32/vlc-$v-win32.7z"
-          curl -L -o x64.7z  "https://get.videolan.org/vlc/$v/win64/vlc-$v-win64.7z"
-          curl -L -o arm64.7z "https://get.videolan.org/vlc/$v/winarm64/vlc-$v-winarm64.7z"
-  
-      - name: Download NuGet
-        shell: pwsh
-        run: |
-          if (!(Test-Path "nuget.exe")) {
-              curl -L -o nuget.exe https://dist.nuget.org/win-x86-commandline/latest/nuget.exe
-          }
-  
-      - name: Extract VLC archives
-        shell: pwsh
-        run: |
-          Write-Host "== Extract archives =="
-          7z x x86.7z -ox86 | Out-Null
-          7z x x64.7z -ox64 | Out-Null
-          7z x arm64.7z -oarm64 | Out-Null
-  
-      - name: Prepare architectures
-        shell: pwsh
-        run: |
-          function Prepare-Arch($arch, $srcFolder, $dstFolder) {
-              Write-Host "== Prepare $arch =="
-  
-              Remove-Item $dstFolder -Recurse -Force -ErrorAction SilentlyContinue
-              New-Item -ItemType Directory -Force -Path $dstFolder | Out-Null
-  
-              Copy-Item "$srcFolder/libvlc.dll" $dstFolder
-              Copy-Item "$srcFolder/libvlccore.dll" $dstFolder
-              Copy-Item "$srcFolder/hrtfs" $dstFolder -Recurse
-              Copy-Item "$srcFolder/lua" $dstFolder -Recurse
-              Copy-Item "$srcFolder/plugins" $dstFolder -Recurse
-  
-              Copy-Item "$srcFolder/sdk/lib/*.lib" $dstFolder
-              Copy-Item "$srcFolder/sdk/include" $dstFolder -Recurse
-          }
-  
-          Prepare-Arch "x86"   "x86/vlc-$env:VLC_VERSION"   "build/win7-x86/native"
-          Prepare-Arch "x64"   "x64/vlc-$env:VLC_VERSION"   "build/win7-x64/native"
-          Prepare-Arch "arm64" "arm64/vlc-$env:VLC_VERSION" "build/win-arm64/native"
-  
-      - name: Pack GPL NuGet package
-        shell: pwsh
-        run: |
-          .\nuget.exe pack VideoLAN.LibVLC.Windows.GPL.nuspec -Version $env:VLC_VERSION
-  
-      - name: Remove GPL plugins (shared list)
         shell: bash
         run: |
-          set -e
-          # Extract GPL plugin list from script
-          mapfile -t GPL_PLUGINS < <(
-            awk '/gpl_plugins=\(/,/\)/' package-nuget-win.sh \
-            | sed '1d;$d' \
-            | sed 's/^[[:space:]]*"\(.*\)"/\1/'
-          )
-      
-          ARCHES=("win7-x86" "win7-x64" "win-arm64")
-      
-          for arch in "${ARCHES[@]}"; do
-            for file in "${GPL_PLUGINS[@]}"; do
-              target="build/$arch/native/plugins/$file"
-              if [ -e "$target" ]; then
-                echo "Removing $target"
-                rm -rf "$target"
-              fi
-            done
-          done
-  
-      - name: Pack LGPL NuGet package
-        shell: pwsh
+          VLC_VERSION=$(curl -s https://download.videolan.org/vlc/last/ \
+            | grep -oP 'vlc-\K[0-9]+\.[0-9]+\.[0-9]+(?=\.tar\.xz)' \
+            | head -n1)
+          if [ -z "$VLC_VERSION" ]; then
+            echo "Failed to detect VLC version"
+            exit 1
+          fi
+          echo "Detected VLC version: $VLC_VERSION"
+          echo "VLC_VERSION=$VLC_VERSION" >> $GITHUB_ENV
+      - name: Build NuGet packages
+        shell: bash
         run: |
-          .\nuget.exe pack VideoLAN.LibVLC.Windows.nuspec -Version $env:VLC_VERSION
-  
-      - name: Cleanup
-        shell: pwsh
-        run: |
-          Remove-Item x86,x64,arm64 -Recurse -Force -ErrorAction SilentlyContinue
-          Remove-Item *.7z -Force -ErrorAction SilentlyContinue
-  
+          bash package-nuget-win.sh "$VLC_VERSION"
       - name: Upload NuGet packages
         uses: actions/upload-artifact@v4
         with:
