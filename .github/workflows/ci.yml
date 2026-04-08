@@ -10,7 +10,7 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2 
+        uses: actions/checkout@v6
       - name: Detect latest VLCKit 3.x tag
         shell: bash
         run: |
@@ -65,7 +65,7 @@ jobs:
           mv "$CPU_DEVICE_DIR/DynamicMobileVLCKit.framework" "$GITHUB_WORKSPACE/build/ios-device"
           mv "$CPU_SIM_DIR/DynamicMobileVLCKit.framework" "$GITHUB_WORKSPACE/build/ios-simulator"
       - name: Setup NuGet
-        uses: nuget/setup-nuget@v1
+        uses: nuget/setup-nuget@v3
         with:
           nuget-version: '5.x'
       - name: Install Mono
@@ -75,7 +75,7 @@ jobs:
         run: |
           nuget pack VideoLAN.LibVLC.iOS.nuspec -Version "${IOS_NUGET}"
       - name: Upload build
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: libvlc-ios-build
           path: ./*.nupkg
@@ -107,7 +107,7 @@ jobs:
           mv vlc/include vlc-winrt/libvlc/Universal/vlc-${{ matrix.arch }}/Release
   
       - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v1.0.3
+        uses: microsoft/setup-msbuild@v3
       - name: Setup Windows SDK
         uses: fbactions/setup-winsdk@v2
         with:
@@ -132,7 +132,7 @@ jobs:
             /p:WindowsTargetPlatformVersion=10.0.${{ env.WIN_SDK_BUILD }}.0 `
             /p:PlatformToolset=${{ env.PLATFORM_TOOLSET }}
       - name: Upload build
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: libvlc-uwp-access-build-${{ matrix.arch }}
           path: vlc-winrt/modules/libaccess_winrt_plugin.UWP/Release/libaccess_winrt_plugin.UWP
@@ -141,12 +141,12 @@ jobs:
     runs-on: ubuntu-latest
     needs: UWP_access_v3
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v6
+      - uses: actions/download-artifact@v8
       - name: Install minimal Mono for NuGet
         run: |
           sudo apt-get install -y mono-complete
-      - uses: NuGet/setup-nuget@v1.2.0
+      - uses: nuget/setup-nuget@v3
         with:
           nuget-version: '5.x'
       - name: Create NuGet folders
@@ -197,7 +197,7 @@ jobs:
         run: |
           nuget pack VideoLAN.LibVLC.UWP.nuspec -Version $VLC_VERSION
       - name: Upload NuGet package
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: libvlc-uwp
           path: '*.nupkg'
@@ -206,7 +206,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Install Mono
         run: |
           sudo apt-get update -qq
@@ -228,7 +228,7 @@ jobs:
         run: |
           bash package-nuget-win.sh "$VLC_VERSION"
       - name: Upload NuGet packages
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: libvlc-windows
           path: "*.nupkg"
