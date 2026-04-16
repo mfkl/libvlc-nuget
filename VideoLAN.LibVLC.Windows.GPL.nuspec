@@ -21,6 +21,7 @@ This package contains GPL plugin DLLs from official releases. Make sure you comp
     <file src="build\VideoLAN.LibVLC.Windows.GPL.targets" target="build\VideoLAN.LibVLC.Windows.GPL.targets"/>
     <file src="build\win7-x64\native\**" target="build\x64"/>
     <file src="build\win7-x86\native\**" target="build\x86"/>
+    <file src="build\win-arm64\native\**" target="build\arm64"/>
     <file src="icon.png" target="" />
   </files>
 </package>

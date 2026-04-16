@@ -16,11 +16,13 @@ var nightlyVersion = "vlc-4.0.0-dev";
 var artifactsLocation = Directory("../artifacts");
 var packageLocationX64 = Directory("../build/win7-x64/native");
 var packageLocationX86 = Directory("../build/win7-x86/native");
+var packageLocationArm64 = Directory("../build/win-arm64/native");
 
 string todayPartialLink = null;
 const string ext = ".7z";
 string packageVersionWin32 = null;
 string packageVersionWin64 = null;
+string packageVersionArm64 = null;
 string WindowsPackageName = "VideoLAN.LibVLC.Windows";
 string nupkg = "nupkg";
 string FeedzSourceURL = "https://f.feedz.io/videolan/preview/nuget/index.json";
@@ -37,6 +39,7 @@ Task("Clean")
     CleanDirectory(artifactsLocation);
     CleanDirectory(packageLocationX64);
     CleanDirectory(packageLocationX86);
+    CleanDirectory(packageLocationArm64);
     DeleteFiles(GetFiles($"./*.{nupkg}"));
     // if(FileExists($"{artifact}.{ext}"))
     //     DeleteFile($"{artifact}.{ext}");
@@ -46,6 +49,7 @@ Task("Package-windows-classic-nightly")
     .IsDependentOn("Clean")
     .IsDependentOn("Download-win32-nightly")
     .IsDependentOn("Download-win64-nightly")
+    .IsDependentOn("Download-win64-arm-nightly")
     .Does(() =>
 {
     CreateNuGetPackage();
@@ -62,6 +66,13 @@ Task("Download-win64-nightly")
     .Does(async () =>
 {
     await DownloadArtifact("win64-llvm");
+});
+
+Task("Download-win64-arm-nightly")
+    .IsDependentOn("Clean")
+    .Does(async () =>
+{
+    await DownloadArtifact("win64-arm-llvm");
 });
 
 Task("Publish")
@@ -136,16 +147,21 @@ async Task DownloadArtifact(string arch)
     client.Dispose();
     string artifact = string.Empty;
 
-    if(arch.StartsWith("win32"))
+    if(arch == "win32-llvm")
     {
         packageVersionWin32 = today;
         artifact = $"artifact-{packageVersionWin32}-{arch}";
     }
-    else if(arch.StartsWith("win64"))
+    else if(arch == "win64-llvm")
     {
         packageVersionWin64 = today;
         artifact = $"artifact-{packageVersionWin64}-{arch}";
-    }   
+    }
+    else if(arch == "win64-arm-llvm")
+    {
+        packageVersionArm64 = today;
+        artifact = $"artifact-{packageVersionArm64}-{arch}";
+    }
 
     Console.WriteLine("Found the nightly artifact URL");
 
@@ -180,6 +196,7 @@ void PrepareForPackaging()
 
     var artifactwin32 = $"../artifacts/artifact-{packageVersionWin32}-win32-llvm";
     var artifactwin64 = $"../artifacts/artifact-{packageVersionWin64}-win64-llvm";
+    var artifactwinarm64 = $"../artifacts/artifact-{packageVersionArm64}-win64-arm-llvm";
 
     var libsWin32 = new []
     { 
@@ -191,6 +208,12 @@ void PrepareForPackaging()
     {
         $"./{artifactwin64}/{nightlyVersion}/libvlc.dll", 
         $"./{artifactwin64}/{nightlyVersion}/libvlccore.dll" 
+    };
+
+    var libsWinArm64 = new []
+    {
+        $"./{artifactwinarm64}/{nightlyVersion}/libvlc.dll",
+        $"./{artifactwinarm64}/{nightlyVersion}/libvlccore.dll"
     };
 
     var directories = new [] 
@@ -205,12 +228,19 @@ void PrepareForPackaging()
         Directory($"./{artifactwin64}/{nightlyVersion}/lua"),
         Directory($"./{artifactwin64}/{nightlyVersion}/plugins"),
         Directory($"./{artifactwin64}/{nightlyVersion}/sdk/lib"),
-        Directory($"./{artifactwin64}/{nightlyVersion}/sdk/include")
+        Directory($"./{artifactwin64}/{nightlyVersion}/sdk/include"),
+
+        Directory($"./{artifactwinarm64}/{nightlyVersion}/hrtfs"),
+        Directory($"./{artifactwinarm64}/{nightlyVersion}/lua"),
+        Directory($"./{artifactwinarm64}/{nightlyVersion}/plugins"),
+        Directory($"./{artifactwinarm64}/{nightlyVersion}/sdk/lib"),
+        Directory($"./{artifactwinarm64}/{nightlyVersion}/sdk/include")
     };
 
     Console.WriteLine("Copying files for packaging... ");
     CopyFiles(libsWin64, packageLocationX64);
     CopyFiles(libsWin32, packageLocationX86);
+    CopyFiles(libsWinArm64, packageLocationArm64);
 
     CopyDirectory(Directory($"./{artifactwin32}/{nightlyVersion}/hrtfs"), Directory($"{packageLocationX86}/hrtfs"));
     CopyDirectory(Directory($"./{artifactwin32}/{nightlyVersion}/lua"), Directory($"{packageLocationX86}/lua"));
@@ -223,6 +253,12 @@ void PrepareForPackaging()
     CopyDirectory(Directory($"./{artifactwin64}/{nightlyVersion}/plugins"), Directory($"{packageLocationX64}/plugins"));
     CopyDirectory(Directory($"./{artifactwin64}/{nightlyVersion}/sdk/lib"), Directory($"{packageLocationX64}/sdk/lib"));
     CopyDirectory(Directory($"./{artifactwin64}/{nightlyVersion}/sdk/include"), Directory($"{packageLocationX64}/sdk/include"));
+
+    CopyDirectory(Directory($"./{artifactwinarm64}/{nightlyVersion}/hrtfs"), Directory($"{packageLocationArm64}/hrtfs"));
+    CopyDirectory(Directory($"./{artifactwinarm64}/{nightlyVersion}/lua"), Directory($"{packageLocationArm64}/lua"));
+    CopyDirectory(Directory($"./{artifactwinarm64}/{nightlyVersion}/plugins"), Directory($"{packageLocationArm64}/plugins"));
+    CopyDirectory(Directory($"./{artifactwinarm64}/{nightlyVersion}/sdk/lib"), Directory($"{packageLocationArm64}/sdk/lib"));
+    CopyDirectory(Directory($"./{artifactwinarm64}/{nightlyVersion}/sdk/include"), Directory($"{packageLocationArm64}/sdk/include"));
 }
 
 void CreateNuGetPackage()

@@ -3,14 +3,17 @@
   <PropertyGroup>
     <VlcWindowsX64TargetDir Condition=" '$(VlcWindowsX64TargetDir)' == '' ">libvlc\win-x64</VlcWindowsX64TargetDir>
     <VlcWindowsX86TargetDir Condition=" '$(VlcWindowsX86TargetDir)' == '' ">libvlc\win-x86</VlcWindowsX86TargetDir>
+    <VlcWindowsArm64TargetDir Condition=" '$(VlcWindowsArm64TargetDir)' == '' ">libvlc\win-arm64</VlcWindowsArm64TargetDir>
     <VlcWindowsX64Enabled Condition="'$(VlcWindowsX64Enabled)' == '' AND ('$(Platform)' == 'x64' OR '$(Platform)' == 'AnyCPU')">true</VlcWindowsX64Enabled>
     <VlcWindowsX86Enabled Condition="'$(VlcWindowsX86Enabled)' == '' AND ('$(Platform)' == 'x86' OR '$(Platform)' == 'AnyCPU')">true</VlcWindowsX86Enabled>
+    <VlcWindowsArm64Enabled Condition="'$(VlcWindowsArm64Enabled)' == '' AND ('$(Platform)' == 'ARM64' OR '$(Platform)' == 'AnyCPU')">true</VlcWindowsArm64Enabled>
   </PropertyGroup>
 
   <ItemGroup>
     <!-- If no VlcWindows[...]IncludeFiles was declared previously, include all plugins by default by specifying ** (escaped, so %2A%2A) -->
     <VlcWindowsX64IncludeFiles Condition="'@(VlcWindowsX64IncludeFiles)'==''" Include="libvlc.%2A;libvlccore.%2A;hrtfs\%2A%2A;lua\%2A%2A;plugins\%2A%2A" />
     <VlcWindowsX86IncludeFiles Condition="'@(VlcWindowsX86IncludeFiles)'==''" Include="libvlc.%2A;libvlccore.%2A;hrtfs\%2A%2A;lua\%2A%2A;plugins\%2A%2A" />
+    <VlcWindowsArm64IncludeFiles Condition="'@(VlcWindowsArm64IncludeFiles)'==''" Include="libvlc.%2A;libvlccore.%2A;hrtfs\%2A%2A;lua\%2A%2A;plugins\%2A%2A" />
   </ItemGroup>
 
   <Target Name="CollectVlcFilesToCopyWindows" BeforeTargets="BeforeBuild">
@@ -47,10 +50,23 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
     </ItemGroup>
+
+    <!-- arm64 -->
+    <ItemGroup Condition="'$(VlcWindowsArm64Enabled)' == 'true'">
+      <!-- Expand selectors and compute absolute paths for include, exclude and MainLibraries -->
+      <VlcWindowsArm64IncludeFilesFullPath Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\build\arm64\%(VlcWindowsArm64IncludeFiles.Identity)))" />
+      <VlcWindowsArm64ExcludeFilesFullPath Include="$([MSBuild]::Unescape($(MSBuildThisFileDirectory)..\build\arm64\%(VlcWindowsArm64ExcludeFiles.Identity)))" Condition="'%(VlcWindowsArm64ExcludeFiles.Identity)'!=''" />
+
+      <!-- We have gathered all the full path of what should be copied and what should be skipped, let's include that as Content that gets copied -->
+      <Content Include="@(VlcWindowsArm64IncludeFilesFullPath)" Exclude="@(VlcWindowsArm64ExcludeFilesFullPath)">
+        <Link>$(VlcWindowsArm64TargetDir)\$([MSBuild]::MakeRelative($(MSBuildThisFileDirectory)..\build\arm64\, %(FullPath)))</Link>
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
   </Target>
 
   <ItemDefinitionGroup>
-    <ClCompile Condition="'$(Language)' == 'C++' and ('$(Platform)' == 'x64' or '$(Platform)' == 'x86') and '$(OS)'=='Windows_NT'">
+    <ClCompile Condition="'$(Language)' == 'C++' and ('$(Platform)' == 'x64' or '$(Platform)' == 'x86' or '$(Platform)' == 'ARM64') and '$(OS)'=='Windows_NT'">
       <AdditionalIncludeDirectories>
         $(MSBuildThisFileDirectory)\$(Platform)\include\;%(AdditionalIncludeDirectories)
       </AdditionalIncludeDirectories>
@@ -58,7 +74,7 @@
   </ItemDefinitionGroup>
 
   <ItemDefinitionGroup>
-    <Link Condition="'$(Language)' == 'C++' and ('$(Platform)' == 'x64' or '$(Platform)' == 'x86') and '$(OS)'=='Windows_NT'">
+    <Link Condition="'$(Language)' == 'C++' and ('$(Platform)' == 'x64' or '$(Platform)' == 'x86' or '$(Platform)' == 'ARM64') and '$(OS)'=='Windows_NT'">
       <AdditionalDependencies>libvlc.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(MSBuildThisFileDirectory)\$(Platform)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
@@ -66,33 +82,33 @@
 
   <ItemGroup>
     <Content Include="$(MSBuildThisFileDirectory)\$(Platform)\*.dll"
-    Condition="'$(Language)' == 'C++' and ('$(Platform)' == 'x64' or '$(Platform)' == 'x86') and '$(OS)'=='Windows_NT'">
+    Condition="'$(Language)' == 'C++' and ('$(Platform)' == 'x64' or '$(Platform)' == 'x86' or '$(Platform)' == 'ARM64') and '$(OS)'=='Windows_NT'">
       <Link>%(RecursiveDir)%(FileName)%(Extension)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 
   <ItemGroup>
-     <Content Include="$(MSBuildThisFileDirectory)\$(Platform)\plugins\**"
-     Condition="'$(Language)' == 'C++' and '$(OS)'=='Windows_NT' and ('$(Platform)' == 'x86' or '$(Platform)' == 'x64')">
-       <Link>plugins\%(RecursiveDir)%(FileName)%(Extension)</Link>
-       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-     </Content>
+    <Content Include="$(MSBuildThisFileDirectory)\$(Platform)\plugins\**"
+     Condition="'$(Language)' == 'C++' and '$(OS)'=='Windows_NT' and ('$(Platform)' == 'x86' or '$(Platform)' == 'x64' or '$(Platform)' == 'ARM64')">
+      <Link>plugins\%(RecursiveDir)%(FileName)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
-   <ItemGroup>
-     <Content Include="$(MSBuildThisFileDirectory)\$(Platform)\hrtfs\**"
-     Condition="'$(Language)' == 'C++' and '$(OS)'=='Windows_NT' and ('$(Platform)' == 'x86' or '$(Platform)' == 'x64')">
-       <Link>hrtfs\%(RecursiveDir)%(FileName)%(Extension)</Link>
-       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-     </Content>
+  <ItemGroup>
+    <Content Include="$(MSBuildThisFileDirectory)\$(Platform)\hrtfs\**"
+     Condition="'$(Language)' == 'C++' and '$(OS)'=='Windows_NT' and ('$(Platform)' == 'x86' or '$(Platform)' == 'x64' or '$(Platform)' == 'ARM64')">
+      <Link>hrtfs\%(RecursiveDir)%(FileName)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
-   <ItemGroup>
-     <Content Include="$(MSBuildThisFileDirectory)\$(Platform)\lua\**"
-     Condition="'$(Language)' == 'C++' and '$(OS)'=='Windows_NT' and ('$(Platform)' == 'x86' or '$(Platform)' == 'x64')">
-       <Link>lua\%(RecursiveDir)%(FileName)%(Extension)</Link>
-       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-     </Content>
+  <ItemGroup>
+    <Content Include="$(MSBuildThisFileDirectory)\$(Platform)\lua\**"
+     Condition="'$(Language)' == 'C++' and '$(OS)'=='Windows_NT' and ('$(Platform)' == 'x86' or '$(Platform)' == 'x64' or '$(Platform)' == 'ARM64')">
+      <Link>lua\%(RecursiveDir)%(FileName)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 </Project>

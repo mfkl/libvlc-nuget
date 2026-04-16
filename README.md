@@ -97,6 +97,7 @@ Minimum OS version supported by LibVLC 3.x:
 
 - x86
 - x64
+- ARM64
 
 *Note: if you intend to use libvlc with UWP projects, you probably need to install the [UWP](#windows-universal) package instead because this build directly uses win32 APIs.*
 
