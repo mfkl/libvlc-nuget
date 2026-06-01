@@ -1,0 +1,107 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Martin Finkel <me@martinfinkel.com>
+Date: Mon, 1 Jun 2026 14:30:00 +0200
+Subject: [PATCH] libtasn1: use CreateFile2 in UWP builds
+
+CreateFileA is forbidden in UWP and is no longer declared in newer
+llvm-mingw headers for non-desktop partitions, so libtasn1's
+src/gl/stat.c fails to compile. Apply the same pattern as the iconv
+contrib patch: use CreateFile2 for UWP.
+
+---
+ ...1-stat-Use-CreateFile2-in-UWP-builds.patch | 66 +++++++++++++++++++
+ contrib/src/libtasn1/rules.mak                |  4 ++
+ 2 files changed, 70 insertions(+)
+ create mode 100644 contrib/src/libtasn1/0001-stat-Use-CreateFile2-in-UWP-builds.patch
+
+diff --git a/contrib/src/libtasn1/0001-stat-Use-CreateFile2-in-UWP-builds.patch b/contrib/src/libtasn1/0001-stat-Use-CreateFile2-in-UWP-builds.patch
+new file mode 100644
+index 0000000000..c5a845bb89
+--- /dev/null
++++ b/contrib/src/libtasn1/0001-stat-Use-CreateFile2-in-UWP-builds.patch
+@@ -0,0 +1,66 @@
++From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
++From: Martin Finkel <me@martinfinkel.com>
++Date: Mon, 1 Jun 2026 14:30:00 +0200
++Subject: [PATCH] stat: Use CreateFile2 in UWP builds
++
++CreateFileA is forbidden in UWP and is no longer declared in newer
++llvm-mingw headers for non-desktop partitions. Use CreateFile2 instead,
++following the same pattern as the iconv contrib patch.
++---
++ src/gl/stat.c | 35 +++++++++++++++++++++++++++++++++++
++ 1 file changed, 35 insertions(+)
++
++diff --git a/src/gl/stat.c b/src/gl/stat.c
++--- a/src/gl/stat.c
+++++ b/src/gl/stat.c
++@@ -200,6 +200,7 @@ rpl_stat (char const *name, struct stat *buf)
++       /* Approach based on the file.  */
++
+++# if !defined WINAPI_FAMILY || WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
++       /* Open a handle to the file.
++          CreateFile
++          <https://docs.microsoft.com/en-us/windows/desktop/api/fileapi/nf-fileapi-createfilea>
++          <https://docs.microsoft.com/en-us/windows/desktop/FileIO/creating-and-opening-files>  */
++@@ -215,6 +216,40 @@ rpl_stat (char const *name, struct stat *buf)
++                     FILE_FLAG_BACKUP_SEMANTICS /* | FILE_FLAG_POSIX_SEMANTICS */,
++                     NULL);
+++# else
+++      /* Only CreateFile2 is available in UWP builds.
+++         <https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-createfile2>
+++         <https://learn.microsoft.com/en-us/uwp/win32-and-com/win32-apis#apis-from-api-ms-win-core-file-l1-2-1dll>  */
+++      HANDLE h = INVALID_HANDLE_VALUE;
+++      int wlen = MultiByteToWideChar (CP_ACP, 0, rname, -1, NULL, 0);
+++      if (wlen > 0)
+++        {
+++          WCHAR *wrname = malloca (wlen * sizeof (WCHAR));
+++          if (wrname != NULL)
+++            {
+++              MultiByteToWideChar (CP_ACP, 0, rname, -1, wrname, wlen);
+++
+++              CREATEFILE2_EXTENDED_PARAMETERS createExParams;
+++              createExParams.dwSize = sizeof(CREATEFILE2_EXTENDED_PARAMETERS);
+++              createExParams.dwFileAttributes = FILE_ATTRIBUTE_NORMAL;
+++              /* FILE_FLAG_POSIX_SEMANTICS (treat file names that differ only
+++                  in case as different) makes sense only when applied to *all*
+++                  filesystem operations.  */
+++              createExParams.dwFileFlags = FILE_FLAG_BACKUP_SEMANTICS;
+++              createExParams.dwSecurityQosFlags = 0;
+++              createExParams.lpSecurityAttributes = NULL;
+++              createExParams.hTemplateFile = NULL;
+++
+++              h =
+++                CreateFile2 (wrname,
+++                             FILE_READ_ATTRIBUTES,
+++                             FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+++                             OPEN_EXISTING,
+++                             &createExParams);
+++              freea(wrname);
+++            }
+++        }
+++# endif
++       if (h != INVALID_HANDLE_VALUE)
++         {
++           ret = _gl_fstat_by_handle (h, rname, buf);
++           CloseHandle (h);
++-- 
++2.40.0
+\ No newline at end of file
+diff --git a/contrib/src/libtasn1/rules.mak b/contrib/src/libtasn1/rules.mak
+index 0e88c73b7d..a0dafb8626 100644
+--- a/contrib/src/libtasn1/rules.mak
++++ b/contrib/src/libtasn1/rules.mak
+@@ -16,6 +16,10 @@ libtasn1: libtasn1-$(LIBTASN1_VERSION).tar.gz .sum-libtasn1
+ 	$(UNPACK)
+ 	$(UPDATE_AUTOCONFIG) && cd $(UNPACK_DIR) && mv config.guess config.sub build-aux
+ 	$(APPLY) $(SRC)/libtasn1/0001-fcntl-do-not-call-GetHandleInformation-in-Winstore-a.patch
++
++	# use CreateFile2 instead of CreateFile in UWP
++	$(APPLY) $(SRC)/libtasn1/0001-stat-Use-CreateFile2-in-UWP-builds.patch
++
+ 	$(MOVE)
+ 
+ LIBTASN1_CONF := --disable-doc
+-- 
+2.35.1.windows.2
+
