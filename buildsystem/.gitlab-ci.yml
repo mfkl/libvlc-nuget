@@ -1,5 +1,6 @@
 variables:
     VLC_UWP_LLVM_IMAGE: registry.videolan.org/vlc-debian-llvm-uwp:20211020111246
+    VLC_WIN_LLVM_UCRT_IMAGE: registry.videolan.org/vlc-debian-llvm-ucrt:20260331112916
     UWP_LIBVLC_BUILD_FLAGS: -z -r -u -w
 
 .variables-win32: &variables-win32
@@ -62,6 +63,6 @@ uwp-x86:
 uwp-arm:
     extends: .nightly-winrt-common
     image:
-        name: $VLC_UWP_LLVM_IMAGE
+        name: $VLC_WIN_LLVM_UCRT_IMAGE
     variables:
         <<: *variables-win-arm
