@@ -160,6 +160,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ${{ matrix.image }}
+      options: --user 0
     env:
       UWP_VLC_TAG: 3.0.23
       UWP_LIBVLC_BUILD_FLAGS: -z -r -u -w
