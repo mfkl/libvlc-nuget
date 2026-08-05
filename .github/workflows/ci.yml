@@ -144,7 +144,8 @@ jobs:
     strategy:
       matrix:
         arch: [x64, x86, arm]
-    runs-on: windows-latest
+    # UWP requires the Visual Studio 2022 v143 toolchain, which is not on windows-latest.
+    runs-on: windows-2022
     env:
       WIN_SDK_BUILD: 19041
       PLATFORM_TOOLSET: v143
