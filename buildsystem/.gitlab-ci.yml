@@ -1,6 +1,7 @@
 variables:
     VLC_UWP_LLVM_IMAGE: registry.videolan.org/vlc-debian-llvm-uwp:20211020111246
     VLC_WIN_LLVM_UCRT_IMAGE: registry.videolan.org/vlc-debian-llvm-ucrt:20260331112916
+    UWP_VLC_TAG: "3.0.23"
     UWP_LIBVLC_BUILD_FLAGS: -z -r -u -w
 
 .variables-win32: &variables-win32
@@ -30,7 +31,7 @@ variables:
 .winrt-common:
     extends: .docker-template
     script: |
-        git clone https://code.videolan.org/videolan/vlc && cd vlc && git checkout 3.0.x
+        git clone --branch "$UWP_VLC_TAG" --single-branch https://code.videolan.org/videolan/vlc vlc && cd vlc
         git config --global user.email "cone@example.com"
         git config --local user.name "Cony Cone"
         git am -3 ../patches/*.patch
