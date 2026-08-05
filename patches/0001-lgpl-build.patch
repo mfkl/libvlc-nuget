@@ -9,19 +9,18 @@ Subject: [PATCH 1/1] lgpl build
  2 files changed, 32 insertions(+), 3 deletions(-)
 
 diff --git a/extras/package/win32/build.sh b/extras/package/win32/build.sh
-index 654ac99d59..ec657a1d6d 100755
 --- a/extras/package/win32/build.sh
 +++ b/extras/package/win32/build.sh
-@@ -280,6 +280,8 @@ fi
- export CFLAGS
- export CXXFLAGS
+@@ -414,6 +414,8 @@ if [ -n "$VLC_PKG_CONFIG_LIBDIR" ]; then
+ fi
+ 
  
 +CONTRIBFLAGS="$CONTRIBFLAGS --disable-schroedinger --disable-vncserver --disable-chromaprint --enable-zvbi --enable-gme --enable-vorbis --disable-mad --disable-sidplay2 --disable-samplerate --enable-iconv --disable-goom --disable-dca --disable-gpg-error --enable-ass --disable-gpl --enable-ad-clauses --enable-ssh2 --disable-vncclient --enable-jpeg --disable-postproc --enable-vpx --disable-aom"
 +
  ${VLC_ROOT_PATH}/contrib/bootstrap --host=$TRIPLET --prefix=../$CONTRIB_PREFIX $CONTRIBFLAGS
  
  # Rebuild the contribs or use the prebuilt ones
-@@ -360,6 +362,34 @@ if [ ! -z "$INSTALL_PATH" ]; then
+@@ -510,6 +512,34 @@ if [ ! -z "$INSTALL_PATH" ]; then
      CONFIGFLAGS="$CONFIGFLAGS --prefix=$INSTALL_PATH"
  fi
  
@@ -77,4 +76,3 @@ index 62e91bf422..6787463d3e 100755
        --enable-shout
 -- 
 2.32.0.windows.1
-

@@ -162,7 +162,8 @@ jobs:
       image: ${{ matrix.image }}
       options: --user 0
     env:
-      UWP_VLC_TAG: 3.0.23
+      # Exact 3.0.x revision from the last green x64/x86/ARM UWP pipeline.
+      UWP_VLC_REVISION: f971556a3ef052908aad990818f4243f5b6ecafc
       UWP_LIBVLC_BUILD_FLAGS: -z -r -u -w
     steps:
       - name: Checkout
@@ -170,8 +171,9 @@ jobs:
       - name: Build LibVLC UWP ${{ matrix.arch }}
         shell: bash
         run: |
-          git clone --branch "$UWP_VLC_TAG" --single-branch https://code.videolan.org/videolan/vlc vlc
+          git clone --branch 3.0.x --single-branch https://code.videolan.org/videolan/vlc vlc
           cd vlc
+          git checkout --detach "$UWP_VLC_REVISION"
           git config user.email "cone@example.com"
           git config user.name "Cony Cone"
           git am -3 ../patches/*.patch
