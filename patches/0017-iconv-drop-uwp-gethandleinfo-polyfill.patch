@@ -12,10 +12,9 @@ Stop applying the patch since the polyfill is no longer needed.
  1 file changed, 4 deletions(-)
 
 diff --git a/contrib/src/iconv/rules.mak b/contrib/src/iconv/rules.mak
-index 3b964f1e97..669c4e6345 100644
 --- a/contrib/src/iconv/rules.mak
 +++ b/contrib/src/iconv/rules.mak
-@@ -28,10 +28,6 @@ iconv: libiconv-$(LIBICONV_VERSION).tar.gz .sum-iconv
+@@ -27,10 +27,6 @@ iconv: libiconv-$(LIBICONV_VERSION).tar.gz .sum-iconv
  	# use CreateFile2 instead of CreateFile in UWP
  	$(APPLY) $(SRC)/iconv/0001-Use-CreateFile2-in-UWP-builds.patch
  
@@ -23,8 +22,8 @@ index 3b964f1e97..669c4e6345 100644
 -	# differentiate for winstore, only _WIN32_WINNT
 -	$(APPLY) $(SRC)/iconv/0001-do-not-call-GetHandleInformation-in-Winstore-apps.patch
 -
- 	cd $(UNPACK_DIR) && cp config.guess config.sub build-aux \
- 	                 && mv config.guess config.sub libcharset/build-aux
+ 	$(UPDATE_AUTOCONFIG) && cd $(UNPACK_DIR) && mv config.guess config.sub build-aux
+ 	$(UPDATE_AUTOCONFIG) && cd $(UNPACK_DIR) && mv config.guess config.sub libcharset/build-aux
  	$(MOVE)
 -- 
 2.40.0

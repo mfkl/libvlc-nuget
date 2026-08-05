@@ -88,13 +88,12 @@ index 0000000000..c5a845bb89
 +2.40.0
 \ No newline at end of file
 diff --git a/contrib/src/libtasn1/rules.mak b/contrib/src/libtasn1/rules.mak
-index 0e88c73b7d..a0dafb8626 100644
 --- a/contrib/src/libtasn1/rules.mak
 +++ b/contrib/src/libtasn1/rules.mak
 @@ -16,6 +16,10 @@ libtasn1: libtasn1-$(LIBTASN1_VERSION).tar.gz .sum-libtasn1
  	$(UNPACK)
  	$(UPDATE_AUTOCONFIG) && cd $(UNPACK_DIR) && mv config.guess config.sub build-aux
- 	$(APPLY) $(SRC)/libtasn1/0001-fcntl-do-not-call-GetHandleInformation-in-Winstore-a.patch
+ 	$(APPLY) $(SRC)/libtasn1/no-executables.patch
 +
 +	# use CreateFile2 instead of CreateFile in UWP
 +	$(APPLY) $(SRC)/libtasn1/0001-stat-Use-CreateFile2-in-UWP-builds.patch
@@ -104,4 +103,3 @@ index 0e88c73b7d..a0dafb8626 100644
  LIBTASN1_CONF := --disable-doc
 -- 
 2.35.1.windows.2
-
