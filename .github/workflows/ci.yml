@@ -80,6 +80,40 @@ jobs:
           name: libvlc-ios-build
           path: ./*.nupkg
 
+  LibVLC_macOS_NuGet:
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.id != github.event.pull_request.base.repo.id
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: LibVLC macOS build
+        shell: bash
+        run: |
+          LATEST=`curl https://code.videolan.org/videolan/VLCKit/raw/master/Packaging/VLCKit.json | jq -r 'first(.[])'`
+          MACOS_NUGET=`echo $LATEST | cut -d'-' -f2`
+          echo "MACOS_NUGET=$MACOS_NUGET" >> $GITHUB_ENV
+
+          wget -O latest.tar.xz $LATEST
+
+          tar -xf latest.tar.xz
+          mkdir -p $GITHUB_WORKSPACE/build/osx-x64
+          mv "VLCKit - binary package/VLCKit.xcframework/macos-arm64_x86_64/VLCKit.framework/Versions/Current/VLCKit" "$GITHUB_WORKSPACE/build/osx-x64/libvlc.dylib"
+      - name: Setup NuGet
+        uses: nuget/setup-nuget@v3
+        with:
+          nuget-version: '5.x'
+      - name: Install Mono
+        run: |
+          brew install mono
+      - name: Create LibVLC macOS NuGet package
+        run: |
+          nuget pack VideoLAN.LibVLC.Mac.nuspec -Version "${MACOS_NUGET}"
+      - name: Upload build
+        uses: actions/upload-artifact@v7
+        with:
+          name: libvlc-macos-build
+          path: ./*.nupkg
+
   UWP_access_v3:
     if: github.event_name == 'push' || github.event.pull_request.head.repo.id != github.event.pull_request.base.repo.id
     strategy:
