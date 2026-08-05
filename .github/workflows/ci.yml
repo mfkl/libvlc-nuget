@@ -139,6 +139,48 @@ jobs:
           name: libvlc-ios-build
           path: ./*.nupkg
 
+  UWP_LibVLC:
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.id != github.event.pull_request.base.repo.id
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            shortarch: win64
+            host_arch: x86_64
+            image: registry.videolan.org/vlc-debian-llvm-uwp:20211020111246
+          - arch: x86
+            shortarch: win32
+            host_arch: i686
+            image: registry.videolan.org/vlc-debian-llvm-uwp:20211020111246
+          - arch: arm
+            shortarch: winarm
+            host_arch: armv7
+            image: registry.videolan.org/vlc-debian-llvm-ucrt:20260331112916
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ matrix.image }}
+    env:
+      UWP_VLC_TAG: 3.0.23
+      UWP_LIBVLC_BUILD_FLAGS: -z -r -u -w
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Build LibVLC UWP ${{ matrix.arch }}
+        shell: bash
+        run: |
+          git clone --branch "$UWP_VLC_TAG" --single-branch https://code.videolan.org/videolan/vlc vlc
+          cd vlc
+          git config user.email "cone@example.com"
+          git config user.name "Cony Cone"
+          git am -3 ../patches/*.patch
+          extras/package/win32/build.sh -c -a ${{ matrix.host_arch }} $UWP_LIBVLC_BUILD_FLAGS
+      - name: Upload LibVLC UWP ${{ matrix.arch }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: libvlc-uwp-core-build-${{ matrix.arch }}
+          path: vlc/${{ matrix.shortarch }}-uwp/*.7z
+
   UWP_access_v3:
     if: github.event_name == 'push' || github.event.pull_request.head.repo.id != github.event.pull_request.base.repo.id
     strategy:
@@ -199,10 +241,12 @@ jobs:
   UWP_NuGet:
     if: github.event_name == 'push' || github.event.pull_request.head.repo.id != github.event.pull_request.base.repo.id
     runs-on: ubuntu-latest
-    needs: UWP_access_v3
+    needs: [UWP_LibVLC, UWP_access_v3]
     steps:
       - uses: actions/checkout@v6
       - uses: actions/download-artifact@v8
+        with:
+          pattern: libvlc-uwp-*-build-*
       - name: Install minimal Mono for NuGet
         run: |
           sudo apt-get install -y mono-complete
@@ -215,43 +259,44 @@ jobs:
           mkdir -p build/win10-arm/native
           mkdir -p build/win10-x64/native
           mkdir -p build/win10-x86/native
-      - name: Download and extract UWP builds
+      - name: Extract and stage UWP builds
         shell: bash
         run: |
-          wget -O arm.zip https://code.videolan.org/videolan/libvlc-nuget/-/jobs/artifacts/master/download?job=uwp-arm
-          wget -O x86.zip https://code.videolan.org/videolan/libvlc-nuget/-/jobs/artifacts/master/download?job=uwp-x86
-          wget -O x64.zip https://code.videolan.org/videolan/libvlc-nuget/-/jobs/artifacts/master/download?job=uwp-x64
+          ARM_ARCHIVE=$(find libvlc-uwp-core-build-arm -type f -name 'vlc-*-win32.7z' -print -quit)
+          X86_ARCHIVE=$(find libvlc-uwp-core-build-x86 -type f -name 'vlc-*-win32.7z' -print -quit)
+          X64_ARCHIVE=$(find libvlc-uwp-core-build-x64 -type f -name 'vlc-*-win64.7z' -print -quit)
+          test -n "$ARM_ARCHIVE"
+          test -n "$X86_ARCHIVE"
+          test -n "$X64_ARCHIVE"
 
-          7z x arm.zip -oarm -y
-          VLC_VERSION=$(ls arm/vlc/winarm-uwp/vlc-*-win32.7z | head -n1 | sed -E 's#.*/vlc-(.*)-win32\.7z#\1#')
+          VLC_VERSION=$(basename "$ARM_ARCHIVE" | sed -E 's/^vlc-(.*)-win32\.7z$/\1/')
+          test -n "$VLC_VERSION"
           echo "VLC_VERSION=$VLC_VERSION" >> $GITHUB_ENV
-          7z x arm/vlc/winarm-uwp/vlc-$VLC_VERSION-win32.7z -oarm/vlc/winarm-uwp -y
-          7z x x86.zip -ox86 -y
-          7z x x86/vlc/win32-uwp/vlc-$VLC_VERSION-win32.7z -ox86/vlc/win32-uwp -y
 
-          7z x x64.zip -ox64 -y
-          7z x x64/vlc/win64-uwp/vlc-$VLC_VERSION-win64.7z -ox64/vlc/win64-uwp -y
+          7z x "$ARM_ARCHIVE" -oarm -y
+          7z x "$X86_ARCHIVE" -ox86 -y
+          7z x "$X64_ARCHIVE" -ox64 -y
 
-          mv arm/vlc/winarm-uwp/vlc-$VLC_VERSION/lua build/win10-arm/native
-          mv arm/vlc/winarm-uwp/vlc-$VLC_VERSION/plugins build/win10-arm/native
+          mv arm/vlc-$VLC_VERSION/lua build/win10-arm/native
+          mv arm/vlc-$VLC_VERSION/plugins build/win10-arm/native
           mv libvlc-uwp-access-build-arm/libaccess_winrt_plugin.dll build/win10-arm/native/plugins/access
-          mv arm/vlc/winarm-uwp/vlc-$VLC_VERSION/sdk build/win10-arm/native
-          mv arm/vlc/winarm-uwp/vlc-$VLC_VERSION/libvlc.dll build/win10-arm/native
-          mv arm/vlc/winarm-uwp/vlc-$VLC_VERSION/libvlccore.dll build/win10-arm/native
+          mv arm/vlc-$VLC_VERSION/sdk build/win10-arm/native
+          mv arm/vlc-$VLC_VERSION/libvlc.dll build/win10-arm/native
+          mv arm/vlc-$VLC_VERSION/libvlccore.dll build/win10-arm/native
 
-          mv x86/vlc/win32-uwp/vlc-$VLC_VERSION/lua build/win10-x86/native
-          mv x86/vlc/win32-uwp/vlc-$VLC_VERSION/plugins build/win10-x86/native
+          mv x86/vlc-$VLC_VERSION/lua build/win10-x86/native
+          mv x86/vlc-$VLC_VERSION/plugins build/win10-x86/native
           mv libvlc-uwp-access-build-x86/libaccess_winrt_plugin.dll build/win10-x86/native/plugins/access
-          mv x86/vlc/win32-uwp/vlc-$VLC_VERSION/sdk build/win10-x86/native
-          mv x86/vlc/win32-uwp/vlc-$VLC_VERSION/libvlc.dll build/win10-x86/native
-          mv x86/vlc/win32-uwp/vlc-$VLC_VERSION/libvlccore.dll build/win10-x86/native
+          mv x86/vlc-$VLC_VERSION/sdk build/win10-x86/native
+          mv x86/vlc-$VLC_VERSION/libvlc.dll build/win10-x86/native
+          mv x86/vlc-$VLC_VERSION/libvlccore.dll build/win10-x86/native
 
-          mv x64/vlc/win64-uwp/vlc-$VLC_VERSION/lua build/win10-x64/native
-          mv x64/vlc/win64-uwp/vlc-$VLC_VERSION/plugins build/win10-x64/native
+          mv x64/vlc-$VLC_VERSION/lua build/win10-x64/native
+          mv x64/vlc-$VLC_VERSION/plugins build/win10-x64/native
           mv libvlc-uwp-access-build-x64/libaccess_winrt_plugin.dll build/win10-x64/native/plugins/access
-          mv x64/vlc/win64-uwp/vlc-$VLC_VERSION/sdk build/win10-x64/native
-          mv x64/vlc/win64-uwp/vlc-$VLC_VERSION/libvlc.dll build/win10-x64/native
-          mv x64/vlc/win64-uwp/vlc-$VLC_VERSION/libvlccore.dll build/win10-x64/native
+          mv x64/vlc-$VLC_VERSION/sdk build/win10-x64/native
+          mv x64/vlc-$VLC_VERSION/libvlc.dll build/win10-x64/native
+          mv x64/vlc-$VLC_VERSION/libvlccore.dll build/win10-x64/native
       - name: Package NuGet
         shell: bash
         run: |
