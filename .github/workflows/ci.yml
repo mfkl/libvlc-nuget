@@ -5,75 +5,134 @@ on:
   pull_request:
 
 jobs:
-  LibVLC_iOS_NuGet:
+  VLCKit_3x_Version:
     if: github.event_name == 'push' || github.event.pull_request.head.repo.id != github.event.pull_request.base.repo.id
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.version.outputs.tag }}
+      nuget_version: ${{ steps.version.outputs.nuget_version }}
+    steps:
+      - name: Detect latest VLCKit 3.x tag
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          LATEST_TAG=$(git ls-remote --tags https://github.com/videolan/vlckit.git \
+            | sed -n 's|.*refs/tags/\(3\.[0-9][0-9]*\.[0-9][0-9]*[a-zA-Z0-9.-]*\)$|\1|p' \
+            | sort -V \
+            | tail -n 1)
+
+          if [ -z "$LATEST_TAG" ]; then
+            echo "No VLCKit 3.x tag was found" >&2
+            exit 1
+          fi
+
+          NUGET_VERSION=$(echo "$LATEST_TAG" \
+            | sed -n 's/^\(3\.[0-9][0-9]*\.[0-9][0-9]*\).*/\1/p')
+
+          echo "Detected VLCKIT_TAG: $LATEST_TAG"
+          echo "NuGet version: $NUGET_VERSION"
+          echo "tag=$LATEST_TAG" >> "$GITHUB_OUTPUT"
+          echo "nuget_version=$NUGET_VERSION" >> "$GITHUB_OUTPUT"
+
+  LibVLC_iOS:
+    needs: VLCKit_3x_Version
+    name: LibVLC iOS (${{ matrix.platform }}-${{ matrix.arch }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: ios
+            arch: arm64
+            vlckit_arch: aarch64
+            runner: macos-15
+            xcframework_slice: ios-arm64
+            package_directory: ios-device
+          - platform: iossimulator
+            arch: x86_64
+            vlckit_arch: x86_64
+            runner: macos-15-intel
+            xcframework_slice: ios-x86_64-simulator
+            package_directory: ios-simulator
+    runs-on: ${{ matrix.runner }}
+    env:
+      VLCKIT_TAG: ${{ needs.VLCKit_3x_Version.outputs.tag }}
+      VLCKIT_ARCH: ${{ matrix.vlckit_arch }}
+      EXPECTED_ARCH: ${{ matrix.arch }}
+      XCFRAMEWORK_SLICE: ${{ matrix.xcframework_slice }}
+      PACKAGE_DIRECTORY: ${{ matrix.package_directory }}
+    steps:
+      - name: Build VLCKit ${{ matrix.platform }}-${{ matrix.arch }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          git clone --depth 1 --branch "$VLCKIT_TAG" https://github.com/videolan/vlckit.git
+          cd vlckit
+          ./buildMobileVLCKit.sh -a "$VLCKIT_ARCH"
+
+          FRAMEWORK="build/MobileVLCKit.xcframework/$XCFRAMEWORK_SLICE/MobileVLCKit.framework"
+          if [ ! -d "$FRAMEWORK" ]; then
+            echo "Expected framework was not produced: $FRAMEWORK" >&2
+            find build/MobileVLCKit.xcframework -maxdepth 2 -type d -print
+            exit 1
+          fi
+
+          ACTUAL_ARCHS=$(lipo -archs "$FRAMEWORK/MobileVLCKit")
+          if [ "$ACTUAL_ARCHS" != "$EXPECTED_ARCH" ]; then
+            echo "Expected a single $EXPECTED_ARCH slice, got: $ACTUAL_ARCHS" >&2
+            exit 1
+          fi
+
+          install_name_tool \
+            -id @rpath/DynamicMobileVLCKit.framework/DynamicMobileVLCKit \
+            "$FRAMEWORK/MobileVLCKit"
+          plutil -replace CFBundleExecutable -string DynamicMobileVLCKit "$FRAMEWORK/Info.plist"
+          plutil -replace CFBundleName -string DynamicMobileVLCKit "$FRAMEWORK/Info.plist"
+          plutil -replace CFBundleIdentifier -string org.videolan.DynamicMobileVLCKit "$FRAMEWORK/Info.plist"
+          mv "$FRAMEWORK/MobileVLCKit" "$FRAMEWORK/DynamicMobileVLCKit"
+
+          DESTINATION="$GITHUB_WORKSPACE/staging/$PACKAGE_DIRECTORY/DynamicMobileVLCKit.framework"
+          mkdir -p "$(dirname "$DESTINATION")"
+          mv "$FRAMEWORK" "$DESTINATION"
+
+          echo "Staged $PACKAGE_DIRECTORY framework with architecture: $(lipo -archs "$DESTINATION/DynamicMobileVLCKit")"
+      - name: Upload ${{ matrix.platform }}-${{ matrix.arch }} framework
+        uses: actions/upload-artifact@v7
+        with:
+          name: libvlc-ios-${{ matrix.platform }}-${{ matrix.arch }}
+          path: staging
+          if-no-files-found: error
+
+  LibVLC_iOS_NuGet:
+    needs: [VLCKit_3x_Version, LibVLC_iOS]
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-      - name: Detect latest VLCKit 3.x tag
+      - name: Download architecture-specific frameworks
+        uses: actions/download-artifact@v8
+        with:
+          pattern: libvlc-ios-*
+          path: build
+          merge-multiple: true
+      - name: Verify package inputs
         shell: bash
         run: |
-          # Get the latest 3.x tag from vlckit repo
-          LATEST_TAG=$(git ls-remote --tags https://github.com/videolan/vlckit.git \
-                       | grep -o 'refs/tags/3\.[0-9]\+\.[0-9]\+[a-z0-9]*$' \
-                       | sed 's|refs/tags/||' \
-                       | sort -V \
-                       | tail -n1)
-      
-          echo "Detected VLCKIT_TAG: $LATEST_TAG"
-      
-          # Extract clean version for IOS_NUGET (strip trailing letters like 'b1')
-          IOS_NUGET=$(echo "$LATEST_TAG" | sed 's/[a-zA-Z].*$//')
-      
-          echo "IOS_NUGET=$IOS_NUGET"
-          echo "VLCKIT_TAG=$LATEST_TAG"
-      
-          # Export to GitHub environment for downstream steps
-          echo "IOS_NUGET=$IOS_NUGET" >> $GITHUB_ENV
-          echo "VLCKIT_TAG=$LATEST_TAG" >> $GITHUB_ENV
-      - name: LibVLC iOS build
-        shell: bash
+          test -f build/ios-device/DynamicMobileVLCKit.framework/DynamicMobileVLCKit
+          test -f build/ios-simulator/DynamicMobileVLCKit.framework/DynamicMobileVLCKit
+      - name: Install Mono
         run: |
-          git clone https://github.com/videolan/vlckit
-          cd vlckit
-          git checkout "tags/$VLCKIT_TAG"
-          ./buildMobileVLCKit.sh -f
-          
-          patchBinary () {
-            install_name_tool -id @rpath/DynamicMobileVLCKit.framework/DynamicMobileVLCKit MobileVLCKit
-            defaults write $(pwd)/Info.plist CFBundleExecutable -string DynamicMobileVLCKit
-            defaults write $(pwd)/Info.plist CFBundleName -string DynamicMobileVLCKit
-            defaults write $(pwd)/Info.plist CFBundleIdentifier -string org.videolan.DynamicMobileVLCKit
-            mv MobileVLCKit DynamicMobileVLCKit
-            cd ..
-            mv MobileVLCKit.framework DynamicMobileVLCKit.framework
-            cd ..
-          }
-
-          CPU_DEVICE_DIR="ios-arm64"
-          CPU_SIM_DIR="ios-arm64_x86_64-simulator"
-
-          cd build/MobileVLCKit.xcframework
-
-          cd "$CPU_DEVICE_DIR/MobileVLCKit.framework"
-          patchBinary
-          cd "$CPU_SIM_DIR/MobileVLCKit.framework"
-          patchBinary
-          mkdir -p $GITHUB_WORKSPACE/build/ios-device
-          mkdir -p $GITHUB_WORKSPACE/build/ios-simulator
-          mv "$CPU_DEVICE_DIR/DynamicMobileVLCKit.framework" "$GITHUB_WORKSPACE/build/ios-device"
-          mv "$CPU_SIM_DIR/DynamicMobileVLCKit.framework" "$GITHUB_WORKSPACE/build/ios-simulator"
+          sudo apt-get update -qq
+          sudo apt-get install -y mono-complete
       - name: Setup NuGet
         uses: nuget/setup-nuget@v3
         with:
           nuget-version: '5.x'
-      - name: Install Mono
-        run: |
-          brew install mono
       - name: Create LibVLC iOS NuGet package
         run: |
-          nuget pack VideoLAN.LibVLC.iOS.nuspec -Version "${IOS_NUGET}"
+          nuget pack VideoLAN.LibVLC.iOS.nuspec -Version "${{ needs.VLCKit_3x_Version.outputs.nuget_version }}"
       - name: Upload build
         uses: actions/upload-artifact@v7
         with:
