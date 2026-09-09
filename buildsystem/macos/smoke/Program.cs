@@ -29,7 +29,7 @@ if (!vlc.Version.StartsWith("3.0.23")) throw new Exception(vlc.Version);
 foreach (string input in args)
 {
     using var media = new Media(vlc, new Uri(input));
-    using var player = new MediaPlayer(vlc);
+    using var player = new LibVLCSharp.Shared.MediaPlayer(vlc);
     using var ended = new ManualResetEventSlim();
     string? error = null;
     long audioSamples = 0;
