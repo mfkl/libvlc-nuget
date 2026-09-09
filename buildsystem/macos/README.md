@@ -89,9 +89,10 @@ including explicit directory initialization without a separate `libvlccore`.
 The existing assembly and entry-assembly search paths remain available. On Apple
 targets it first attempts the previous runtime resolution behavior, allowing
 already loaded libraries; only `DllNotFoundException` triggers path discovery.
-Version mismatches and missing entry points propagate. The macOS app's Resources
-directory is also checked because the old native package's generic Content items
-are placed there by modern Apple SDKs.
+Version mismatches and missing entry points propagate. The old package's Apple
+copying hook still places its dylib in `Contents/MonoBundle`; CI verifies that
+this is the library loaded, even though modern Apple SDKs also copy the package's
+generic Content item into Resources.
 
 CI restores the published `VideoLAN.LibVLC.Mac` **3.1.3.1** package unchanged and
 checks its pinned SHA-256. That package contains **VLC 3.0.4 for x64 only**; updating

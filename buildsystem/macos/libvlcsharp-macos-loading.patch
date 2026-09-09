@@ -39,7 +39,7 @@ index 50735c7..02e4efe 100644
              LibVLCLoaded = true;
          }
 diff --git a/src/LibVLCSharp/Shared/Core/Core.cs b/src/LibVLCSharp/Shared/Core/Core.cs
-index 2afe659..34648ed 100644
+index 2afe659..0986e6e 100644
 --- a/src/LibVLCSharp/Shared/Core/Core.cs
 +++ b/src/LibVLCSharp/Shared/Core/Core.cs
 @@ -59,7 +59,7 @@ namespace LibVLCSharp.Shared
@@ -70,7 +70,7 @@ index 2afe659..34648ed 100644
          static List<(string libvlccore, string libvlc)> ComputeLibVLCSearchPaths()
          {
              var paths = new List<(string, string)>();
-@@ -75,7 +85,26 @@ namespace LibVLCSharp.Shared
+@@ -75,7 +85,19 @@ namespace LibVLCSharp.Shared
  
              if (PlatformHelper.IsMac)
              {
@@ -87,17 +87,10 @@ index 2afe659..34648ed 100644
 +                paths.Add((LibVLCCorePath(baseDirectory), LibVLCPath(baseDirectory)));
 +                var legacyLibDirectory = Path.Combine(baseDirectory, Constants.Lib);
 +                paths.Add((LibVLCCorePath(legacyLibDirectory), LibVLCPath(legacyLibDirectory)));
-+#if MAC
-+                // The old native package declares Content without Apple metadata,
-+                // which modern Apple SDKs place in the app's Resources directory.
-+                var resourceDirectory = Foundation.NSBundle.MainBundle.ResourcePath;
-+                if (!string.IsNullOrEmpty(resourceDirectory))
-+                    paths.Add((LibVLCCorePath(resourceDirectory), LibVLCPath(resourceDirectory)));
-+#endif
              }
  
  #if !NET40 && !NETSTANDARD1_1
-@@ -178,7 +207,9 @@ namespace LibVLCSharp.Shared
+@@ -178,7 +200,9 @@ namespace LibVLCSharp.Shared
                  bool loadResult;
                  var libvlccorePath = LibVLCCorePath(libvlcDirectoryPath!);
                  loadResult = LoadNativeLibrary(libvlccorePath, out LibvlccoreHandle);

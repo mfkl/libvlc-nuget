@@ -77,16 +77,14 @@ legacy_library() {
 from pathlib import Path
 import sys
 base = Path(sys.argv[1])
-candidates = [base / 'libvlc.dylib']
-if base.name == 'MonoBundle' and base.parent.name == 'Contents':
-    candidates.append(base.parent / 'Resources/libvlc.dylib')
-found = [p.resolve(strict=True) for p in candidates if p.is_file()]
-assert len(found) == 1, f'Expected one legacy native library: {found}'
-print(found[0])
+# The package's Apple hook copies the dylib to MonoBundle. Modern Apple SDKs
+# also copy Content to Resources; the loaded image must be the MonoBundle copy.
+print((base / 'libvlc.dylib').resolve(strict=True))
 PY
 }
 verify_legacy() {
-    export SMOKE_LEGACY_NATIVE="$(legacy_library "$1")"
+    SMOKE_LEGACY_NATIVE=$(legacy_library "$1")
+    export SMOKE_LEGACY_NATIVE
     [[ $(lipo -archs "$SMOKE_LEGACY_NATIVE") == x86_64 ]]
     python3 - "$NUGET_PACKAGES/videolan.libvlc.mac/$NATIVE_VERSION/videolan.libvlc.mac.$NATIVE_VERSION.nupkg" "$(read_version legacy_package_sha256)" <<'PY'
 from pathlib import Path
