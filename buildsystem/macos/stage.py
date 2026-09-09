@@ -100,6 +100,29 @@ def is_system(name):
     return name.startswith(("/usr/lib/", "/System/Library/"))
 
 
+def freetype_notices(contrib_build, notices, contrib_values):
+    if "freetype2" not in contrib_values["PKGS"].split():
+        return
+    if contrib_values["GPL"] or not contrib_values["AD_CLAUSES"]:
+        raise ValueError("FreeType must use FTL with attribution and GPL disabled")
+    # The contrib package is named freetype2, but its source directory is freetype.
+    # LICENSE.TXT identifies additional permissive notices in these source files.
+    source = contrib_build / "freetype"
+    destination = notices / "freetype2"
+    for name in ("LICENSE.TXT", "docs/FTL.TXT", "src/bdf/README", "src/pcf/README",
+                 "src/base/fthash.c", "include/freetype/internal/fthash.h",
+                 "src/gzip/zlib.h", "src/autofit/ft-hb.c", "src/autofit/ft-hb.h"):
+        target = destination / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source / name, target)
+    (destination / "NOTICE.txt").write_text(
+        "This software is based in part on the work of the FreeType Team "
+        "(https://freetype.org/).\n"
+        "FreeType is used under the FreeType Project License (FTL). "
+        "See docs/FTL.TXT and LICENSE.TXT for the license and additional notices.\n",
+        encoding="utf-8")
+
+
 def stage(source, rid, destination):
     arch = {"osx-x64": "x86_64", "osx-arm64": "arm64"}[rid]
     build = source / "nuget-build"
@@ -118,7 +141,7 @@ def stage(source, rid, destination):
     contrib_dirs = list((source / "contrib").glob("contrib-*/config.mak"))
     if len(contrib_dirs) != 1:
         raise ValueError("Expected one contrib build directory")
-    contrib_values = make_values(contrib_dirs[0].parent, ["GPL", "GNUV3", "PKGS", "PKGS_FOUND"])
+    contrib_values = make_values(contrib_dirs[0].parent, ["GPL", "GNUV3", "AD_CLAUSES", "PKGS", "PKGS_FOUND"])
     if contrib_values["GPL"]:
         raise ValueError("Contrib was built with GPL enabled")
     for name in ("lib/core.c", "src/libvlc.c", "compat/strdup.c"):
@@ -198,6 +221,7 @@ def stage(source, rid, destination):
                     out = notices / package / notice.name
                     out.parent.mkdir(exist_ok=True)
                     shutil.copy2(notice, out)
+    freetype_notices(contrib_dirs[0].parent, notices, contrib_values)
     manifest = {
         "versions": json.loads((HERE / "versions.json").read_text()),
         "rid": rid, "architecture": arch, "xcode": run("xcodebuild", "-version"),

@@ -109,6 +109,14 @@ missing required modules, host dependencies and mixed architectures fail staging
 This is a technical packaging guard, not a complete automated license review.
 Review all included third-party notices before a public release.
 
+FreeType uses the **FreeType Project License (FTL)** alternative. The contrib
+option `--enable-ad-clauses` selects that path while `--disable-gpl` remains in
+effect. The build manifest records both settings, and each runtime includes the
+FTL text, additional FreeType notices and credit under `licenses/freetype2`.
+This software is based in part on the work of the FreeType Team
+(https://freetype.org/). Applications redistributing the runtime must retain the
+credit in their distribution documentation. See [FreeType's licensing options](https://freetype.org/license.html).
+
 The selected features cover FFmpeg-based decoding, MP4/MKV/AVI/Ogg playback,
 HTTP(S)/RTSP, subtitles and macOS outputs. GPL components such as x264/x265 and
 DVD navigation are excluded. Actual feature availability is recorded in each

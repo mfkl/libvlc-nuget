@@ -12,6 +12,10 @@ def verify(root, rid):
     manifest = json.loads((root / "build-manifest.json").read_text())
     assert manifest["rid"] == rid and manifest["architecture"] == arch
     assert not manifest["contrib"]["GPL"]
+    if "freetype2" in manifest["contrib"]["PKGS"].split():
+        assert manifest["contrib"]["AD_CLAUSES"], "FreeType FTL was not selected"
+        for name in ("docs/FTL.TXT", "LICENSE.TXT", "NOTICE.txt"):
+            assert (root / "licenses/freetype2" / name).is_file(), name
     actual = {str(p.relative_to(root)) for p in root.rglob("*")
               if p.is_file() and p != root / "build-manifest.json"}
     assert actual == set(manifest["files"]), "Unexpected or missing files in runtime tree"

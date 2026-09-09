@@ -12,7 +12,7 @@ import xml.etree.ElementTree as ET
 HERE = Path(__file__).resolve().parents[1]
 ROOT = HERE.parents[1]
 sys.path.insert(0, str(HERE))
-from stage import dependencies, is_system, source_license
+from stage import dependencies, freetype_notices, is_system, source_license
 
 
 class PolicyTests(unittest.TestCase):
@@ -49,6 +49,29 @@ class PolicyTests(unittest.TestCase):
         self.assertEqual(len(deps), 2)
         self.assertTrue(is_system(deps[0]))
         self.assertFalse(is_system(deps[1]))
+
+    def test_freetype_requires_ftl_and_preserves_nested_notices(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            values = {"PKGS": "freetype2 zlib", "GPL": "", "AD_CLAUSES": "1"}
+            for override in ({"GPL": "1"}, {"AD_CLAUSES": ""}):
+                with self.assertRaises(ValueError):
+                    freetype_notices(root, root / "notices", {**values, **override})
+            # Missing license sources must fail rather than silently omit notices.
+            with self.assertRaises(FileNotFoundError):
+                freetype_notices(root, root / "notices", values)
+            files = ("LICENSE.TXT", "docs/FTL.TXT", "src/bdf/README", "src/pcf/README",
+                     "src/base/fthash.c", "include/freetype/internal/fthash.h",
+                     "src/gzip/zlib.h", "src/autofit/ft-hb.c", "src/autofit/ft-hb.h")
+            for name in files:
+                path = root / "freetype" / name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(("Original notice: " + name + "\r\n").encode())
+            freetype_notices(root, root / "notices", values)
+            for name in files:
+                self.assertEqual((root / "freetype" / name).read_bytes(),
+                                 (root / "notices/freetype2" / name).read_bytes())
+            self.assertIn("FreeType Team", (root / "notices/freetype2/NOTICE.txt").read_text())
 
 
 @unittest.skipUnless(shutil.which("dotnet"), "MSBuild requires dotnet")
