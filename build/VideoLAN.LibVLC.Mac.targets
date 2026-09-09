@@ -1,7 +1,9 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <VlcMacEnabled Condition="'$(VlcMacEnabled)' == ''">true</VlcMacEnabled>
-    <_VlcMacPackageRoot>$(MSBuildThisFileDirectory)..\build\macos\</_VlcMacPackageRoot>
+    <!-- Apple adds Content directly to publish items; the .NET SDK uses FullPath.
+         Use one canonical identity so both paths refer to the same item. -->
+    <_VlcMacPackageRoot>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)..\build\macos\'))</_VlcMacPackageRoot>
     <_VlcMacPortable Condition="'$(RuntimeIdentifier)' == ''">true</_VlcMacPortable>
   </PropertyGroup>
   <!-- Explicit Content preserves VLC's plugin/data hierarchy. NuGet's native

@@ -114,6 +114,7 @@ class TargetTests(unittest.TestCase):
                 data = json.loads(output[output.index("{"):])["Items"]["Content"]
                 self.assertEqual(len(data), 3)
                 for item in data:
+                    self.assertEqual(item["Identity"], item["FullPath"])
                     self.assertEqual(item["PublishFolderType"], "Assembly")
                     self.assertTrue(item["Link"].replace("\\", "/").startswith(f"libvlc/{rid}/"))
             # A RID switch in a reused output directory must remove the other
