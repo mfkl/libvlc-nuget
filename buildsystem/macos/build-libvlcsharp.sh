@@ -5,7 +5,9 @@ TFMS=net8.0
 case "${1:-}" in
     --with-macos)
         cd "$ROOT/buildsystem/macos/apple"
-        TFMS='net8.0%3Bnet8.0-macos'
+        # Keep literal quotes for MSBuild's property parser. Escaping the
+        # semicolon as %3B makes the entire value one target-framework item.
+        TFMS='"net8.0;net8.0-macos"'
         ;;
     '') ;;
     *) echo 'Usage: build-libvlcsharp.sh [--with-macos]' >&2; exit 1;;
