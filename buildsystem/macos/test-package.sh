@@ -29,7 +29,9 @@ esac
 mkdir -p "$TESTROOT" "$TESTROOT/fixtures"
 exec > >(tee "$TESTROOT/test.log") 2>&1
 cp "$ROOT/buildsystem/macos/smoke/"* "$TESTROOT/"
-export NUGET_PACKAGES="$TESTROOT/packages"
+# Keep the NuGet cache outside the consumer project. The legacy package has no
+# Link metadata, so an in-project cache changes its content's output path.
+export NUGET_PACKAGES="$ROOT/.macos-work/consumer-packages/$RID-$TFM-$PACKAGE_KIND"
 export SMOKE_EXPECTED_RID="$RID" SMOKE_EXPECTED_TFM="$TFM"
 unset VLC_PLUGIN_PATH VLC_DATA_PATH DYLD_LIBRARY_PATH DYLD_FALLBACK_LIBRARY_PATH
 # Locally generated, deterministic synthetic media; no external media downloads.
