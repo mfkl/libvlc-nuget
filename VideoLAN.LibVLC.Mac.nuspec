@@ -15,7 +15,7 @@ As it is native code, you will need to use a wrapper library such as LibVLCSharp
     <license type="expression">LGPL-3.0-or-later</license>
     <icon>icon.png</icon>
     <readme>README.macos.md</readme>
-    <releaseNotes>LibVLC 3.0.23, separate macOS x64 and arm64 runtimes. Preview requires the companion LibVLCSharp loader package; see buildsystem/macos/README.md.</releaseNotes>
+    <releaseNotes>LibVLC 3.0.23, separate macOS x64 and arm64 runtimes. Upgrade LibVLCSharp to the companion 3.10.2-macos.1 preview before upgrading this native package. Older unpatched loaders are unsupported; see the packaged README.macos.md for compatibility and upgrade instructions.</releaseNotes>
   </metadata>
   <files>
     <file src="build\VideoLAN.LibVLC.Mac.targets" target="build\VideoLAN.LibVLC.Mac.targets"/>

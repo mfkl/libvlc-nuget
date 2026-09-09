@@ -43,7 +43,7 @@ through the same helper used by packaging, verifies the resulting signatures,
 and loads the relocated libraries with their bundled dependency. Packaging edits
 load commands with the original signature still present, then replaces that
 signature after all edits; it does not strip signatures before relocation.
-Only after all four playback jobs pass does it create `macos-nuget-validated`, which
+Only after all four playback jobs and both legacy compatibility jobs pass does it create `macos-nuget-validated`, which
 contains the native package and the companion LibVLCSharp preview package.
 
 | Consumer target | Intel runner (`osx-x64`) | Apple Silicon runner (`osx-arm64`) |
@@ -74,6 +74,39 @@ the application directory, and preserves legacy flat layouts. It uses the existi
 `dlopen` mechanism without `SetDllImportResolver`; CI checks subsequent P/Invoke
 calls as well as library discovery. It also enables the shared loader for the
 MAC compilation path. It never searches the other architecture's directory.
+
+### Upgrade order and compatibility
+
+Upgrade **LibVLCSharp first**, then the native package. For this preview the
+matching wrapper is `LibVLCSharp.3.10.2-macos.1`; a production minimum version
+must be established when that loader change is released. The new native package
+with an older, unpatched LibVLCSharp is **unsupported**. The native package does
+not enforce a wrapper dependency, so NuGet will not prevent that combination.
+There is no change to the public initialization API or the LibVLC 3 ABI.
+
+The updated loader retains the old native package's standalone dylib layout,
+including explicit directory initialization without a separate `libvlccore`.
+The existing assembly and entry-assembly search paths remain available. On Apple
+targets it first attempts the previous runtime resolution behavior, allowing
+already loaded libraries; only `DllNotFoundException` triggers path discovery.
+Version mismatches and missing entry points propagate. The macOS app's Resources
+directory is also checked because the old native package's generic Content items
+are placed there by modern Apple SDKs.
+
+CI restores the published `VideoLAN.LibVLC.Mac` **3.1.3.1** package unchanged and
+checks its pinned SHA-256. That package contains **VLC 3.0.4 for x64 only**; updating
+the wrapper cannot add arm64 support to it. The two compatibility jobs exercise
+`net8.0` and `net8.0-macos` on Intel, covering playback with inferred paths,
+explicit paths, constructor initialization, repeated initialization and relocated
+build/publish outputs. Apple tests additionally preload the old dylib from outside
+an app with no bundled VLC files, and ensure an incompatible preloaded major
+version is rejected. Each loading scenario runs in a separate process.
+
+The new split native package is still tested on both architectures and both TFMs.
+Legacy Xamarin.Mac applications and other historical native distributions are not
+covered by these modern .NET integration jobs. These preview companion packages
+only contain the two tested .NET 8 targets; they are not a replacement for the
+full target-framework set of a production LibVLCSharp release.
 
 CI clones LibVLCSharp into an isolated directory, applies this patch, and builds
 `LibVLCSharp.3.10.2-macos.1.nupkg` targeting **net8.0** and **net8.0-macos** for

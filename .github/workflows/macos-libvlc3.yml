@@ -257,9 +257,51 @@ jobs:
             .macos-work/consumer-${{ matrix.rid }}-${{ matrix.tfm }}/obj/project.assets.json
           if-no-files-found: warn
 
+  compatibility:
+    needs: loader
+    if: ${{ !cancelled() && needs.loader.result == 'success' }}
+    name: Legacy native with ${{ matrix.tfm }} on osx-x64
+    strategy:
+      fail-fast: false
+      matrix:
+        tfm: [net8.0, net8.0-macos]
+    runs-on: macos-15-intel
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: |
+            10.0.302
+            8.0.424
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11.9'
+      - name: Install pinned Apple workload
+        if: matrix.tfm == 'net8.0-macos'
+        run: bash buildsystem/macos/setup-apple-tests.sh
+      - uses: actions/download-artifact@v8
+        with:
+          name: companion-loader
+          path: .macos-work/packages
+      - name: Install fixture generator (test only)
+        run: command -v ffmpeg || brew install ffmpeg
+      - name: Test released native package with updated loader
+        run: bash buildsystem/macos/test-package.sh osx-x64 ${{ matrix.tfm }} legacy
+      - name: Upload compatibility diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          include-hidden-files: true
+          name: compatibility-osx-x64-${{ matrix.tfm }}
+          path: |
+            .macos-work/consumer-osx-x64-${{ matrix.tfm }}-legacy/*.binlog
+            .macos-work/consumer-osx-x64-${{ matrix.tfm }}-legacy/*.log
+            .macos-work/consumer-osx-x64-${{ matrix.tfm }}-legacy/obj/project.assets.json
+          if-no-files-found: warn
+
   validated:
-    needs: playback
-    if: ${{ !cancelled() && needs.playback.result == 'success' }}
+    needs: [playback, compatibility]
+    if: ${{ !cancelled() && needs.playback.result == 'success' && needs.compatibility.result == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v8

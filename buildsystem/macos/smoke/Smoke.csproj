@@ -18,7 +18,9 @@
     <UseHardenedRuntime>false</UseHardenedRuntime>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="VideoLAN.LibVLC.Mac" Version="$(NativePackageVersion)" />
+    <PackageReference Include="VideoLAN.LibVLC.Mac" Version="$(NativePackageVersion)">
+      <ExcludeAssets Condition="'$(SmokeExcludeNativeAssets)' == 'true'">all</ExcludeAssets>
+    </PackageReference>
     <PackageReference Include="LibVLCSharp" Version="$(LoaderPackageVersion)" />
   </ItemGroup>
 </Project>

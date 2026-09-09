@@ -1,5 +1,5 @@
 diff --git a/src/LibVLCSharp/Shared/Core/Core.Apple.cs b/src/LibVLCSharp/Shared/Core/Core.Apple.cs
-index 50735c7..d36a508 100644
+index 50735c7..02e4efe 100644
 --- a/src/LibVLCSharp/Shared/Core/Core.Apple.cs
 +++ b/src/LibVLCSharp/Shared/Core/Core.Apple.cs
 @@ -9,6 +9,10 @@ namespace LibVLCSharp.Shared
@@ -13,18 +13,33 @@ index 50735c7..d36a508 100644
          /// <summary>
          /// Load the native libvlc library (if necessary, depending on platform)
          /// <para/> Ensure that you installed the VideoLAN.LibVLC.[YourPlatform] package in your target project
-@@ -22,6 +26,9 @@ namespace LibVLCSharp.Shared
+@@ -22,6 +26,24 @@ namespace LibVLCSharp.Shared
          /// </param>
          public static void Initialize(string? libvlcDirectoryPath = null)
          {
 +#if MAC
++            if (string.IsNullOrEmpty(libvlcDirectoryPath))
++            {
++                // Preserve Apple loading through the runtime or an already loaded
++                // library. Only a missing library triggers explicit path discovery;
++                // version mismatches and missing entry points must still propagate.
++                try
++                {
++                    EnsureVersionsMatch();
++                    LibVLCLoaded = true;
++                    return;
++                }
++                catch (DllNotFoundException)
++                {
++                }
++            }
 +            LoadLibVLC(libvlcDirectoryPath);
 +#endif
              EnsureVersionsMatch();
              LibVLCLoaded = true;
          }
 diff --git a/src/LibVLCSharp/Shared/Core/Core.cs b/src/LibVLCSharp/Shared/Core/Core.cs
-index 2afe659..bba7519 100644
+index 2afe659..34648ed 100644
 --- a/src/LibVLCSharp/Shared/Core/Core.cs
 +++ b/src/LibVLCSharp/Shared/Core/Core.cs
 @@ -59,7 +59,7 @@ namespace LibVLCSharp.Shared
@@ -42,8 +57,8 @@ index 2afe659..bba7519 100644
  
 -#if DESKTOP && !NETSTANDARD1_1 || WINUI
 +#if DESKTOP && !NETSTANDARD1_1 || WINUI || MAC
-+        // Use process architecture: x64 processes under Rosetta require x64 libs.
 +#if !NET40 && !NETSTANDARD1_1
++        // Select the process architecture, including x64 processes under Rosetta.
 +        internal static string MacOSArchitectureFolder(Architecture architecture) => architecture switch
 +        {
 +            Architecture.X64 => "osx-x64",
@@ -55,7 +70,7 @@ index 2afe659..bba7519 100644
          static List<(string libvlccore, string libvlc)> ComputeLibVLCSearchPaths()
          {
              var paths = new List<(string, string)>();
-@@ -75,7 +85,28 @@ namespace LibVLCSharp.Shared
+@@ -75,7 +85,26 @@ namespace LibVLCSharp.Shared
  
              if (PlatformHelper.IsMac)
              {
@@ -64,23 +79,32 @@ index 2afe659..bba7519 100644
 +#else
                  arch = Path.Combine(ArchitectureNames.MacOS64, Constants.Lib);
 +#endif
-+                // AppContext.BaseDirectory is already a directory. Taking its
-+                // parent can search outside the app when the trailing slash differs.
++                // BaseDirectory is already a directory, and may lack a trailing
++                // separator in an Apple app. Keep the legacy search paths below.
 +                var baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
 +                var packagedDirectory = Path.Combine(baseDirectory, Constants.LibrariesRepositoryFolderName, arch);
 +                paths.Add((LibVLCCorePath(packagedDirectory), LibVLCPath(packagedDirectory)));
-+#if !NET6_0_OR_GREATER
-+                var wrapperLocation = typeof(LibVLC).Assembly.Location;
-+                if (!string.IsNullOrEmpty(wrapperLocation))
-+                {
-+                    var wrapperDirectory = Path.Combine(Path.GetDirectoryName(wrapperLocation)!, Constants.LibrariesRepositoryFolderName, arch);
-+                    paths.Add((LibVLCCorePath(wrapperDirectory), LibVLCPath(wrapperDirectory)));
-+                }
-+#endif
-+                // Preserve legacy flat/lib layouts, without trying another RID.
 +                paths.Add((LibVLCCorePath(baseDirectory), LibVLCPath(baseDirectory)));
-+                paths.Add((LibVLCCorePath(Path.Combine(baseDirectory, Constants.Lib)), LibVLCPath(Path.Combine(baseDirectory, Constants.Lib))));
-+                return paths;
++                var legacyLibDirectory = Path.Combine(baseDirectory, Constants.Lib);
++                paths.Add((LibVLCCorePath(legacyLibDirectory), LibVLCPath(legacyLibDirectory)));
++#if MAC
++                // The old native package declares Content without Apple metadata,
++                // which modern Apple SDKs place in the app's Resources directory.
++                var resourceDirectory = Foundation.NSBundle.MainBundle.ResourcePath;
++                if (!string.IsNullOrEmpty(resourceDirectory))
++                    paths.Add((LibVLCCorePath(resourceDirectory), LibVLCPath(resourceDirectory)));
++#endif
              }
  
  #if !NET40 && !NETSTANDARD1_1
+@@ -178,7 +207,9 @@ namespace LibVLCSharp.Shared
+                 bool loadResult;
+                 var libvlccorePath = LibVLCCorePath(libvlcDirectoryPath!);
+                 loadResult = LoadNativeLibrary(libvlccorePath, out LibvlccoreHandle);
+-                if (!loadResult)
++                // Older macOS packages contain a standalone libvlc.dylib.
++                // If a separate core is present, it must still load successfully.
++                if (!loadResult && (!PlatformHelper.IsMac || File.Exists(libvlccorePath)))
+                 {
+                     Log($"Failed to load required native libraries at {libvlccorePath}");
+                     return;
