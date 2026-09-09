@@ -2,6 +2,12 @@ name: macOS LibVLC 3 (LGPL)
 
 on:
   workflow_dispatch:
+    inputs:
+      native_run_id:
+        description: 'Reuse both native archives from this run ID; leave empty to build VLC'
+        type: string
+        required: false
+        default: ''
   push:
     paths:
       - '.github/workflows/macos-libvlc3.yml'
@@ -47,6 +53,7 @@ jobs:
 
   native:
     needs: inputs
+    if: ${{ !inputs.native_run_id }}
     name: Build ${{ matrix.rid }}
     strategy:
       fail-fast: false
@@ -131,8 +138,12 @@ jobs:
           if-no-files-found: error
 
   package:
-    needs: native
+    needs: [inputs, native]
+    if: ${{ !cancelled() && needs.inputs.result == 'success' && (needs.native.result == 'success' || (inputs.native_run_id && needs.native.result == 'skipped')) }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
     steps:
       - uses: actions/checkout@v6
       - uses: actions/download-artifact@v8
@@ -140,12 +151,44 @@ jobs:
           pattern: native-osx-*
           merge-multiple: true
           path: .macos-work/archives
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.native_run_id || github.run_id }}
       - name: Extract runtime trees
         run: |
           mkdir -p build/macos
-          for archive in .macos-work/archives/*.tar.gz; do
-            tar -xzf "$archive" -C build/macos
+          for rid in osx-x64 osx-arm64; do
+            tar -xzf ".macos-work/archives/$rid.tar.gz" -C build/macos
           done
+      - name: Record native artifact provenance
+        env:
+          NATIVE_RUN_ID: ${{ inputs.native_run_id || github.run_id }}
+        run: |
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          versions = json.loads(Path('buildsystem/macos/versions.json').read_text())
+          manifests = {}
+          for rid in ('osx-x64', 'osx-arm64'):
+              manifest = json.loads(Path(f'build/macos/{rid}/build-manifest.json').read_text())
+              assert manifest['rid'] == rid, f'Wrong runtime tree: {rid}'
+              for key in ('vlc_tag', 'vlc_commit', 'deployment_target', 'xcode'):
+                  assert manifest['versions'][key] == versions[key], f'{rid}: incompatible native {key}'
+              manifests[rid] = manifest
+          provenance = {
+              'native_run_url': f"{os.environ['GITHUB_SERVER_URL']}/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['NATIVE_RUN_ID']}",
+              'test_commit': os.environ['GITHUB_SHA'],
+              'manifests': manifests,
+          }
+          Path('.macos-work/native-provenance.json').write_text(json.dumps(provenance, indent=2) + '\n')
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as summary:
+              print(f"Native binaries and matching source archives: {provenance['native_run_url']}", file=summary)
+          PY
+      - uses: actions/upload-artifact@v7
+        with:
+          name: native-provenance
+          path: .macos-work/native-provenance.json
+          include-hidden-files: true
+          if-no-files-found: error
       - name: Install Mono
         run: |
           sudo apt-get update -qq
@@ -164,6 +207,7 @@ jobs:
 
   playback:
     needs: [package, loader]
+    if: ${{ !cancelled() && needs.package.result == 'success' && needs.loader.result == 'success' }}
     name: Test ${{ matrix.tfm }} on ${{ matrix.rid }}
     strategy:
       fail-fast: false
@@ -215,6 +259,7 @@ jobs:
 
   validated:
     needs: playback
+    if: ${{ !cancelled() && needs.playback.result == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v8

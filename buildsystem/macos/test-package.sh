@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -Eeuo pipefail
+trap 'echo "Test command failed at line $LINENO: $BASH_COMMAND" >&2' ERR
 ROOT=$(cd "$(dirname "$0")/../.." && pwd)
 RID=${1:?Usage: test-package.sh osx-x64|osx-arm64 net8.0|net8.0-macos}
 TFM=${2:?Specify net8.0 or net8.0-macos}
@@ -22,11 +23,22 @@ unset VLC_PLUGIN_PATH VLC_DATA_PATH DYLD_LIBRARY_PATH DYLD_FALLBACK_LIBRARY_PATH
 ffmpeg -hide_banner -loglevel error -f lavfi -i testsrc2=size=64x64:rate=10 \
     -f lavfi -i sine=frequency=440:sample_rate=48000 -t 2 -c:v mpeg4 -c:a aac "$TESTROOT/fixtures/sample.mp4"
 ffmpeg -hide_banner -loglevel error -i "$TESTROOT/fixtures/sample.mp4" -c copy "$TESTROOT/fixtures/sample.mkv"
-python3 "$ROOT/buildsystem/macos/test-server.py" "$TESTROOT/fixtures" "$TESTROOT/port" &
+rm -f "$TESTROOT/port"
+python3 -u "$ROOT/buildsystem/macos/test-server.py" "$TESTROOT/fixtures" "$TESTROOT/port" > "$TESTROOT/server.log" 2>&1 &
 SERVER_PID=$!
 trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
-for attempt in {1..50}; do [[ -s "$TESTROOT/port" ]] && break; sleep 0.1; done
+for attempt in {1..300}; do
+    [[ -s "$TESTROOT/port" ]] && break
+    kill -0 "$SERVER_PID" 2>/dev/null || break
+    sleep 0.1
+done
+if [[ ! -s "$TESTROOT/port" ]]; then
+    echo "Fixture server failed to start within 30 seconds" >&2
+    cat "$TESTROOT/server.log" >&2
+    exit 1
+fi
 PORT=$(cat "$TESTROOT/port")
+curl --fail --silent --show-error --max-time 5 "http://127.0.0.1:$PORT/sample.mp4" -o /dev/null
 PROPS=(-p:TargetFramework="$TFM" -p:NativePackageVersion="$(read_version package_version)" -p:LoaderPackageVersion="$(read_version libvlcsharp_package_version)")
 python3 - "$TESTROOT/NuGet.Config" "$ROOT/.macos-work/packages" <<'PY'
 import sys, xml.etree.ElementTree as ET

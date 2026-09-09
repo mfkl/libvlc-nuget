@@ -18,6 +18,24 @@ Push this branch to GitHub to trigger **macOS LibVLC 3 (LGPL)**, or run it throu
 No PR is necessary. The existing iOS/UWP workflow is independent and may also run
 on a branch push under its existing triggers.
 
+To troubleshoot packaging, loading or playback using an existing native build:
+
+```sh
+gh workflow run macos-libvlc3.yml --repo mfkl/libvlc-nuget \
+  --ref ci/macos-libvlc3-lgpl -f native_run_id=34368221977
+```
+
+`native_run_id` skips both VLC builds and downloads `native-osx-x64` and
+`native-osx-arm64` from that run in the same repository. Both artifacts must still
+be available. Packaging, the companion loader and all four consumer tests use
+the selected branch's current code. The workflow checks the native manifests
+against the pinned VLC revision, deployment target and Xcode, and saves those
+manifests and the original run link in `native-provenance`. Matching source
+archives remain in the original run. Use a full build after changing native
+build configuration or patches; reuse does not apply native changes to old binaries.
+Leave the input empty for a full build. During test-only iteration, push with
+`[skip ci]` in the commit message and dispatch explicitly to avoid automatic builds.
+
 The workflow builds each architecture on a native macOS 15 runner with Xcode
 16.4. It retains build logs, matching source archives, and intermediate packages.
 Before building VLC, each Mac runner tests relocation of signed sample dylibs
