@@ -1,0 +1,11 @@
+--- a/extras/package/apple/build.sh
++++ b/extras/package/apple/build.sh
+@@ -333,7 +333,7 @@
+     export OBJCFLAGS="$clike_flags"
+ 
+     # Vanilla clang doesn't use VLC_DEPLOYMENT_TAGET_LDFLAGS but only the CFLAGS variant
+-    export LDFLAGS="$VLC_DEPLOYMENT_TARGET_LDFLAG $VLC_DEPLOYMENT_TARGET_CFLAG -arch $VLC_HOST_ARCH ${bitcode_flag}"
++    export LDFLAGS="$VLC_DEPLOYMENT_TARGET_LDFLAG $VLC_DEPLOYMENT_TARGET_CFLAG -arch $VLC_HOST_ARCH ${bitcode_flag} -Wl,-headerpad_max_install_names"
+ }
+ 
+ hostenv()

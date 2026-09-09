@@ -150,6 +150,10 @@ dotnet add package VideoLAN.LibVLC.iOS
 
 ## macOS
 
+A preview CI workflow builds LGPL LibVLC 3.0.23 for separate x64 and arm64
+runtimes. See [macOS build and package instructions](buildsystem/macos/README.md)
+for its companion LibVLCSharp loader patch and validation status.
+
 ```cmd
 dotnet add package VideoLAN.LibVLC.Mac
 ```

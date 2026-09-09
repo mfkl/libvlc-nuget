@@ -1,0 +1,29 @@
+{
+  "required": [
+    "filesystem", "http", "https", "record", "cache_read", "prefetch",
+    "mp4", "mkv", "avi", "wav", "ogg", "subtitle", "adaptive",
+    "avcodec", "avformat", "swscale", "rawvid", "araw", "subsdec",
+    "freetype", "libass", "auhal", "vout_macosx", "vmem", "amem",
+    "packetizer_h264", "packetizer_hevc", "packetizer_mpeg4audio"
+  ],
+  "optional": [
+    "attachment", "imem", "access_imem", "ftp", "tcp", "udp", "live555",
+    "gnutls", "securetransport", "adummy", "vdummy",
+    "flac", "vorbis", "opus", "vpx", "dav1d", "videotoolbox", "cvpx",
+    "glconv_cvpx", "caopengllayer", "drawable", "jpeg", "png", "spudec",
+    "packetizer_flac", "packetizer_mpegvideo", "packetizer_mpegaudio",
+    "packetizer_vc1", "packetizer_copy", "packetizer_a52", "packetizer_dts",
+    "ts", "ps", "nsv", "asf", "flacsys", "au", "rawaud",
+    "es", "demux_stl", "smf", "playlist", "inflate",
+    "deinterlace", "adjust", "blend", "scale", "yuvp", "i420_rgb",
+    "i420_yuy2", "i422_i420", "i422_yuy2", "yuy2_i420",
+    "yuy2_i422", "grey_yuv", "chain",
+    "audio_format", "float_mixer", "integer_mixer",
+    "trivial_channel_mixer", "simple_channel_mixer", "soxr", "samplerate",
+    "ugly_resampler", "scaletempo", "spatialaudio",
+    "audiobargraph_a", "gain", "equalizer", "compressor", "normvol",
+    "spdif", "tospdif", "console_logger",
+    "subsdelay", "subsusf", "dynamicoverlay", "marq", "logo", "audiobargraph_v",
+    "keychain", "taglib", "xml"
+  ]
+}

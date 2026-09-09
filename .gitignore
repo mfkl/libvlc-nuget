@@ -44,6 +44,8 @@ tools/
 artifact/
 #Exclude build folders and temp files
 native
+.macos-work/
+__pycache__/
 x64
 x64.7z
 x86

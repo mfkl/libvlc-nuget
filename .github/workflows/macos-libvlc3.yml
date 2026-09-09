@@ -1,0 +1,227 @@
+name: macOS LibVLC 3 (LGPL)
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/macos-libvlc3.yml'
+      - 'buildsystem/macos/**'
+      - 'build/VideoLAN.LibVLC.Mac.targets'
+      - 'VideoLAN.LibVLC.Mac.nuspec'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: macos-libvlc3-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  inputs:
+    runs-on: ubuntu-latest
+    outputs:
+      vlc_commit: ${{ steps.versions.outputs.vlc_commit }}
+      xcode: ${{ steps.versions.outputs.xcode }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: |
+            10.0.302
+            8.0.424
+      - id: versions
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json, os
+          with open('buildsystem/macos/versions.json') as f:
+              versions = json.load(f)
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              for key, value in versions.items():
+                  print(f'{key}={value}', file=f)
+          PY
+      - name: Validate scripts and policy
+        run: |
+          for script in buildsystem/macos/*.sh; do bash -n "$script"; done
+          python3 -m unittest discover -s buildsystem/macos/tests -v
+
+  native:
+    needs: inputs
+    name: Build ${{ matrix.rid }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - rid: osx-x64
+            runner: macos-15-intel
+          - rid: osx-arm64
+            runner: macos-15
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/checkout@v6
+        with:
+          repository: videolan/vlc
+          ref: ${{ needs.inputs.outputs.vlc_commit }}
+          path: .macos-work/${{ matrix.rid }}/vlc
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11.9'
+      - name: Select Xcode
+        run: sudo xcode-select --switch /Applications/Xcode_${{ needs.inputs.outputs.xcode }}.app/Contents/Developer
+      - name: Cache tools and downloaded sources
+        uses: actions/cache@v4
+        with:
+          path: |
+            .macos-work/${{ matrix.rid }}/vlc/extras/tools/build
+            .macos-work/${{ matrix.rid }}/vlc/contrib/tarballs
+          key: macos-v1-${{ matrix.rid }}-${{ env.ImageVersion }}-${{ needs.inputs.outputs.xcode }}-${{ hashFiles('buildsystem/macos/**') }}
+      - name: Build and verify LGPL runtime
+        run: bash buildsystem/macos/build.sh ${{ matrix.rid }}
+      - uses: actions/upload-artifact@v7
+        with:
+          include-hidden-files: true
+          name: native-${{ matrix.rid }}
+          path: .macos-work/${{ matrix.rid }}.tar.gz
+          if-no-files-found: error
+      - name: Upload corresponding sources
+        uses: actions/upload-artifact@v7
+        with:
+          include-hidden-files: true
+          name: sources-${{ matrix.rid }}
+          path: .macos-work/sources/${{ matrix.rid }}
+          if-no-files-found: error
+      - name: Upload build diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          include-hidden-files: true
+          name: logs-${{ matrix.rid }}
+          path: |
+            .macos-work/logs/${{ matrix.rid }}
+            .macos-work/${{ matrix.rid }}/vlc/nuget-build/build/config.log
+            .macos-work/${{ matrix.rid }}/vlc/nuget-build/build/config.status
+          if-no-files-found: warn
+
+  loader:
+    needs: inputs
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: |
+            10.0.302
+            8.0.424
+      - name: Install pinned Apple workload
+        run: bash buildsystem/macos/setup-apple-tests.sh
+      - name: Build desktop and Apple companion assemblies
+        run: bash buildsystem/macos/build-libvlcsharp.sh --with-macos
+      - uses: actions/upload-artifact@v7
+        with:
+          include-hidden-files: true
+          name: companion-loader
+          path: .macos-work/packages/*.nupkg
+          if-no-files-found: error
+
+  package:
+    needs: native
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: native-osx-*
+          merge-multiple: true
+          path: .macos-work/archives
+      - name: Extract runtime trees
+        run: |
+          mkdir -p build/macos
+          for archive in .macos-work/archives/*.tar.gz; do
+            tar -xzf "$archive" -C build/macos
+          done
+      - name: Install Mono
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y mono-complete
+      - uses: nuget/setup-nuget@v3
+        with:
+          nuget-version: '6.14.0'
+      - name: Pack both architectures
+        run: bash buildsystem/macos/package.sh
+      - uses: actions/upload-artifact@v7
+        with:
+          include-hidden-files: true
+          name: macos-nuget-unvalidated
+          path: .macos-work/packages/*.nupkg
+          if-no-files-found: error
+
+  playback:
+    needs: [package, loader]
+    name: Test ${{ matrix.tfm }} on ${{ matrix.rid }}
+    strategy:
+      fail-fast: false
+      matrix:
+        tfm: [net8.0, net8.0-macos]
+        rid: [osx-x64, osx-arm64]
+        include:
+          - rid: osx-x64
+            runner: macos-15-intel
+          - rid: osx-arm64
+            runner: macos-15
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: |
+            10.0.302
+            8.0.424
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11.9'
+      - name: Install pinned Apple workload
+        if: matrix.tfm == 'net8.0-macos'
+        run: bash buildsystem/macos/setup-apple-tests.sh
+      - uses: actions/download-artifact@v8
+        with:
+          name: macos-nuget-unvalidated
+          path: .macos-work/packages
+      - uses: actions/download-artifact@v8
+        with:
+          name: companion-loader
+          path: .macos-work/packages
+      - name: Install fixture generator (test only)
+        run: command -v ffmpeg || brew install ffmpeg
+      - name: Restore, build, publish and decode
+        run: bash buildsystem/macos/test-package.sh ${{ matrix.rid }} ${{ matrix.tfm }}
+      - name: Upload consumer diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          include-hidden-files: true
+          name: playback-${{ matrix.rid }}-${{ matrix.tfm }}
+          path: |
+            .macos-work/consumer-${{ matrix.rid }}-${{ matrix.tfm }}/*.binlog
+            .macos-work/consumer-${{ matrix.rid }}-${{ matrix.tfm }}/*.log
+            .macos-work/consumer-${{ matrix.rid }}-${{ matrix.tfm }}/obj/project.assets.json
+          if-no-files-found: warn
+
+  validated:
+    needs: playback
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: macos-nuget-unvalidated
+          path: packages
+      - uses: actions/download-artifact@v8
+        with:
+          name: companion-loader
+          path: packages
+      - uses: actions/upload-artifact@v7
+        with:
+          name: macos-nuget-validated
+          path: packages/*.nupkg
+          if-no-files-found: error

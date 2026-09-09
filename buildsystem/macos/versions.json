@@ -1,0 +1,10 @@
+{
+  "vlc_tag": "3.0.23",
+  "vlc_commit": "578d28f6c9f2379164516e689418f92ac74a3445",
+  "package_version": "3.1.3.2-macos.1",
+  "libvlcsharp_tag": "3.10.1",
+  "libvlcsharp_commit": "4896d0e06d19ac40b46802cf7dc167d432f3fd63",
+  "libvlcsharp_package_version": "3.10.2-macos.1",
+  "xcode": "16.4",
+  "deployment_target": "11.0"
+}
