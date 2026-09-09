@@ -102,6 +102,9 @@ jobs:
             .macos-work/logs/${{ matrix.rid }}
             .macos-work/${{ matrix.rid }}/vlc/nuget-build/build/config.log
             .macos-work/${{ matrix.rid }}/vlc/nuget-build/build/config.status
+            .macos-work/${{ matrix.rid }}/vlc/contrib/contrib-*/config.mak
+            .macos-work/${{ matrix.rid }}/vlc/contrib/contrib-*/**/config.log
+            .macos-work/${{ matrix.rid }}/vlc/contrib/contrib-*/**/CMakeError.log
           if-no-files-found: warn
 
   loader:

@@ -1,12 +1,15 @@
 --- a/extras/package/apple/build.sh
 +++ b/extras/package/apple/build.sh
-@@ -591,6 +591,9 @@
+@@ -591,6 +591,12 @@
  cd "$VLC_SRC_DIR/extras/tools" || abort_err "Failed cd to tools dir"
  ./bootstrap || abort_err "Bootstrapping tools failed"
  $MAKE || abort_err "Building tools failed"
-+# Install VLC's pinned pkg-config and pkg.m4 together. A host pkg-config
-+# executable can satisfy bootstrap while its macros are absent from our aclocal.
-+$MAKE .buildpkg-config || abort_err "Building pkg-config and its macros failed"
++# Use the pinned Autotools on both runners. Newer host Autoconf can select
++# C23, which rejects legacy C syntax in bundled contribs such as FLAC.
++# Install pkg-config with pkg.m4 even if the host executable satisfied bootstrap.
++for tool in autoconf automake pkg-config; do
++    $MAKE ".build$tool" || abort_err "Building pinned $tool failed"
++done
  if [ $VLC_HOST_ARCH = "armv7" ]; then
  $MAKE .buildgas \
      || abort_err "Building gas-preprocessor tool failed"

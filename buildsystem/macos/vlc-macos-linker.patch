@@ -5,7 +5,25 @@
  
      # Vanilla clang doesn't use VLC_DEPLOYMENT_TAGET_LDFLAGS but only the CFLAGS variant
 -    export LDFLAGS="$VLC_DEPLOYMENT_TARGET_LDFLAG $VLC_DEPLOYMENT_TARGET_CFLAG -arch $VLC_HOST_ARCH ${bitcode_flag}"
-+    export LDFLAGS="$VLC_DEPLOYMENT_TARGET_LDFLAG $VLC_DEPLOYMENT_TARGET_CFLAG -arch $VLC_HOST_ARCH ${bitcode_flag} -Wl,-headerpad_max_install_names"
++    export LDFLAGS="$VLC_DEPLOYMENT_TARGET_LDFLAG $VLC_DEPLOYMENT_TARGET_CFLAG -arch $VLC_HOST_ARCH -isysroot $VLC_APPLE_SDK_PATH ${bitcode_flag} -Wl,-headerpad_max_install_names"
  }
  
  hostenv()
+@@ -374,7 +374,7 @@
+     local vlc_objcflags="$clike_flags"
+ 
+     # Vanilla clang doesn't use VLC_DEPLOYMENT_TAGET_LDFLAGS but only the CFLAGS variant
+-    local vlc_ldflags="$VLC_DEPLOYMENT_TARGET_LDFLAG $VLC_DEPLOYMENT_TARGET_CFLAG  -arch $VLC_HOST_ARCH"
++    local vlc_ldflags="$VLC_DEPLOYMENT_TARGET_LDFLAG $VLC_DEPLOYMENT_TARGET_CFLAG -arch $VLC_HOST_ARCH -isysroot $VLC_APPLE_SDK_PATH -Wl,-headerpad_max_install_names"
+ 
+     echo "Creating makefile..."
+     test -e config.mak && unlink config.mak
+@@ -386,6 +386,8 @@
+     printf '%s := %s\n' "CXXFLAGS" "${vlc_cxxflags}" >&3
+     printf '%s := %s\n' "OBJCFLAGS" "${vlc_objcflags}" >&3
+     printf '%s := %s\n' "LDFLAGS" "${vlc_ldflags}" >&3
++    # Used by contrib SDK-version checks; keep it a make variable, not a global export.
++    printf '%s := %s\n' "SDKROOT" "${VLC_APPLE_SDK_PATH}" >&3
+     printf '%s := %s\n' "CC" "${VLC_HOST_CC}" >&3
+     printf '%s := %s\n' "CPP" "${VLC_HOST_CPP}" >&3
+     printf '%s := %s\n' "CXX" "${VLC_HOST_CXX}" >&3
