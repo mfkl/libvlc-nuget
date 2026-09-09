@@ -100,6 +100,18 @@ def is_system(name):
     return name.startswith(("/usr/lib/", "/System/Library/"))
 
 
+def relocate_library(target, changes):
+    # Keep LC_CODE_SIGNATURE in place while editing. Removing it first can leave
+    # trailing __LINKEDIT padding that Apple's install_name_tool rejects.
+    # The old signature becomes invalid during editing and is replaced below.
+    commands = run("otool", "-l", str(target))
+    arguments = ["-id", "@rpath/" + target.name, *changes]
+    for rpath in re.findall(r"cmd LC_RPATH\s+cmdsize \d+\s+path (.*?) \(offset", commands):
+        arguments.extend(["-delete_rpath", rpath])
+    run("install_name_tool", *arguments, str(target))
+    run("codesign", "--force", "--sign", "-", str(target))
+
+
 def freetype_notices(contrib_build, notices, contrib_values):
     if "freetype2" not in contrib_values["PKGS"].split():
         return
@@ -194,16 +206,7 @@ def stage(source, rid, destination):
             dep_target = copy_library(resolved, library_dir / resolved.name)
             relative = os.path.relpath(dep_target, target.parent).replace(os.sep, "/")
             changes.extend(["-change", dep, "@loader_path/" + relative])
-        # Remove signatures before changing load commands, and sign only the
-        # finished binary. install_name_tool otherwise leaves invalid signatures.
-        subprocess.run(["codesign", "--remove-signature", str(target)], check=False,
-                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        run("install_name_tool", "-id", "@rpath/" + target.name, *changes, str(target))
-        # Remove build-tree LC_RPATH entries; all bundled links are loader-relative.
-        commands = run("otool", "-l", str(target))
-        for rpath in re.findall(r"cmd LC_RPATH\s+cmdsize \d+\s+path (.*?) \(offset", commands):
-            run("install_name_tool", "-delete_rpath", rpath, str(target))
-        run("codesign", "--force", "--sign", "-", str(target))
+        relocate_library(target, changes)
 
     data = installed / "share/vlc"
     if data.exists():

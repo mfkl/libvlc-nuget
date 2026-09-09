@@ -20,6 +20,11 @@ on a branch push under its existing triggers.
 
 The workflow builds each architecture on a native macOS 15 runner with Xcode
 16.4. It retains build logs, matching source archives, and intermediate packages.
+Before building VLC, each Mac runner tests relocation of signed sample dylibs
+through the same helper used by packaging, verifies the resulting signatures,
+and loads the relocated libraries with their bundled dependency. Packaging edits
+load commands with the original signature still present, then replaces that
+signature after all edits; it does not strip signatures before relocation.
 Only after all four playback jobs pass does it create `macos-nuget-validated`, which
 contains the native package and the companion LibVLCSharp preview package.
 

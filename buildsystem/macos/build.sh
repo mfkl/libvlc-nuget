@@ -14,7 +14,8 @@ read_version() { python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))
 TAG=$(read_version vlc_tag)
 COMMIT=$(read_version vlc_commit)
 EXPECTED_XCODE=$(read_version xcode)
-[[ $(xcodebuild -version | head -n 1) == "Xcode $EXPECTED_XCODE" ]] || {
+XCODE_VERSION=$(xcodebuild -version)
+[[ ${XCODE_VERSION%%$'\n'*} == "Xcode $EXPECTED_XCODE" ]] || {
     echo "Select Xcode $EXPECTED_XCODE before building" >&2; exit 1;
 }
 WORK="$ROOT/.macos-work/$RID"

@@ -70,6 +70,8 @@ jobs:
           python-version: '3.11.9'
       - name: Select Xcode
         run: sudo xcode-select --switch /Applications/Xcode_${{ needs.inputs.outputs.xcode }}.app/Contents/Developer
+      - name: Test Mach-O relocation and signing
+        run: python3 -m unittest discover -s buildsystem/macos/tests -p test_macho.py -v
       - name: Cache tools and downloaded sources
         uses: actions/cache@v4
         with:
