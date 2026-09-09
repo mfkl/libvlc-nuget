@@ -21,7 +21,8 @@ unset VLC_PLUGIN_PATH VLC_DATA_PATH DYLD_LIBRARY_PATH DYLD_FALLBACK_LIBRARY_PATH
 # Locally generated, deterministic synthetic media; no external media downloads.
 # FFmpeg is a test-only tool, never a packaging input.
 ffmpeg -hide_banner -loglevel error -f lavfi -i testsrc2=size=64x64:rate=10 \
-    -f lavfi -i sine=frequency=440:sample_rate=48000 -t 2 -c:v mpeg4 -c:a aac "$TESTROOT/fixtures/sample.mp4"
+    -f lavfi -i sine=frequency=440:sample_rate=48000 -t 2 -c:v mpeg4 -c:a aac \
+    -movflags +faststart "$TESTROOT/fixtures/sample.mp4"
 ffmpeg -hide_banner -loglevel error -i "$TESTROOT/fixtures/sample.mp4" -c copy "$TESTROOT/fixtures/sample.mkv"
 rm -f "$TESTROOT/port"
 python3 -u "$ROOT/buildsystem/macos/test-server.py" "$TESTROOT/fixtures" "$TESTROOT/port" > "$TESTROOT/server.log" 2>&1 &
@@ -39,7 +40,7 @@ if [[ ! -s "$TESTROOT/port" ]]; then
 fi
 PORT=$(cat "$TESTROOT/port")
 curl --fail --silent --show-error --max-time 5 "http://127.0.0.1:$PORT/sample.mp4" -o /dev/null
-PROPS=(-p:TargetFramework="$TFM" -p:NativePackageVersion="$(read_version package_version)" -p:LoaderPackageVersion="$(read_version libvlcsharp_package_version)")
+PROPS=(-p:SmokeTargetFramework="$TFM" -p:NativePackageVersion="$(read_version package_version)" -p:LoaderPackageVersion="$(read_version libvlcsharp_package_version)")
 python3 - "$TESTROOT/NuGet.Config" "$ROOT/.macos-work/packages" <<'PY'
 import sys, xml.etree.ElementTree as ET
 config = ET.Element('configuration')
