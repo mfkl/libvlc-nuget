@@ -150,8 +150,8 @@ in publish output. Single-file extraction, NativeAOT, hardened/notarized app
 bundles and the legacy Xamarin.Mac integration require separate validation.
 CI covers ordinary .NET desktop output and ad-hoc-signed modern macOS app bundles.
 The existing Xamarin.Mac copying hook is retained with the full runtime tree,
-but its signing order requires a separate legacy test. All native playback,
-including the modern MAC loader path, remains unverified until CI passes.
+but its signing order requires a separate legacy test. The modern MAC loader
+path is exercised by the `.app` consumer jobs on both architectures.
 
 ## Build configuration and distribution
 
