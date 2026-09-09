@@ -25,12 +25,14 @@ if [[ ! -d "$SOURCE" ]]; then
     git clone --depth 1 --branch "$TAG" https://code.videolan.org/videolan/vlc.git "$SOURCE"
 fi
 [[ $(git -C "$SOURCE" rev-parse HEAD) == "$COMMIT" ]] || { echo 'Unexpected VLC commit' >&2; exit 1; }
-PATCH="$ROOT/buildsystem/macos/vlc-macos-linker.patch"
-if git -C "$SOURCE" apply --check "$PATCH"; then
-    git -C "$SOURCE" apply "$PATCH"
-else
-    git -C "$SOURCE" apply --reverse --check "$PATCH"
-fi
+for patch_name in vlc-macos-linker.patch vlc-macos-tools.patch; do
+    PATCH="$ROOT/buildsystem/macos/$patch_name"
+    if git -C "$SOURCE" apply --check "$PATCH"; then
+        git -C "$SOURCE" apply "$PATCH"
+    else
+        git -C "$SOURCE" apply --reverse --check "$PATCH"
+    fi
+done
 if [[ ! -f "$SOURCE/extras/package/apple/build.conf.upstream" ]]; then
     cp "$SOURCE/extras/package/apple/build.conf" "$SOURCE/extras/package/apple/build.conf.upstream"
 fi

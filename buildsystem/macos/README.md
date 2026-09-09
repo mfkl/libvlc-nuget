@@ -99,7 +99,10 @@ including the modern MAC loader path, remains unverified until CI passes.
 `versions.json` pins source revisions, preview versions and Xcode. `build.conf`
 selects contribs and disables GPL-backed features. `plugins.json` defines required
 and optional distributed modules. `vlc-macos-linker.patch` reserves Mach-O header
-space for relocation of library install names. The build may compile additional VLC modules;
+space for relocation of library install names. `vlc-macos-tools.patch` builds
+VLC's pinned pkg-config tool and its Autoconf macros together, preventing a host
+pkg-config executable from leaving contribs without `pkg.m4`.
+The build may compile additional VLC modules;
 staging ships only the selected ones and audits the source notices of their
 compiled translation units and local convenience libraries. Unknown/GPL notices,
 missing required modules, host dependencies and mixed architectures fail staging.
