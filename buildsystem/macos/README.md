@@ -99,9 +99,11 @@ checks its pinned SHA-256. That package contains **VLC 3.0.4 for x64 only**; upd
 the wrapper cannot add arm64 support to it. The two compatibility jobs exercise
 `net8.0` and `net8.0-macos` on Intel, covering playback with inferred paths,
 explicit paths, constructor initialization, repeated initialization and relocated
-build/publish outputs. Apple tests additionally preload the old dylib from outside
-an app with no bundled VLC files, and ensure an incompatible preloaded major
-version is rejected. Each loading scenario runs in a separate process.
+build/publish outputs. Apple tests additionally resolve the old dylib through an
+external runtime library search path in an app with no bundled VLC files, and
+ensure an incompatible major version found that way is rejected. Only these
+external-resolution tests set `DYLD_LIBRARY_PATH`; ordinary package consumers
+run with library-path overrides cleared. Each scenario runs in a separate process.
 
 The new split native package is still tested on both architectures and both TFMs.
 Legacy Xamarin.Mac applications and other historical native distributions are not

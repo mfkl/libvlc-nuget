@@ -45,20 +45,18 @@ switch (initialization)
         Core.Initialize();
         break;
 #if MACOS
-    case "preloaded":
-    case "preloaded-incompatible":
+    case "runtime-resolved":
+    case "runtime-incompatible":
         if (!legacy || legacyNative.StartsWith(AppContext.BaseDirectory, StringComparison.Ordinal)
                     || Directory.GetFiles(Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..")),
                                           "libvlc*.dylib", SearchOption.AllDirectories).Length != 0)
-            throw new Exception("Preload check must have no bundled VLC libraries");
-        if (Dyld.Dlopen(legacyNative, 1) == IntPtr.Zero)
-            throw new Exception("Could not preload legacy native library");
-        if (initialization == "preloaded-incompatible")
+            throw new Exception("Runtime resolution check must have no bundled VLC libraries");
+        if (initialization == "runtime-incompatible")
         {
             try { Core.Initialize(); }
             catch (VLCException error) when (error.Message.StartsWith("Version mismatch", StringComparison.Ordinal))
             {
-                Console.WriteLine($"PASS {target} {rid}: rejected preloaded incompatible VLC");
+                Console.WriteLine($"PASS {target} {rid}: rejected incompatible VLC from runtime search path");
                 return;
             }
             throw new Exception("Initialization accepted an incompatible VLC major version");
@@ -130,8 +128,6 @@ Console.WriteLine($"PASS {target} {rid} {initialization}: {vlc.Version}");
 
 static class Dyld
 {
-    [DllImport("/usr/lib/libSystem.B.dylib", EntryPoint = "dlopen")]
-    internal static extern IntPtr Dlopen(string path, int mode);
     [DllImport("/usr/lib/libSystem.B.dylib", EntryPoint = "_dyld_image_count")]
     internal static extern uint ImageCount();
     [DllImport("/usr/lib/libSystem.B.dylib", EntryPoint = "_dyld_get_image_name")]

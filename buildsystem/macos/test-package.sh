@@ -126,24 +126,25 @@ if [[ "$TFM" == net8.0-macos ]]; then
         fi
     done
     if [[ "$PACKAGE_KIND" == legacy ]]; then
-        # Model an existing Apple app that preloads VLC from outside its bundle.
+        # Model an existing Apple app that resolves VLC through a runtime search path.
         # Excluding native assets ensures discovery cannot accidentally pass.
         dotnet build "$TESTROOT/Smoke.csproj" "${PROPS[@]}" -c Release -r "$RID" \
             --self-contained true -p:SmokeExcludeNativeAssets=true \
-            -p:OutputPath="$TESTROOT/preloaded/" -p:PublishDir="$TESTROOT/preloaded/" \
-            -bl:"$TESTROOT/preloaded.binlog"
-        codesign --verify --deep --strict "$TESTROOT/preloaded/Smoke.app"
-        mv "$TESTROOT/preloaded" "$TESTROOT/relocated-preloaded"
+            -p:OutputPath="$TESTROOT/runtime-only/" -p:PublishDir="$TESTROOT/runtime-only/" \
+            -bl:"$TESTROOT/runtime-only.binlog"
+        codesign --verify --deep --strict "$TESTROOT/runtime-only/Smoke.app"
+        mv "$TESTROOT/runtime-only" "$TESTROOT/relocated-runtime-only"
         export SMOKE_LEGACY_NATIVE="$NUGET_PACKAGES/videolan.libvlc.mac/$NATIVE_VERSION/build/osx-x64/libvlc.dylib"
-        SMOKE_INITIALIZATION=preloaded play "$TESTROOT/relocated-preloaded/Smoke.app/Contents/MacOS/Smoke"
+        SMOKE_INITIALIZATION=runtime-resolved DYLD_LIBRARY_PATH="$(dirname "$SMOKE_LEGACY_NATIVE")" play "$TESTROOT/relocated-runtime-only/Smoke.app/Contents/MacOS/Smoke"
         mkdir -p "$TESTROOT/incompatible"
         # A missing library permits discovery; an incompatible loaded library must fail.
         echo 'const char *libvlc_get_version(void) { return "4.0.0 test"; }' > "$TESTROOT/incompatible/version.c"
         xcrun clang -dynamiclib -arch x86_64 "$TESTROOT/incompatible/version.c" \
             -Wl,-install_name,libvlc.dylib -o "$TESTROOT/incompatible/libvlc.dylib"
         codesign --force --sign - "$TESTROOT/incompatible/libvlc.dylib"
-        SMOKE_LEGACY_NATIVE="$TESTROOT/incompatible/libvlc.dylib" SMOKE_INITIALIZATION=preloaded-incompatible \
-            play "$TESTROOT/relocated-preloaded/Smoke.app/Contents/MacOS/Smoke"
+        SMOKE_LEGACY_NATIVE="$TESTROOT/incompatible/libvlc.dylib" SMOKE_INITIALIZATION=runtime-incompatible \
+            DYLD_LIBRARY_PATH="$TESTROOT/incompatible" \
+            play "$TESTROOT/relocated-runtime-only/Smoke.app/Contents/MacOS/Smoke"
     fi
     exit 0
 fi
