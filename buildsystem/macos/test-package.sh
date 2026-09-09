@@ -59,9 +59,12 @@ play() {
 if [[ "$TFM" == net8.0-macos ]]; then
     # A single explicit RID prevents the Apple SDK from producing a universal app.
     # Execute the actual SDK-generated apphost for both build and publish output.
+    # Apple publish builds the app in OutputPath; -o only selects the .pkg folder.
     for mode in build publish; do
         dotnet "$mode" "$TESTROOT/Smoke.csproj" "${PROPS[@]}" -c Release \
-            -r "$RID" --self-contained true -o "$TESTROOT/$mode" -bl:"$TESTROOT/$mode.binlog"
+            -r "$RID" --self-contained true -p:CreatePackage=false \
+            -p:OutputPath="$TESTROOT/$mode/" -p:PublishDir="$TESTROOT/$mode/" \
+            -bl:"$TESTROOT/$mode.binlog"
         APP="$TESTROOT/$mode/Smoke.app"
         test -x "$APP/Contents/MacOS/Smoke"
         RUNTIME="$APP/Contents/MonoBundle/libvlc"
