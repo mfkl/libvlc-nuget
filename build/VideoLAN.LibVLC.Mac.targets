@@ -1,19 +1,48 @@
-<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-    <!-- net4.x and netcoreapp targets -->
-    <ItemGroup Condition="$(TargetFramework.StartsWith('net'))">
-        <Content Include="$(MSBuildThisFileDirectory)osx-x64\libvlc.dylib">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
-    </ItemGroup>
-
-    <!-- xamarin.mac target -->
-    <PropertyGroup>
-        <CreateAppBundleDependsOn>$(CreateAppBundleDependsOn);CopyLibvlcDylib</CreateAppBundleDependsOn>
-    </PropertyGroup>
-	<Target Name="CopyLibvlcDylib" 
-        Inputs="$(MSBuildThisFileDirectory)osx-x64\libvlc.dylib"
-        Outputs="$(AppBundleDir)/Contents/MonoBundle/libvlc.dylib">
-            <Message Text="Copying libvlc.dylib to appbundle..." />
-            <Copy SourceFiles="$(MSBuildThisFileDirectory)osx-x64\libvlc.dylib" DestinationFiles="$(AppBundleDir)/Contents/MonoBundle/libvlc.dylib" />
-    </Target>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <VlcMacEnabled Condition="'$(VlcMacEnabled)' == ''">true</VlcMacEnabled>
+    <!-- Apple adds Content directly to publish items; the .NET SDK uses FullPath.
+         Use one canonical identity so both paths refer to the same item. -->
+    <_VlcMacPackageRoot>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)..\build\macos\'))</_VlcMacPackageRoot>
+    <_VlcMacPortable Condition="'$(RuntimeIdentifier)' == ''">true</_VlcMacPortable>
+    <!-- A universal Apple app runs one inner build per RID from an outer build.
+         The outer build records all Content as processed and the inner builds
+         remove it, yet only inner builds bundle files. Contribute the native
+         trees from RID-specific builds only. -->
+    <_VlcMacAppleOuterBuild Condition="$(TargetFramework.Contains('-macos')) And '$(RuntimeIdentifiers)' != '' And '$(RuntimeIdentifier)' == ''">true</_VlcMacAppleOuterBuild>
+  </PropertyGroup>
+  <!-- Explicit Content preserves VLC's plugin/data hierarchy. NuGet's native
+       asset copying flattens subdirectories and is unsuitable for this tree. -->
+  <ItemGroup Condition="'$(VlcMacEnabled)' == 'true' And '$(_VlcMacAppleOuterBuild)' != 'true' And '@(_VlcMacRuntime)' == ''">
+    <_VlcMacRuntime Include="$(_VlcMacPackageRoot)osx-x64\**\*"
+                    Condition="'$(_VlcMacPortable)' == 'true' Or '$(RuntimeIdentifier)' == 'osx-x64'">
+      <VlcRid>osx-x64</VlcRid>
+      <Link>libvlc\osx-x64\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </_VlcMacRuntime>
+    <_VlcMacRuntime Include="$(_VlcMacPackageRoot)osx-arm64\**\*"
+                    Condition="'$(_VlcMacPortable)' == 'true' Or '$(RuntimeIdentifier)' == 'osx-arm64'">
+      <VlcRid>osx-arm64</VlcRid>
+      <Link>libvlc\osx-arm64\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </_VlcMacRuntime>
+    <Content Include="@(_VlcMacRuntime)">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <!-- The Apple SDK uses Link within its assembly directory (normally
+           Contents/MonoBundle), which is also the loader's base directory.
+           Explicit classification prevents resource placement or dylib flattening. -->
+      <PublishFolderType Condition="$(TargetFramework.Contains('-macos'))">Assembly</PublishFolderType>
+      <Visible>false</Visible>
+      <Pack>false</Pack>
+    </Content>
+  </ItemGroup>
+  <!-- Preserve Xamarin.Mac bundle copying before app signing. Modern .NET
+       macOS uses the Apple SDK's Content/PublishFolderType integration above. -->
+  <PropertyGroup Condition="'$(VlcMacEnabled)' == 'true' And $(TargetFramework.StartsWith('xamarin.mac'))">
+    <CreateAppBundleDependsOn>$(CreateAppBundleDependsOn);CopyLibvlcDylib</CreateAppBundleDependsOn>
+  </PropertyGroup>
+  <Target Name="CopyLibvlcDylib" Condition="'$(VlcMacEnabled)' == 'true' And '$(AppBundleDir)' != '' And $(TargetFramework.StartsWith('xamarin.mac'))">
+    <Copy SourceFiles="@(_VlcMacRuntime)"
+          DestinationFiles="@(_VlcMacRuntime->'$(AppBundleDir)/Contents/MonoBundle/libvlc/%(VlcRid)/%(RecursiveDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true" />
+  </Target>
 </Project>
