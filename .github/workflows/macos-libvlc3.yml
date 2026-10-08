@@ -1,0 +1,214 @@
+name: macOS LibVLC 3 (LGPL)
+
+on:
+  workflow_dispatch:
+    inputs:
+      native_run_id:
+        description: 'Reuse both native archives from this run ID; leave empty to build VLC'
+        type: string
+        required: false
+        default: ''
+  push:
+    paths:
+      - '.github/workflows/macos-libvlc3.yml'
+      - 'buildsystem/macos/**'
+      - 'test/macos/**'
+      - 'build/VideoLAN.LibVLC.Mac.targets'
+      - 'VideoLAN.LibVLC.Mac.nuspec'
+
+permissions:
+  contents: read
+
+env:
+  # Temporary: LibVLCSharp with the macOS loader fix, until it is merged upstream.
+  LIBVLCSHARP_REPO: https://github.com/mfkl/libvlcsharp.git
+  LIBVLCSHARP_BRANCH: fix/macos-native-loading-compat
+  LIBVLCSHARP_VERSION: 3.10.2-macos.1
+
+concurrency:
+  group: macos-libvlc3-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  inputs:
+    runs-on: ubuntu-latest
+    outputs:
+      vlc_commit: ${{ steps.versions.outputs.vlc_commit }}
+      xcode: ${{ steps.versions.outputs.xcode }}
+    steps:
+      - uses: actions/checkout@v6
+      - id: versions
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json, os
+          with open('buildsystem/macos/versions.json') as f:
+              versions = json.load(f)
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              for key, value in versions.items():
+                  print(f'{key}={value}', file=f)
+          PY
+
+  native:
+    needs: inputs
+    if: ${{ !inputs.native_run_id }}
+    name: Build ${{ matrix.rid }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - rid: osx-x64
+            runner: macos-15-intel
+          - rid: osx-arm64
+            runner: macos-15
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/checkout@v6
+        with:
+          repository: videolan/vlc
+          ref: ${{ needs.inputs.outputs.vlc_commit }}
+          path: .macos-work/${{ matrix.rid }}/vlc
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11.9'
+      - name: Select Xcode
+        run: sudo xcode-select --switch /Applications/Xcode_${{ needs.inputs.outputs.xcode }}.app/Contents/Developer
+      - name: Cache tools and downloaded sources
+        uses: actions/cache@v4
+        with:
+          path: |
+            .macos-work/${{ matrix.rid }}/vlc/extras/tools/build
+            .macos-work/${{ matrix.rid }}/vlc/contrib/tarballs
+          key: macos-v1-${{ matrix.rid }}-${{ env.ImageVersion }}-${{ needs.inputs.outputs.xcode }}-${{ hashFiles('buildsystem/macos/**') }}
+      - name: Build and verify LGPL runtime
+        run: bash buildsystem/macos/build.sh ${{ matrix.rid }}
+      - uses: actions/upload-artifact@v7
+        with:
+          include-hidden-files: true
+          name: native-${{ matrix.rid }}
+          path: .macos-work/${{ matrix.rid }}.tar.gz
+          if-no-files-found: error
+      - name: Upload build diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          include-hidden-files: true
+          name: logs-${{ matrix.rid }}
+          path: |
+            .macos-work/logs/${{ matrix.rid }}
+            .macos-work/${{ matrix.rid }}/vlc/nuget-build/build/config.log
+            .macos-work/${{ matrix.rid }}/vlc/nuget-build/build/config.status
+            .macos-work/${{ matrix.rid }}/vlc/contrib/contrib-*/config.mak
+            .macos-work/${{ matrix.rid }}/vlc/contrib/contrib-*/**/config.log
+            .macos-work/${{ matrix.rid }}/vlc/contrib/contrib-*/**/CMakeError.log
+          if-no-files-found: warn
+
+  loader:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: |
+            10.0.302
+            8.0.424
+      - name: Install Apple workload
+        working-directory: test/macos
+        run: |
+          # .NET 8 macOS SDK 15.0.8303 requires Xcode 16.0. Resolve the symlinked
+          # path, see https://github.com/dotnet/macios/issues/21762
+          sudo xcode-select --switch "$(cd /Applications/Xcode_16.0.app/Contents/Developer && pwd -P)"
+          dotnet workload install macos --version 8.0.402.1
+      - name: Pack LibVLCSharp
+        run: |
+          git clone --depth 1 --branch "$LIBVLCSHARP_BRANCH" "$LIBVLCSHARP_REPO" .macos-work/libvlcsharp
+          cp test/macos/global.json .macos-work/libvlcsharp/global.json
+          cd .macos-work/libvlcsharp
+          dotnet pack src/LibVLCSharp/LibVLCSharp.csproj -c Release \
+            -p:TargetFrameworks='"net8.0;net8.0-macos"' -p:GeneratePackageOnBuild=false \
+            -p:PackageVersion="$LIBVLCSHARP_VERSION" -o ../packages
+      - uses: actions/upload-artifact@v7
+        with:
+          include-hidden-files: true
+          name: companion-loader
+          path: .macos-work/packages/*.nupkg
+          if-no-files-found: error
+
+  package:
+    needs: [inputs, native]
+    if: ${{ !cancelled() && needs.inputs.result == 'success' && (needs.native.result == 'success' || (inputs.native_run_id && needs.native.result == 'skipped')) }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: native-osx-*
+          merge-multiple: true
+          path: .macos-work/archives
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.native_run_id || github.run_id }}
+      - name: Extract runtime trees
+        run: |
+          mkdir -p build/macos
+          for rid in osx-x64 osx-arm64; do
+            tar -xzf ".macos-work/archives/$rid.tar.gz" -C build/macos
+          done
+      - name: Install Mono
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y mono-complete
+      - uses: nuget/setup-nuget@v3
+        with:
+          nuget-version: '6.14.0'
+      - name: Pack both architectures
+        run: nuget pack VideoLAN.LibVLC.Mac.nuspec -OutputDirectory .macos-work/packages
+      - uses: actions/upload-artifact@v7
+        with:
+          include-hidden-files: true
+          name: macos-nuget
+          path: .macos-work/packages/*.nupkg
+          if-no-files-found: error
+
+  test:
+    needs: [package, loader]
+    if: ${{ !cancelled() && needs.package.result == 'success' && needs.loader.result == 'success' }}
+    name: Test ${{ matrix.tfm }} on ${{ matrix.rid }}
+    strategy:
+      fail-fast: false
+      matrix:
+        tfm: [net8.0, net8.0-macos]
+        rid: [osx-x64, osx-arm64]
+        include:
+          - rid: osx-x64
+            runner: macos-15-intel
+          - rid: osx-arm64
+            runner: macos-15
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: |
+            10.0.302
+            8.0.424
+      - name: Install Apple workload
+        if: matrix.tfm == 'net8.0-macos'
+        working-directory: test/macos
+        run: |
+          sudo xcode-select --switch "$(cd /Applications/Xcode_16.0.app/Contents/Developer && pwd -P)"
+          dotnet workload install macos --version 8.0.402.1
+      - uses: actions/download-artifact@v8
+        with:
+          name: macos-nuget
+          path: .macos-work/packages
+      - uses: actions/download-artifact@v8
+        with:
+          name: companion-loader
+          path: .macos-work/packages
+      - name: Build and run smoke test
+        run: bash test/macos/test.sh ${{ matrix.rid }} ${{ matrix.tfm }} .macos-work/packages
