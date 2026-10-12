@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Packs VideoLAN.LibVLC.Mac.nuspec with dotnet pack; nothing is built. -->
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <!-- Do not compile the smoke test or anything else below the repository root. -->
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <NuspecFile>VideoLAN.LibVLC.Mac.nuspec</NuspecFile>
+    <NuspecBasePath>$(MSBuildProjectDirectory)</NuspecBasePath>
+  </PropertyGroup>
+</Project>

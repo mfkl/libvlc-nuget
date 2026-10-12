@@ -1,0 +1,6 @@
+VideoLAN.LibVLC.Mac 3.1.3.2
+===========================
+* [BREAKING CHANGE] Requires LibVLCSharp 3.10.2 or later: libvlc now ships per architecture in libvlc/osx-x64/lib and libvlc/osx-arm64/lib, which older LibVLCSharp versions cannot load.
+* Repackage the official VLC 3.0.24 macOS releases, adding native Apple Silicon (arm64) support.
+* Add VideoLAN.LibVLC.Mac.GPL, which includes the GPL plugins.
+* Support portable, RID-specific and universal .NET macOS apps and Xamarin.Mac.

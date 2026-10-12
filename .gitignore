@@ -48,3 +48,5 @@ x64
 x64.7z
 x86
 x86.7z
+#Repackaged macOS runtimes
+build/macos/
