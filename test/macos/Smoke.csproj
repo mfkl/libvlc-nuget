@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <!-- Restore reevaluates without a global TargetFramework, so select it here. -->
+    <SmokeTargetFramework Condition="'$(SmokeTargetFramework)' == ''">net8.0</SmokeTargetFramework>
+    <TargetFramework>$(SmokeTargetFramework)</TargetFramework>
+    <SmokeLibVLCPackage Condition="'$(SmokeLibVLCPackage)' == ''">VideoLAN.LibVLC.Mac</SmokeLibVLCPackage>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <PropertyGroup Condition="$(TargetFramework.Contains('-macos'))">
+    <!-- The minimum for net9.0-macos. -->
+    <SupportedOSPlatformVersion>12.0</SupportedOSPlatformVersion>
+    <ApplicationId>org.videolan.libvlcnuget.smoke</ApplicationId>
+    <CodesignKey>-</CodesignKey>
+    <UseHardenedRuntime>false</UseHardenedRuntime>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="$(SmokeLibVLCPackage)" Version="*-*" />
+    <PackageReference Include="LibVLCSharp" Version="*-*" />
+  </ItemGroup>
+</Project>
